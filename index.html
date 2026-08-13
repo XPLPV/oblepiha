@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ЖК «Облепиха» — продажи</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f1efe9;
+  --surface-2: #e6e3da;
+  --border: #d8d5cb;
+  --border-strong: #b7b3a5;
+  --text-primary: #2a2a26;
+  --text-secondary: #6b6960;
+  --text-muted: #93908a;
+  --accent-muted: #4a6f8e;
+  --slider-fill: #6f7d92;
+  --slider-track: #e3e1d8;
+  --pick-color: #cf4040;
+  --dim-opacity: 0.2;
+  --tile-base: #ffffff;
+  --price-lo: rgb(230,241,251);
+  --price-hi: rgb(4,44,83);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+#app {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 24px 32px 64px;
+}
+
+h1 { margin: 0; font-size: 24px; font-weight: 600; }
+h2 { font-size: 17px; font-weight: 600; margin: 0 0 26px; }
+
+button { font-family: inherit; }
+button:focus { outline: none; }
+button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1px; }
+
+.num { display: inline-block; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- Header ---------- */
+.header { margin-bottom: 30px; }
+.address { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+
+/* ---------- Quarters section ---------- */
+.quarters-section { margin-bottom: 40px; }
+
+.slider-row { display: flex; align-items: center; margin-bottom: 22px; }
+.spacer-16 { width: 16px; flex-shrink: 0; }
+.play-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--border-strong); background: var(--surface);
+  cursor: pointer; font-size: 14px; margin: 0; padding: 0; flex-shrink: 0;
+}
+.play-btn:hover { background: var(--surface-2); }
+
+.date-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 3px;
+  outline: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+.date-slider::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: transparent; }
+.date-slider::-moz-range-track { height: 5px; border-radius: 3px; background: var(--slider-track); border: none; }
+.date-slider::-moz-range-progress { background: var(--slider-fill); height: 5px; border-radius: 3px; border: none; }
+.date-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--slider-fill);
+  margin-top: -5.5px;
+  cursor: pointer;
+  border: none;
+}
+.date-slider::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--slider-fill);
+  cursor: pointer;
+  border: none;
+}
+.date-label-big { font-size: 20px; font-weight: 700; min-width: 140px; text-align: right; margin: 0; flex-shrink: 0; position: relative; top: -2px; }
+
+.stats-row { display: flex; align-items: flex-start; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.stat-block-sold { width: 280px; flex-shrink: 0; }
+.stat-block-revenue { width: 180px; flex-shrink: 0; }
+.stat-label { font-size: 17px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 400; }
+.stat-value { font-size: 26px; font-weight: 700; white-space: nowrap; }
+.stat-pct { font-size: 26px; font-weight: 700; }
+
+.price-scale { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.ps-label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+.ps-bar { width: 140px; height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--price-lo), var(--price-hi)); }
+
+/* ---------- Grid (shahmatka), pure CSS Grid with FIXED column widths ---------- */
+.grid-table {
+  display: grid;
+  row-gap: 2px;
+  column-gap: 0;
+  align-items: end;
+  justify-items: stretch;
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.axis-caption {
+  font-size: 11px; color: var(--text-secondary); font-weight: 600;
+  width: 100%; text-align: left; align-self: end; padding-bottom: 4px;
+}
+
+.axis-square {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; border: none; background: none; margin: 0; padding: 0;
+  cursor: pointer; color: var(--text-secondary); border-radius: 3px;
+  justify-self: end;
+  position: relative; z-index: 1;
+}
+.axis-square.active { background: var(--accent-muted); color: #fff; font-weight: 600; }
+.floor-square { justify-self: start; }
+
+.group-title { font-weight: 600; font-size: 15px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; text-align: right; overflow: visible; }
+.gt-label { margin-right: 7px; }
+.gt-money { color: var(--text-secondary); font-weight: 400; margin-left: 7px; }
+
+.room-brackets { display: flex; gap: 2px; align-self: start; justify-self: start; position: relative; z-index: 1; }
+.room-bracket { display: flex; flex-direction: column; align-items: center; }
+.bracket-shape {
+  width: 100%; height: 7px;
+  border: 2px solid var(--border-strong);
+  border-top: none;
+  margin-bottom: 1px;
+}
+
+.tiles { display: flex; gap: 2px; height: 100%; align-items: center; justify-self: start; position: relative; z-index: 1; }
+.tile {
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--tile-base);
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+.tile-empty { flex-shrink: 0; }
+.tile.dim { opacity: var(--dim-opacity); }
+.tile.picked { outline: 3px solid var(--pick-color); outline-offset: 0; z-index: 3; }
+.tile-fill { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; }
+
+.hover-lane-row { align-self: stretch; background: transparent; border-radius: 3px; z-index: 2; pointer-events: none; }
+.hover-lane-row.visible { background: rgba(241, 239, 233, 0.25); }
+.hover-lane-col { align-self: stretch; background: transparent; border-radius: 3px; z-index: 2; pointer-events: none; }
+.hover-lane-col.visible { background: rgba(241, 239, 233, 0.25); }
+
+/* ---------- Filters ---------- */
+.filters-section { display: flex; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.filters-label { font-size: 13px; color: var(--text-secondary); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  padding: 6px 14px 10px;
+  border-radius: 16px; border: 1px solid var(--border-strong);
+  background: var(--surface); cursor: pointer; font-size: 13px; color: var(--text-primary);
+  font-weight: 400; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.chip:hover { background: var(--surface-2); }
+.chip.active { background: var(--accent-muted); border-color: var(--accent-muted); color: #fff; }
+
+/* ---------- Revenue by day ---------- */
+.revenue-section { margin-bottom: 40px; }
+.revenue-chart-wrap { display: flex; }
+.revenue-y-axis { position: relative; width: 44px; flex-shrink: 0; }
+.revenue-unit-label { position: absolute; top: -18px; left: 0; width: 44px; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; }
+.y-tick { position: absolute; left: 0; width: 44px; text-align: right; font-size: 11px; color: var(--text-secondary); transform: translateY(50%); }
+.revenue-chart {
+  flex: 1; display: flex; align-items: flex-end; gap: 0;
+  border-bottom: 1px solid var(--border-strong); position: relative; min-width: 0;
+  margin-left: 6px;
+}
+.revenue-day { flex: 1 1 0; display: flex; align-items: flex-end; min-width: 1px; }
+.revenue-col { width: 100%; display: flex; flex-direction: column-reverse; overflow: hidden; }
+.rev-tile { width: 100%; flex-shrink: 0; transition: opacity 0.15s; cursor: pointer; position: relative; }
+.rev-tile.dim { opacity: var(--dim-opacity); }
+.rev-tile.picked { outline: 2px solid var(--pick-color); outline-offset: -1px; z-index: 3; }
+.revenue-x-axis-row { display: flex; align-items: flex-start; margin-top: 4px; }
+.revenue-x-caption { width: 44px; font-size: 11px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; line-height: 14px; margin: 0; }
+.revenue-x-axis { position: relative; flex: 1; height: 28px; font-size: 11px; color: var(--text-secondary); margin-left: 6px; }
+.x-tick { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 0; line-height: 14px; }
+.x-tick-active { top: 14px; }
+
+/* ---------- Managers ---------- */
+.managers-section { margin-bottom: 24px; }
+.manager-row { display: flex; align-items: flex-start; gap: 14px; padding: 6px 0; }
+.manager-name { width: 56px; font-size: 15px; font-weight: 700; flex-shrink: 0; line-height: 18px; }
+.manager-body { flex: 1; min-width: 0; }
+.manager-stats { display: flex; gap: 16px; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; flex-wrap: wrap; line-height: 18px; }
+.manager-stats b { color: var(--text-primary); font-size: 14px; font-weight: 700; }
+.manager-chart { display: flex; align-items: flex-end; width: 100%; height: 60px; }
+.m-tile {
+  position: relative; height: 60px; flex-shrink: 0; overflow: hidden;
+  background: var(--tile-base);
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+.m-tile.hidden { cursor: default; }
+.m-tile.dim { opacity: var(--dim-opacity); }
+.m-tile.picked { outline: 3px solid var(--pick-color); outline-offset: 0; z-index: 3; }
+.m-tile-fill { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; }
+
+@media (max-width: 900px) {
+  #app { padding: 16px; }
+  .grid-table { overflow-x: auto; }
+  .manager-chart { overflow-x: auto; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="header">
+    <h1>ЖК «Облепиха»</h1>
+    <div class="address">Новосибирск, ул. Сиреневая, д. 1</div>
+  </header>
+
+  <section class="quarters-section">
+
+    <div class="slider-row">
+      <button class="play-btn" @click="togglePlay" :title="playing ? 'Пауза' : 'Воспроизвести'">
+        <span v-if="!playing">▶</span><span v-else>⏸</span>
+      </button>
+      <div class="spacer-16"></div>
+      <input type="range" class="date-slider" min="0" :max="totalDays" v-model.number="dayIdx"
+             :style="{background: 'linear-gradient(to right, var(--slider-fill) ' + sliderPct + '%, var(--slider-track) ' + sliderPct + '%)'}">
+      <div class="spacer-16"></div>
+      <div class="date-label date-label-big">{{ currentDateLabel }}</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-block stat-block-sold">
+        <div class="stat-label">Продано</div>
+        <div class="stat-value"><span class="num" style="min-width:2.6ch">{{ soldCountFiltered }}</span> из <span class="num" style="min-width:2.6ch">{{ totalCountFiltered }}</span> <span class="stat-pct">(<span class="num" style="min-width:2ch">{{ pctSoldFiltered }}</span>%)</span></div>
+      </div>
+      <div class="stat-block stat-block-revenue">
+        <div class="stat-label">Выручка</div>
+        <div class="stat-value"><span class="num" style="min-width:5.5ch">{{ fmtMoney(revenueFiltered) }}</span> млн ₽</div>
+      </div>
+      <div class="price-scale">
+        <span class="ps-label">{{ priceScaleMin }} млн ₽</span>
+        <div class="ps-bar"></div>
+        <span class="ps-label">{{ priceScaleMax }} млн ₽</span>
+      </div>
+    </div>
+
+    <div class="grid-table" :style="{gridTemplateColumns: gridTemplateColumns}">
+
+      <div v-for="lane in floorLanes" :key="lane.key" class="hover-lane-row" :class="{visible: hoverFloor===lane.floor}" :style="floorLaneStyle(lane)"></div>
+      <div v-for="lane in roomLanes" :key="lane.key" class="hover-lane-col" :class="{visible: hoverRoom===lane.room}" :style="roomLaneStyle(lane)"></div>
+
+      <template v-for="cell in gridCells" :key="cell.key">
+
+        <div v-if="cell.kind==='axis-caption-floors'" class="axis-caption" :style="cellStyle(cell)">Этажи</div>
+
+        <div v-else-if="cell.kind==='axis-caption-rooms'" class="axis-caption" :style="cellStyle(cell)">Комнаты</div>
+
+        <button v-else-if="cell.kind==='floor-label'"
+                class="axis-square floor-square" :class="{active: activeFloors.includes(cell.floor)}"
+                :style="cellStyle(cell)"
+                @click="toggleFloor(cell.floor)"
+                @mouseenter="setHoverFloor(cell.floor)" @mouseleave="clearHoverFloor">{{ cell.floor }}</button>
+
+        <div v-else-if="cell.kind==='gp4agg'" class="group-title" :style="cellStyle(cell)">
+          <span class="gt-label">ГП4</span><span class="num" style="min-width:2.4ch">{{ gp4AggStat().count }}</span> (<span class="num" style="min-width:2ch">{{ gp4AggStat().pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(gp4AggStat().revenue) }}</span> млн ₽</span>
+        </div>
+
+        <div v-else-if="cell.kind==='title'" class="group-title" :style="titleStyle(cell)">
+          <span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="num" style="min-width:2.4ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:2ch">{{ titleStat(cell.group).pct }}</span>%)<span v-if="!isGp4Sub(cell.group)" class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(titleStat(cell.group).revenue) }}</span> млн ₽</span>
+        </div>
+
+        <div v-else-if="cell.kind==='brackets'" class="room-brackets" :style="cellStyle(cell)">
+          <div v-for="rb in roomBracketsFor(cell.group)" :key="rb.room"
+               class="room-bracket"
+               :style="{width: (rb.count * (tileSize+gap) - gap) + 'px'}"
+               @mouseenter="setHoverRoom(rb.room)" @mouseleave="clearHoverRoom">
+            <div class="bracket-shape"></div>
+            <button class="axis-square"
+                    :class="{active: activeRooms.includes(rb.room)}"
+                    @click="toggleRooms(rb.room)">{{ rb.room }}</button>
+          </div>
+        </div>
+
+        <div v-else-if="cell.kind==='tiles'" class="tiles" :style="cellStyle(cell)">
+          <template v-for="(slot, idx) in slotsFor(cell.group, cell.floor)" :key="idx">
+            <div v-if="slot.apt" class="tile"
+                 :class="tileClass(slot.apt)"
+                 :style="tileStyle(slot.apt)"
+                 :title="tileTitle(slot.apt)"
+                 @click="pickTile(slot.apt.id)">
+              <div class="tile-fill" :style="fillStyle(slot.apt)"></div>
+            </div>
+            <div v-else class="tile-empty" :style="{width: tileSize+'px', height: tileSize+'px'}"></div>
+          </template>
+        </div>
+
+      </template>
+    </div>
+
+    <div class="filters-section">
+      <div class="filters-label">Вид из окна:</div>
+      <div class="chips">
+        <button v-for="v in viewsList" :key="v.value"
+                class="chip"
+                :class="{active: activeView===v.value}"
+                @click="toggleView(v.value)">{{ v.label }}</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="revenue-section">
+    <h2>Динамика выручки по дням</h2>
+    <div class="revenue-chart-wrap">
+      <div class="revenue-y-axis" :style="{height: revenueChartHeight+'px'}">
+        <div class="revenue-unit-label">млн ₽</div>
+        <div v-for="t in revenueYTicks" :key="t" class="y-tick" :style="{bottom: (t/revenueMaxDay*revenueChartHeight)+'px'}">{{ t }}</div>
+      </div>
+      <div class="revenue-chart" :style="{height: revenueChartHeight+'px'}">
+        <div class="revenue-day" v-for="d in revenueDays" :key="d.date">
+          <div class="revenue-col" :style="{height: d.revealed ? (d.netTotal*revenuePxPerMillion)+'px' : '0px'}">
+            <div v-for="apt in d.deals" :key="apt.id"
+                 class="rev-tile"
+                 :class="revTileClass(apt)"
+                 :style="revTileStyle(apt)"
+                 :title="tileTitle(apt)"
+                 @click="pickTile(apt.id)"
+                 @mouseenter="hoverRevDate = d.date"
+                 @mouseleave="hoverRevDate = null"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="revenue-x-axis-row">
+      <div class="revenue-x-caption">Дата</div>
+      <div class="revenue-x-axis">
+        <span v-for="t in revenueXTicks" :key="t.label" class="x-tick" :style="{left: t.leftPct}">{{ t.label }}</span>
+        <span v-if="activeRevTick" class="x-tick x-tick-active" :style="{left: activeRevTick.leftPct}">{{ activeRevTick.label }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="managers-section">
+    <h2>Эффективность менеджеров</h2>
+    <div class="manager-row" v-for="m in managersList" :key="m">
+      <div class="manager-name">{{ m }}</div>
+      <div class="manager-body">
+        <div class="manager-stats">
+          <span class="m-stat"><b class="num" style="min-width:2.2ch">{{ managerStats(m).count }}</b> кв.</span>
+          <span class="m-stat"><b class="num" style="min-width:5ch">{{ fmtMoney(managerStats(m).sum) }}</b> млн ₽</span>
+          <span class="m-stat"><b class="num" style="min-width:3.4ch">{{ managerStats(m).avgDisc }}%</b> ср. скидка</span>
+          <span class="m-stat"><b class="num" style="min-width:1.6ch">{{ managerStats(m).avgDays }}</b> дн. ср. сделка</span>
+        </div>
+        <div class="manager-chart">
+          <div v-for="apt in managerDeals(m)" :key="apt.id"
+               class="m-tile"
+               :class="managerTileClass(apt)"
+               :style="managerTileStyle(apt)"
+               :title="tileTitle(apt)"
+               @click="pickTile(apt.id)">
+            <div class="m-tile-fill" :style="fillStyle(apt)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script>
+const APARTMENTS = [{"id": 0, "corpus": "ГП1", "group": "ГП1", "floor": 1, "rooms": 2, "view": "на дорогу", "listPrice": 1.729, "sold": true, "appeal": "2022-07-27", "close": "2022-07-29", "manager": "Иван", "price": 1.729, "discPct": 0.0}, {"id": 1, "corpus": "ГП1", "group": "ГП1", "floor": 2, "rooms": 2, "view": "на дорогу", "listPrice": 1.986, "sold": true, "appeal": "2022-05-28", "close": "2022-07-06", "manager": "Саша", "price": 1.986, "discPct": 0.0}, {"id": 2, "corpus": "ГП1", "group": "ГП1", "floor": 2, "rooms": 2, "view": "на реку", "listPrice": 2.148, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 3, "corpus": "ГП1", "group": "ГП1", "floor": 2, "rooms": 1, "view": "на реку", "listPrice": 1.628, "sold": true, "appeal": "2022-07-14", "close": "2022-07-26", "manager": "Лиана", "price": 1.528, "discPct": 0.0614}, {"id": 4, "corpus": "ГП1", "group": "ГП1", "floor": 2, "rooms": 3, "view": "на реку", "listPrice": 2.871, "sold": true, "appeal": "2022-06-22", "close": "2022-06-28", "manager": "Иван", "price": 2.661, "discPct": 0.0731}, {"id": 5, "corpus": "ГП1", "group": "ГП1", "floor": 2, "rooms": 1, "view": "окна в окна", "listPrice": 1.042, "sold": true, "appeal": "2022-05-27", "close": "2022-06-13", "manager": "Филипп", "price": 0.842, "discPct": 0.1919}, {"id": 6, "corpus": "ГП1", "group": "ГП1", "floor": 2, "rooms": 2, "view": "окна в окна", "listPrice": 1.575, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 7, "corpus": "ГП1", "group": "ГП1", "floor": 2, "rooms": 1, "view": "на дорогу", "listPrice": 1.673, "sold": true, "appeal": "2022-05-29", "close": "2022-06-10", "manager": "Филипп", "price": 1.473, "discPct": 0.1196}, {"id": 8, "corpus": "ГП1", "group": "ГП1", "floor": 3, "rooms": 2, "view": "на дорогу", "listPrice": 2.085, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 9, "corpus": "ГП1", "group": "ГП1", "floor": 3, "rooms": 2, "view": "на реку", "listPrice": 2.256, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 10, "corpus": "ГП1", "group": "ГП1", "floor": 3, "rooms": 1, "view": "на реку", "listPrice": 1.71, "sold": true, "appeal": "2022-07-15", "close": "2022-07-26", "manager": "Иван", "price": 1.71, "discPct": 0.0}, {"id": 11, "corpus": "ГП1", "group": "ГП1", "floor": 3, "rooms": 3, "view": "на реку", "listPrice": 3.015, "sold": true, "appeal": "2022-05-25", "close": "2022-06-16", "manager": "Лиана", "price": 3.015, "discPct": 0.0}, {"id": 12, "corpus": "ГП1", "group": "ГП1", "floor": 3, "rooms": 1, "view": "окна в окна", "listPrice": 1.094, "sold": true, "appeal": "2022-05-18", "close": "2022-06-24", "manager": "Саша", "price": 1.094, "discPct": 0.0}, {"id": 13, "corpus": "ГП1", "group": "ГП1", "floor": 3, "rooms": 2, "view": "окна в окна", "listPrice": 1.654, "sold": true, "appeal": "2022-06-03", "close": "2022-06-20", "manager": "Лиана", "price": 1.654, "discPct": 0.0}, {"id": 14, "corpus": "ГП1", "group": "ГП1", "floor": 3, "rooms": 1, "view": "на дорогу", "listPrice": 1.757, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 15, "corpus": "ГП1", "group": "ГП1", "floor": 4, "rooms": 2, "view": "на дорогу", "listPrice": 2.189, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 16, "corpus": "ГП1", "group": "ГП1", "floor": 4, "rooms": 2, "view": "на реку", "listPrice": 2.369, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 17, "corpus": "ГП1", "group": "ГП1", "floor": 4, "rooms": 1, "view": "на реку", "listPrice": 1.795, "sold": true, "appeal": "2022-07-15", "close": "2022-07-27", "manager": "Филипп", "price": 1.595, "discPct": 0.1114}, {"id": 18, "corpus": "ГП1", "group": "ГП1", "floor": 4, "rooms": 3, "view": "на реку", "listPrice": 3.166, "sold": true, "appeal": "2022-07-10", "close": "2022-08-02", "manager": "Саша", "price": 3.166, "discPct": 0.0}, {"id": 19, "corpus": "ГП1", "group": "ГП1", "floor": 4, "rooms": 1, "view": "окна в окна", "listPrice": 1.149, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 20, "corpus": "ГП1", "group": "ГП1", "floor": 4, "rooms": 2, "view": "окна в окна", "listPrice": 1.737, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 21, "corpus": "ГП1", "group": "ГП1", "floor": 4, "rooms": 1, "view": "на дорогу", "listPrice": 1.844, "sold": true, "appeal": "2022-05-31", "close": "2022-06-14", "manager": "Филипп", "price": 1.644, "discPct": 0.1084}, {"id": 22, "corpus": "ГП1", "group": "ГП1", "floor": 5, "rooms": 2, "view": "на дорогу", "listPrice": 2.299, "sold": true, "appeal": "2022-05-28", "close": "2022-07-05", "manager": "Лиана", "price": 2.249, "discPct": 0.0218}, {"id": 23, "corpus": "ГП1", "group": "ГП1", "floor": 5, "rooms": 2, "view": "на реку", "listPrice": 2.487, "sold": true, "appeal": "2022-07-04", "close": "2022-07-22", "manager": "Саша", "price": 2.487, "discPct": 0.0}, {"id": 24, "corpus": "ГП1", "group": "ГП1", "floor": 5, "rooms": 1, "view": "на реку", "listPrice": 1.885, "sold": true, "appeal": "2022-07-27", "close": "2022-07-28", "manager": "Филипп", "price": 1.685, "discPct": 0.1061}, {"id": 25, "corpus": "ГП1", "group": "ГП1", "floor": 5, "rooms": 3, "view": "на реку", "listPrice": 3.324, "sold": true, "appeal": "2022-07-09", "close": "2022-07-09", "manager": "Иван", "price": 3.324, "discPct": 0.0}, {"id": 26, "corpus": "ГП1", "group": "ГП1", "floor": 5, "rooms": 1, "view": "окна в окна", "listPrice": 1.207, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 27, "corpus": "ГП1", "group": "ГП1", "floor": 5, "rooms": 2, "view": "окна в окна", "listPrice": 1.823, "sold": true, "appeal": "2022-06-03", "close": "2022-06-24", "manager": "Саша", "price": 1.723, "discPct": 0.0548}, {"id": 28, "corpus": "ГП1", "group": "ГП1", "floor": 5, "rooms": 1, "view": "на дорогу", "listPrice": 1.937, "sold": true, "appeal": "2022-05-28", "close": "2022-06-08", "manager": "Лиана", "price": 1.937, "discPct": 0.0}, {"id": 29, "corpus": "ГП1", "group": "ГП1", "floor": 6, "rooms": 2, "view": "на дорогу", "listPrice": 2.414, "sold": true, "appeal": "2022-05-24", "close": "2022-06-13", "manager": "Лиана", "price": 2.414, "discPct": 0.0}, {"id": 30, "corpus": "ГП1", "group": "ГП1", "floor": 6, "rooms": 2, "view": "на реку", "listPrice": 2.611, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 31, "corpus": "ГП1", "group": "ГП1", "floor": 6, "rooms": 1, "view": "на реку", "listPrice": 1.979, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 32, "corpus": "ГП1", "group": "ГП1", "floor": 6, "rooms": 3, "view": "на реку", "listPrice": 3.49, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 33, "corpus": "ГП1", "group": "ГП1", "floor": 6, "rooms": 1, "view": "окна в окна", "listPrice": 1.267, "sold": true, "appeal": "2022-05-30", "close": "2022-06-12", "manager": "Иван", "price": 1.167, "discPct": 0.0789}, {"id": 34, "corpus": "ГП1", "group": "ГП1", "floor": 6, "rooms": 2, "view": "окна в окна", "listPrice": 1.915, "sold": true, "appeal": "2022-06-23", "close": "2022-06-23", "manager": "Иван", "price": 1.915, "discPct": 0.0}, {"id": 35, "corpus": "ГП1", "group": "ГП1", "floor": 6, "rooms": 1, "view": "на дорогу", "listPrice": 2.033, "sold": true, "appeal": "2022-05-19", "close": "2022-06-20", "manager": "Саша", "price": 2.033, "discPct": 0.0}, {"id": 36, "corpus": "ГП1", "group": "ГП1", "floor": 7, "rooms": 2, "view": "на дорогу", "listPrice": 2.534, "sold": true, "appeal": "2022-06-05", "close": "2022-06-16", "manager": "Иван", "price": 2.534, "discPct": 0.0}, {"id": 37, "corpus": "ГП1", "group": "ГП1", "floor": 7, "rooms": 2, "view": "на реку", "listPrice": 2.742, "sold": true, "appeal": "2022-07-06", "close": "2022-07-25", "manager": "Филипп", "price": 2.742, "discPct": 0.0}, {"id": 38, "corpus": "ГП1", "group": "ГП1", "floor": 7, "rooms": 1, "view": "на реку", "listPrice": 2.078, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 39, "corpus": "ГП1", "group": "ГП1", "floor": 7, "rooms": 3, "view": "на реку", "listPrice": 3.665, "sold": true, "appeal": "2022-07-02", "close": "2022-08-18", "manager": "Филипп", "price": 3.515, "discPct": 0.0409}, {"id": 40, "corpus": "ГП1", "group": "ГП1", "floor": 7, "rooms": 1, "view": "окна в окна", "listPrice": 1.33, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 41, "corpus": "ГП1", "group": "ГП1", "floor": 7, "rooms": 2, "view": "окна в окна", "listPrice": 2.01, "sold": true, "appeal": "2022-06-10", "close": "2022-06-22", "manager": "Иван", "price": 1.86, "discPct": 0.0746}, {"id": 42, "corpus": "ГП1", "group": "ГП1", "floor": 7, "rooms": 1, "view": "на дорогу", "listPrice": 2.135, "sold": true, "appeal": "2022-05-20", "close": "2022-06-12", "manager": "Филипп", "price": 2.135, "discPct": 0.0}, {"id": 43, "corpus": "ГП1", "group": "ГП1", "floor": 8, "rooms": 2, "view": "на дорогу", "listPrice": 2.661, "sold": true, "appeal": "2022-05-25", "close": "2022-07-10", "manager": "Миша", "price": 2.661, "discPct": 0.0}, {"id": 44, "corpus": "ГП1", "group": "ГП1", "floor": 8, "rooms": 2, "view": "на реку", "listPrice": 2.879, "sold": true, "appeal": "2022-06-24", "close": "2022-07-24", "manager": "Саша", "price": 2.779, "discPct": 0.0347}, {"id": 45, "corpus": "ГП1", "group": "ГП1", "floor": 8, "rooms": 1, "view": "на реку", "listPrice": 2.182, "sold": true, "appeal": "2022-07-15", "close": "2022-07-28", "manager": "Иван", "price": 2.182, "discPct": 0.0}, {"id": 46, "corpus": "ГП1", "group": "ГП1", "floor": 8, "rooms": 3, "view": "на реку", "listPrice": 3.848, "sold": true, "appeal": "2022-06-26", "close": "2022-07-19", "manager": "Лиана", "price": 3.798, "discPct": 0.013}, {"id": 47, "corpus": "ГП1", "group": "ГП1", "floor": 8, "rooms": 1, "view": "окна в окна", "listPrice": 1.397, "sold": true, "appeal": "2022-05-23", "close": "2022-06-09", "manager": "Филипп", "price": 1.197, "discPct": 0.1432}, {"id": 48, "corpus": "ГП1", "group": "ГП1", "floor": 8, "rooms": 2, "view": "окна в окна", "listPrice": 2.111, "sold": true, "appeal": "2022-06-08", "close": "2022-06-19", "manager": "Лиана", "price": 2.111, "discPct": 0.0}, {"id": 49, "corpus": "ГП1", "group": "ГП1", "floor": 8, "rooms": 1, "view": "на дорогу", "listPrice": 2.242, "sold": true, "appeal": "2022-05-28", "close": "2022-07-11", "manager": "Иван", "price": 2.242, "discPct": 0.0}, {"id": 50, "corpus": "ГП1", "group": "ГП1", "floor": 9, "rooms": 2, "view": "на дорогу", "listPrice": 2.794, "sold": true, "appeal": "2022-05-26", "close": "2022-06-30", "manager": "Иван", "price": 2.794, "discPct": 0.0}, {"id": 51, "corpus": "ГП1", "group": "ГП1", "floor": 9, "rooms": 2, "view": "на реку", "listPrice": 3.023, "sold": true, "appeal": "2022-06-18", "close": "2022-07-28", "manager": "Филипп", "price": 2.873, "discPct": 0.0496}, {"id": 52, "corpus": "ГП1", "group": "ГП1", "floor": 9, "rooms": 1, "view": "на реку", "listPrice": 2.291, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 53, "corpus": "ГП1", "group": "ГП1", "floor": 9, "rooms": 3, "view": "на реку", "listPrice": 4.04, "sold": true, "appeal": "2022-07-04", "close": "2022-07-11", "manager": "Филипп", "price": 3.89, "discPct": 0.0371}, {"id": 54, "corpus": "ГП1", "group": "ГП1", "floor": 9, "rooms": 1, "view": "окна в окна", "listPrice": 1.467, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 55, "corpus": "ГП1", "group": "ГП1", "floor": 9, "rooms": 2, "view": "окна в окна", "listPrice": 2.216, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 56, "corpus": "ГП1", "group": "ГП1", "floor": 9, "rooms": 1, "view": "на дорогу", "listPrice": 2.354, "sold": true, "appeal": "2022-05-22", "close": "2022-07-19", "manager": "Саша", "price": 2.354, "discPct": 0.0}, {"id": 57, "corpus": "ГП1", "group": "ГП1", "floor": 10, "rooms": 2, "view": "на дорогу", "listPrice": 3.074, "sold": true, "appeal": "2022-06-10", "close": "2022-07-08", "manager": "Саша", "price": 3.074, "discPct": 0.0}, {"id": 58, "corpus": "ГП1", "group": "ГП1", "floor": 10, "rooms": 2, "view": "на реку", "listPrice": 3.325, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 59, "corpus": "ГП1", "group": "ГП1", "floor": 10, "rooms": 1, "view": "на реку", "listPrice": 2.52, "sold": true, "appeal": "2022-07-18", "close": "2022-07-28", "manager": "Миша", "price": 2.52, "discPct": 0.0}, {"id": 60, "corpus": "ГП1", "group": "ГП1", "floor": 10, "rooms": 3, "view": "на реку", "listPrice": 4.444, "sold": true, "appeal": "2022-06-27", "close": "2022-07-20", "manager": "Лиана", "price": 4.444, "discPct": 0.0}, {"id": 61, "corpus": "ГП1", "group": "ГП1", "floor": 10, "rooms": 1, "view": "окна в окна", "listPrice": 1.613, "sold": true, "appeal": "2022-05-20", "close": "2022-06-20", "manager": "Филипп", "price": 1.613, "discPct": 0.0}, {"id": 62, "corpus": "ГП1", "group": "ГП1", "floor": 10, "rooms": 2, "view": "окна в окна", "listPrice": 2.438, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 63, "corpus": "ГП1", "group": "ГП1", "floor": 10, "rooms": 1, "view": "на дорогу", "listPrice": 2.589, "sold": true, "appeal": "2022-05-18", "close": "2022-06-02", "manager": "Иван", "price": 2.439, "discPct": 0.0579}, {"id": 64, "corpus": "ГП1", "group": "ГП1", "floor": 11, "rooms": 2, "view": "на дорогу", "listPrice": 3.381, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 65, "corpus": "ГП1", "group": "ГП1", "floor": 11, "rooms": 2, "view": "на реку", "listPrice": 3.658, "sold": true, "appeal": "2022-07-02", "close": "2022-07-08", "manager": "Иван", "price": 3.558, "discPct": 0.0273}, {"id": 66, "corpus": "ГП1", "group": "ГП1", "floor": 11, "rooms": 1, "view": "на реку", "listPrice": 2.772, "sold": true, "appeal": "2022-07-14", "close": "2022-07-28", "manager": "Лиана", "price": 2.672, "discPct": 0.0361}, {"id": 67, "corpus": "ГП1", "group": "ГП1", "floor": 11, "rooms": 3, "view": "на реку", "listPrice": 4.889, "sold": true, "appeal": "2022-07-04", "close": "2022-07-11", "manager": "Филипп", "price": 4.739, "discPct": 0.0307}, {"id": 68, "corpus": "ГП1", "group": "ГП1", "floor": 11, "rooms": 1, "view": "окна в окна", "listPrice": 1.775, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 69, "corpus": "ГП1", "group": "ГП1", "floor": 11, "rooms": 2, "view": "окна в окна", "listPrice": 2.682, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 70, "corpus": "ГП1", "group": "ГП1", "floor": 11, "rooms": 1, "view": "на дорогу", "listPrice": 2.848, "sold": true, "appeal": "2022-05-27", "close": "2022-06-12", "manager": "Иван", "price": 2.848, "discPct": 0.0}, {"id": 71, "corpus": "ГП1", "group": "ГП1", "floor": 12, "rooms": 2, "view": "на дорогу", "listPrice": 3.719, "sold": true, "appeal": "2022-06-01", "close": "2022-07-01", "manager": "Иван", "price": 3.719, "discPct": 0.0}, {"id": 72, "corpus": "ГП1", "group": "ГП1", "floor": 12, "rooms": 2, "view": "на реку", "listPrice": 4.023, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 73, "corpus": "ГП1", "group": "ГП1", "floor": 12, "rooms": 1, "view": "на реку", "listPrice": 3.049, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 74, "corpus": "ГП1", "group": "ГП1", "floor": 12, "rooms": 3, "view": "на реку", "listPrice": 5.378, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 75, "corpus": "ГП1", "group": "ГП1", "floor": 12, "rooms": 1, "view": "окна в окна", "listPrice": 1.952, "sold": true, "appeal": "2022-05-29", "close": "2022-06-28", "manager": "Саша", "price": 1.952, "discPct": 0.0}, {"id": 76, "corpus": "ГП1", "group": "ГП1", "floor": 12, "rooms": 2, "view": "окна в окна", "listPrice": 2.95, "sold": true, "appeal": "2022-06-20", "close": "2022-07-25", "manager": "Миша", "price": 2.8, "discPct": 0.0508}, {"id": 77, "corpus": "ГП1", "group": "ГП1", "floor": 12, "rooms": 1, "view": "на дорогу", "listPrice": 3.133, "sold": true, "appeal": "2022-05-28", "close": "2022-06-20", "manager": "Саша", "price": 3.133, "discPct": 0.0}, {"id": 78, "corpus": "ГП1", "group": "ГП1", "floor": 13, "rooms": 2, "view": "на дорогу", "listPrice": 4.091, "sold": true, "appeal": "2022-06-12", "close": "2022-06-28", "manager": "Иван", "price": 3.941, "discPct": 0.0367}, {"id": 79, "corpus": "ГП1", "group": "ГП1", "floor": 13, "rooms": 2, "view": "на реку", "listPrice": 4.426, "sold": true, "appeal": "2022-07-05", "close": "2022-07-08", "manager": "Иван", "price": 4.426, "discPct": 0.0}, {"id": 80, "corpus": "ГП1", "group": "ГП1", "floor": 13, "rooms": 1, "view": "на реку", "listPrice": 3.354, "sold": true, "appeal": "2022-07-12", "close": "2022-07-29", "manager": "Филипп", "price": 3.154, "discPct": 0.0596}, {"id": 81, "corpus": "ГП1", "group": "ГП1", "floor": 13, "rooms": 3, "view": "на реку", "listPrice": 5.915, "sold": true, "appeal": "2022-06-20", "close": "2022-07-11", "manager": "Филипп", "price": 5.765, "discPct": 0.0254}, {"id": 82, "corpus": "ГП1", "group": "ГП1", "floor": 13, "rooms": 1, "view": "окна в окна", "listPrice": 2.147, "sold": true, "appeal": "2022-05-23", "close": "2022-06-02", "manager": "Иван", "price": 2.147, "discPct": 0.0}, {"id": 83, "corpus": "ГП1", "group": "ГП1", "floor": 13, "rooms": 2, "view": "окна в окна", "listPrice": 3.245, "sold": true, "appeal": "2022-06-09", "close": "2022-06-28", "manager": "Саша", "price": 3.195, "discPct": 0.0154}, {"id": 84, "corpus": "ГП1", "group": "ГП1", "floor": 13, "rooms": 1, "view": "на дорогу", "listPrice": 3.446, "sold": true, "appeal": "2022-05-25", "close": "2022-06-22", "manager": "Лиана", "price": 3.446, "discPct": 0.0}, {"id": 85, "corpus": "ГП1", "group": "ГП1", "floor": 14, "rooms": 2, "view": "на дорогу", "listPrice": 4.5, "sold": true, "appeal": "2022-05-28", "close": "2022-06-12", "manager": "Лиана", "price": 4.5, "discPct": 0.0}, {"id": 86, "corpus": "ГП1", "group": "ГП1", "floor": 14, "rooms": 2, "view": "на реку", "listPrice": 4.868, "sold": true, "appeal": "2022-07-04", "close": "2022-07-15", "manager": "Лиана", "price": 4.868, "discPct": 0.0}, {"id": 87, "corpus": "ГП1", "group": "ГП1", "floor": 14, "rooms": 1, "view": "на реку", "listPrice": 3.69, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 88, "corpus": "ГП1", "group": "ГП1", "floor": 14, "rooms": 3, "view": "на реку", "listPrice": 6.507, "sold": true, "appeal": "2022-06-29", "close": "2022-07-11", "manager": "Филипп", "price": 6.507, "discPct": 0.0}, {"id": 89, "corpus": "ГП1", "group": "ГП1", "floor": 14, "rooms": 1, "view": "окна в окна", "listPrice": 2.362, "sold": true, "appeal": "2022-05-22", "close": "2022-07-26", "manager": "Миша", "price": 2.362, "discPct": 0.0}, {"id": 90, "corpus": "ГП1", "group": "ГП1", "floor": 14, "rooms": 2, "view": "окна в окна", "listPrice": 3.569, "sold": true, "appeal": "2022-06-10", "close": "2022-06-30", "manager": "Филипп", "price": 3.369, "discPct": 0.056}, {"id": 91, "corpus": "ГП1", "group": "ГП1", "floor": 14, "rooms": 1, "view": "на дорогу", "listPrice": 3.791, "sold": true, "appeal": "2022-05-30", "close": "2022-06-08", "manager": "Иван", "price": 3.741, "discPct": 0.0132}, {"id": 92, "corpus": "ГП1", "group": "ГП1", "floor": 15, "rooms": 2, "view": "на дорогу", "listPrice": 4.95, "sold": true, "appeal": "2022-06-12", "close": "2022-06-13", "manager": "Лиана", "price": 4.95, "discPct": 0.0}, {"id": 93, "corpus": "ГП1", "group": "ГП1", "floor": 15, "rooms": 2, "view": "на реку", "listPrice": 5.842, "sold": true, "appeal": "2022-06-28", "close": "2022-07-26", "manager": "Филипп", "price": 5.842, "discPct": 0.0}, {"id": 94, "corpus": "ГП1", "group": "ГП1", "floor": 15, "rooms": 1, "view": "на реку", "listPrice": 4.428, "sold": true, "appeal": "2022-07-21", "close": "2022-07-29", "manager": "Миша", "price": 4.428, "discPct": 0.0}, {"id": 95, "corpus": "ГП1", "group": "ГП1", "floor": 15, "rooms": 3, "view": "на реку", "listPrice": 7.808, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 96, "corpus": "ГП1", "group": "ГП1", "floor": 15, "rooms": 1, "view": "окна в окна", "listPrice": 2.598, "sold": true, "appeal": "2022-06-04", "close": "2022-06-08", "manager": "Филипп", "price": 2.448, "discPct": 0.0577}, {"id": 97, "corpus": "ГП1", "group": "ГП1", "floor": 15, "rooms": 2, "view": "окна в окна", "listPrice": 3.926, "sold": true, "appeal": "2022-06-16", "close": "2022-06-21", "manager": "Иван", "price": 3.926, "discPct": 0.0}, {"id": 98, "corpus": "ГП1", "group": "ГП1", "floor": 15, "rooms": 1, "view": "на дорогу", "listPrice": 4.17, "sold": true, "appeal": "2022-05-21", "close": "2022-06-09", "manager": "Филипп", "price": 4.02, "discPct": 0.036}, {"id": 99, "corpus": "ГП1", "group": "ГП1", "floor": 16, "rooms": 2, "view": "на дорогу", "listPrice": 5.445, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 100, "corpus": "ГП1", "group": "ГП1", "floor": 16, "rooms": 2, "view": "на реку", "listPrice": 7.011, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 101, "corpus": "ГП1", "group": "ГП1", "floor": 16, "rooms": 1, "view": "на реку", "listPrice": 5.313, "sold": true, "appeal": "2022-07-26", "close": "2022-07-29", "manager": "Филипп", "price": 5.063, "discPct": 0.0471}, {"id": 102, "corpus": "ГП1", "group": "ГП1", "floor": 16, "rooms": 3, "view": "на реку", "listPrice": 8.589, "sold": true, "appeal": "2022-07-04", "close": "2022-07-13", "manager": "Иван", "price": 8.339, "discPct": 0.0291}, {"id": 103, "corpus": "ГП1", "group": "ГП1", "floor": 16, "rooms": 1, "view": "окна в окна", "listPrice": 2.858, "sold": true, "appeal": "2022-06-02", "close": "2022-06-26", "manager": "Филипп", "price": 2.858, "discPct": 0.0}, {"id": 104, "corpus": "ГП1", "group": "ГП1", "floor": 16, "rooms": 2, "view": "окна в окна", "listPrice": 4.319, "sold": true, "appeal": "2022-06-06", "close": "2022-06-24", "manager": "Филипп", "price": 4.169, "discPct": 0.0347}, {"id": 105, "corpus": "ГП1", "group": "ГП1", "floor": 16, "rooms": 1, "view": "на дорогу", "listPrice": 4.587, "sold": true, "appeal": "2022-05-22", "close": "2022-06-14", "manager": "Лиана", "price": 4.587, "discPct": 0.0}, {"id": 106, "corpus": "ГП1", "group": "ГП1", "floor": 17, "rooms": 2, "view": "на дорогу", "listPrice": 6.534, "sold": true, "appeal": "2022-06-03", "close": "2022-07-07", "manager": "Филипп", "price": 6.534, "discPct": 0.0}, {"id": 107, "corpus": "ГП1", "group": "ГП1", "floor": 17, "rooms": 2, "view": "на реку", "listPrice": 8.413, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 108, "corpus": "ГП1", "group": "ГП1", "floor": 17, "rooms": 1, "view": "на реку", "listPrice": 5.845, "sold": true, "appeal": "2022-07-23", "close": "2022-08-09", "manager": "Иван", "price": 5.745, "discPct": 0.0171}, {"id": 109, "corpus": "ГП1", "group": "ГП1", "floor": 17, "rooms": 3, "view": "на реку", "listPrice": 10.307, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 110, "corpus": "ГП1", "group": "ГП1", "floor": 17, "rooms": 1, "view": "окна в окна", "listPrice": 3.144, "sold": true, "appeal": "2022-06-05", "close": "2022-06-14", "manager": "Филипп", "price": 2.944, "discPct": 0.0636}, {"id": 111, "corpus": "ГП1", "group": "ГП1", "floor": 17, "rooms": 2, "view": "окна в окна", "listPrice": 4.751, "sold": true, "appeal": "2022-06-15", "close": "2022-06-22", "manager": "Иван", "price": 4.731, "discPct": 0.0042}, {"id": 112, "corpus": "ГП1", "group": "ГП1", "floor": 17, "rooms": 1, "view": "на дорогу", "listPrice": 5.046, "sold": true, "appeal": "2022-06-03", "close": "2022-06-06", "manager": "Лиана", "price": 5.046, "discPct": 0.0}, {"id": 113, "corpus": "ГП2", "group": "ГП2", "floor": 1, "rooms": 2, "view": "на дорогу", "listPrice": 1.583, "sold": true, "appeal": "2022-07-20", "close": "2022-07-29", "manager": "Иван", "price": 1.583, "discPct": 0.0}, {"id": 114, "corpus": "ГП2", "group": "ГП2", "floor": 2, "rooms": 2, "view": "на дорогу", "listPrice": 1.944, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 115, "corpus": "ГП2", "group": "ГП2", "floor": 2, "rooms": 2, "view": "окна в окна", "listPrice": 1.683, "sold": true, "appeal": "2022-07-04", "close": "2022-07-08", "manager": "Лиана", "price": 1.683, "discPct": 0.0}, {"id": 116, "corpus": "ГП2", "group": "ГП2", "floor": 2, "rooms": 1, "view": "окна в окна", "listPrice": 1.274, "sold": true, "appeal": "2022-07-12", "close": "2022-08-08", "manager": "Лиана", "price": 1.154, "discPct": 0.0942}, {"id": 117, "corpus": "ГП2", "group": "ГП2", "floor": 2, "rooms": 3, "view": "на ЖК", "listPrice": 2.776, "sold": true, "appeal": "2022-06-21", "close": "2022-06-28", "manager": "Иван", "price": 2.566, "discPct": 0.0757}, {"id": 118, "corpus": "ГП2", "group": "ГП2", "floor": 2, "rooms": 1, "view": "окна в окна", "listPrice": 1.043, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 119, "corpus": "ГП2", "group": "ГП2", "floor": 2, "rooms": 2, "view": "окна в окна", "listPrice": 1.542, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 120, "corpus": "ГП2", "group": "ГП2", "floor": 2, "rooms": 1, "view": "на дорогу", "listPrice": 1.711, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 121, "corpus": "ГП2", "group": "ГП2", "floor": 3, "rooms": 2, "view": "на дорогу", "listPrice": 2.042, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 122, "corpus": "ГП2", "group": "ГП2", "floor": 3, "rooms": 2, "view": "окна в окна", "listPrice": 1.767, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 123, "corpus": "ГП2", "group": "ГП2", "floor": 3, "rooms": 1, "view": "окна в окна", "listPrice": 1.338, "sold": true, "appeal": "2022-07-16", "close": "2022-08-02", "manager": "Саша", "price": 1.338, "discPct": 0.0}, {"id": 124, "corpus": "ГП2", "group": "ГП2", "floor": 3, "rooms": 3, "view": "на ЖК", "listPrice": 2.914, "sold": true, "appeal": "2022-06-27", "close": "2022-07-19", "manager": "Миша", "price": 2.914, "discPct": 0.0}, {"id": 125, "corpus": "ГП2", "group": "ГП2", "floor": 3, "rooms": 1, "view": "окна в окна", "listPrice": 1.096, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 126, "corpus": "ГП2", "group": "ГП2", "floor": 3, "rooms": 2, "view": "окна в окна", "listPrice": 1.619, "sold": true, "appeal": "2022-06-08", "close": "2022-06-30", "manager": "Филипп", "price": 1.619, "discPct": 0.0}, {"id": 127, "corpus": "ГП2", "group": "ГП2", "floor": 3, "rooms": 1, "view": "на дорогу", "listPrice": 1.797, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 128, "corpus": "ГП2", "group": "ГП2", "floor": 4, "rooms": 2, "view": "на дорогу", "listPrice": 2.144, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 129, "corpus": "ГП2", "group": "ГП2", "floor": 4, "rooms": 2, "view": "окна в окна", "listPrice": 1.855, "sold": true, "appeal": "2022-06-28", "close": "2022-07-08", "manager": "Иван", "price": 1.855, "discPct": 0.0}, {"id": 130, "corpus": "ГП2", "group": "ГП2", "floor": 4, "rooms": 1, "view": "окна в окна", "listPrice": 1.404, "sold": true, "appeal": "2022-07-12", "close": "2022-08-22", "manager": "Иван", "price": 1.404, "discPct": 0.0}, {"id": 131, "corpus": "ГП2", "group": "ГП2", "floor": 4, "rooms": 3, "view": "на ЖК", "listPrice": 3.06, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 132, "corpus": "ГП2", "group": "ГП2", "floor": 4, "rooms": 1, "view": "окна в окна", "listPrice": 1.15, "sold": true, "appeal": "2022-05-29", "close": "2022-07-18", "manager": "Саша", "price": 1.15, "discPct": 0.0}, {"id": 133, "corpus": "ГП2", "group": "ГП2", "floor": 4, "rooms": 2, "view": "окна в окна", "listPrice": 1.7, "sold": true, "appeal": "2022-06-06", "close": "2022-06-23", "manager": "Иван", "price": 1.7, "discPct": 0.0}, {"id": 134, "corpus": "ГП2", "group": "ГП2", "floor": 4, "rooms": 1, "view": "на дорогу", "listPrice": 1.886, "sold": true, "appeal": "2022-05-21", "close": "2022-07-20", "manager": "Миша", "price": 1.886, "discPct": 0.0}, {"id": 135, "corpus": "ГП2", "group": "ГП2", "floor": 5, "rooms": 2, "view": "на дорогу", "listPrice": 2.251, "sold": true, "appeal": "2022-05-25", "close": "2022-06-30", "manager": "Филипп", "price": 2.251, "discPct": 0.0}, {"id": 136, "corpus": "ГП2", "group": "ГП2", "floor": 5, "rooms": 2, "view": "окна в окна", "listPrice": 1.948, "sold": true, "appeal": "2022-06-27", "close": "2022-07-12", "manager": "Лиана", "price": 1.948, "discPct": 0.0}, {"id": 137, "corpus": "ГП2", "group": "ГП2", "floor": 5, "rooms": 1, "view": "окна в окна", "listPrice": 1.475, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 138, "corpus": "ГП2", "group": "ГП2", "floor": 5, "rooms": 3, "view": "на ЖК", "listPrice": 3.213, "sold": true, "appeal": "2022-06-29", "close": "2022-08-22", "manager": "Филипп", "price": 3.213, "discPct": 0.0}, {"id": 139, "corpus": "ГП2", "group": "ГП2", "floor": 5, "rooms": 1, "view": "окна в окна", "listPrice": 1.208, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 140, "corpus": "ГП2", "group": "ГП2", "floor": 5, "rooms": 2, "view": "окна в окна", "listPrice": 1.785, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 141, "corpus": "ГП2", "group": "ГП2", "floor": 5, "rooms": 1, "view": "на дорогу", "listPrice": 1.981, "sold": true, "appeal": "2022-05-26", "close": "2022-06-26", "manager": "Миша", "price": 1.981, "discPct": 0.0}, {"id": 142, "corpus": "ГП2", "group": "ГП2", "floor": 6, "rooms": 2, "view": "на дорогу", "listPrice": 2.363, "sold": true, "appeal": "2022-06-02", "close": "2022-06-17", "manager": "Иван", "price": 2.363, "discPct": 0.0}, {"id": 143, "corpus": "ГП2", "group": "ГП2", "floor": 6, "rooms": 2, "view": "окна в окна", "listPrice": 2.046, "sold": true, "appeal": "2022-06-20", "close": "2022-07-17", "manager": "Саша", "price": 2.046, "discPct": 0.0}, {"id": 144, "corpus": "ГП2", "group": "ГП2", "floor": 6, "rooms": 1, "view": "окна в окна", "listPrice": 1.548, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 145, "corpus": "ГП2", "group": "ГП2", "floor": 6, "rooms": 3, "view": "на ЖК", "listPrice": 3.374, "sold": true, "appeal": "2022-07-02", "close": "2022-07-21", "manager": "Миша", "price": 3.224, "discPct": 0.0445}, {"id": 146, "corpus": "ГП2", "group": "ГП2", "floor": 6, "rooms": 1, "view": "окна в окна", "listPrice": 1.268, "sold": true, "appeal": "2022-05-30", "close": "2022-06-19", "manager": "Иван", "price": 1.268, "discPct": 0.0}, {"id": 147, "corpus": "ГП2", "group": "ГП2", "floor": 6, "rooms": 2, "view": "окна в окна", "listPrice": 1.875, "sold": true, "appeal": "2022-06-06", "close": "2022-06-23", "manager": "Иван", "price": 1.875, "discPct": 0.0}, {"id": 148, "corpus": "ГП2", "group": "ГП2", "floor": 6, "rooms": 1, "view": "на дорогу", "listPrice": 2.08, "sold": true, "appeal": "2022-06-03", "close": "2022-07-22", "manager": "Саша", "price": 2.08, "discPct": 0.0}, {"id": 149, "corpus": "ГП2", "group": "ГП2", "floor": 7, "rooms": 2, "view": "на дорогу", "listPrice": 2.482, "sold": true, "appeal": "2022-06-07", "close": "2022-06-16", "manager": "Лиана", "price": 2.482, "discPct": 0.0}, {"id": 150, "corpus": "ГП2", "group": "ГП2", "floor": 7, "rooms": 2, "view": "окна в окна", "listPrice": 2.148, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 151, "corpus": "ГП2", "group": "ГП2", "floor": 7, "rooms": 1, "view": "окна в окна", "listPrice": 1.626, "sold": true, "appeal": "2022-07-14", "close": "2022-08-03", "manager": "Филипп", "price": 1.626, "discPct": 0.0}, {"id": 152, "corpus": "ГП2", "group": "ГП2", "floor": 7, "rooms": 3, "view": "на ЖК", "listPrice": 3.542, "sold": true, "appeal": "2022-06-28", "close": "2022-06-28", "manager": "Иван", "price": 3.542, "discPct": 0.0}, {"id": 153, "corpus": "ГП2", "group": "ГП2", "floor": 7, "rooms": 1, "view": "окна в окна", "listPrice": 1.332, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 154, "corpus": "ГП2", "group": "ГП2", "floor": 7, "rooms": 2, "view": "окна в окна", "listPrice": 1.968, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 155, "corpus": "ГП2", "group": "ГП2", "floor": 7, "rooms": 1, "view": "на дорогу", "listPrice": 2.184, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 156, "corpus": "ГП2", "group": "ГП2", "floor": 8, "rooms": 2, "view": "на дорогу", "listPrice": 2.606, "sold": true, "appeal": "2022-05-24", "close": "2022-06-16", "manager": "Иван", "price": 2.606, "discPct": 0.0}, {"id": 157, "corpus": "ГП2", "group": "ГП2", "floor": 8, "rooms": 2, "view": "окна в окна", "listPrice": 2.255, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 158, "corpus": "ГП2", "group": "ГП2", "floor": 8, "rooms": 1, "view": "окна в окна", "listPrice": 1.707, "sold": true, "appeal": "2022-07-11", "close": "2022-08-02", "manager": "Миша", "price": 1.707, "discPct": 0.0}, {"id": 159, "corpus": "ГП2", "group": "ГП2", "floor": 8, "rooms": 3, "view": "на ЖК", "listPrice": 3.72, "sold": true, "appeal": "2022-07-07", "close": "2022-07-17", "manager": "Лиана", "price": 3.67, "discPct": 0.0134}, {"id": 160, "corpus": "ГП2", "group": "ГП2", "floor": 8, "rooms": 1, "view": "окна в окна", "listPrice": 1.398, "sold": true, "appeal": "2022-05-27", "close": "2022-06-21", "manager": "Филипп", "price": 1.398, "discPct": 0.0}, {"id": 161, "corpus": "ГП2", "group": "ГП2", "floor": 8, "rooms": 2, "view": "окна в окна", "listPrice": 2.067, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 162, "corpus": "ГП2", "group": "ГП2", "floor": 8, "rooms": 1, "view": "на дорогу", "listPrice": 2.293, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 163, "corpus": "ГП2", "group": "ГП2", "floor": 9, "rooms": 2, "view": "на дорогу", "listPrice": 2.736, "sold": true, "appeal": "2022-05-30", "close": "2022-06-13", "manager": "Лиана", "price": 2.736, "discPct": 0.0}, {"id": 164, "corpus": "ГП2", "group": "ГП2", "floor": 9, "rooms": 2, "view": "окна в окна", "listPrice": 2.368, "sold": true, "appeal": "2022-07-03", "close": "2022-07-27", "manager": "Филипп", "price": 2.368, "discPct": 0.0}, {"id": 165, "corpus": "ГП2", "group": "ГП2", "floor": 9, "rooms": 1, "view": "окна в окна", "listPrice": 1.792, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 166, "corpus": "ГП2", "group": "ГП2", "floor": 9, "rooms": 3, "view": "на ЖК", "listPrice": 3.906, "sold": true, "appeal": "2022-07-09", "close": "2022-08-04", "manager": "Саша", "price": 3.906, "discPct": 0.0}, {"id": 167, "corpus": "ГП2", "group": "ГП2", "floor": 9, "rooms": 1, "view": "окна в окна", "listPrice": 1.468, "sold": true, "appeal": "2022-05-30", "close": "2022-07-26", "manager": "Миша", "price": 1.468, "discPct": 0.0}, {"id": 168, "corpus": "ГП2", "group": "ГП2", "floor": 9, "rooms": 2, "view": "окна в окна", "listPrice": 2.17, "sold": true, "appeal": "2022-06-09", "close": "2022-06-30", "manager": "Саша", "price": 2.17, "discPct": 0.0}, {"id": 169, "corpus": "ГП2", "group": "ГП2", "floor": 9, "rooms": 1, "view": "на дорогу", "listPrice": 2.408, "sold": true, "appeal": "2022-05-26", "close": "2022-06-03", "manager": "Саша", "price": 2.408, "discPct": 0.0}, {"id": 170, "corpus": "ГП2", "group": "ГП2", "floor": 10, "rooms": 2, "view": "на дорогу", "listPrice": 2.873, "sold": true, "appeal": "2022-05-26", "close": "2022-07-12", "manager": "Миша", "price": 2.873, "discPct": 0.0}, {"id": 171, "corpus": "ГП2", "group": "ГП2", "floor": 10, "rooms": 2, "view": "окна в окна", "listPrice": 2.486, "sold": true, "appeal": "2022-06-28", "close": "2022-07-12", "manager": "Лиана", "price": 2.486, "discPct": 0.0}, {"id": 172, "corpus": "ГП2", "group": "ГП2", "floor": 10, "rooms": 1, "view": "окна в окна", "listPrice": 1.882, "sold": true, "appeal": "2022-07-26", "close": "2022-08-04", "manager": "Саша", "price": 1.882, "discPct": 0.0}, {"id": 173, "corpus": "ГП2", "group": "ГП2", "floor": 10, "rooms": 3, "view": "на ЖК", "listPrice": 4.101, "sold": true, "appeal": "2022-07-07", "close": "2022-07-07", "manager": "Иван", "price": 4.101, "discPct": 0.0}, {"id": 174, "corpus": "ГП2", "group": "ГП2", "floor": 10, "rooms": 1, "view": "окна в окна", "listPrice": 1.542, "sold": true, "appeal": "2022-05-25", "close": "2022-07-26", "manager": "Миша", "price": 1.542, "discPct": 0.0}, {"id": 175, "corpus": "ГП2", "group": "ГП2", "floor": 10, "rooms": 2, "view": "окна в окна", "listPrice": 2.279, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 176, "corpus": "ГП2", "group": "ГП2", "floor": 10, "rooms": 1, "view": "на дорогу", "listPrice": 2.528, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 177, "corpus": "ГП2", "group": "ГП2", "floor": 11, "rooms": 2, "view": "на дорогу", "listPrice": 3.016, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 178, "corpus": "ГП2", "group": "ГП2", "floor": 11, "rooms": 2, "view": "окна в окна", "listPrice": 2.611, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 179, "corpus": "ГП2", "group": "ГП2", "floor": 11, "rooms": 1, "view": "окна в окна", "listPrice": 1.976, "sold": true, "appeal": "2022-07-11", "close": "2022-08-02", "manager": "Саша", "price": 1.876, "discPct": 0.0506}, {"id": 180, "corpus": "ГП2", "group": "ГП2", "floor": 11, "rooms": 3, "view": "на ЖК", "listPrice": 4.306, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 181, "corpus": "ГП2", "group": "ГП2", "floor": 11, "rooms": 1, "view": "окна в окна", "listPrice": 1.619, "sold": true, "appeal": "2022-05-29", "close": "2022-06-09", "manager": "Лиана", "price": 1.569, "discPct": 0.0309}, {"id": 182, "corpus": "ГП2", "group": "ГП2", "floor": 11, "rooms": 2, "view": "окна в окна", "listPrice": 2.393, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 183, "corpus": "ГП2", "group": "ГП2", "floor": 11, "rooms": 1, "view": "на дорогу", "listPrice": 2.654, "sold": true, "appeal": "2022-05-24", "close": "2022-06-03", "manager": "Иван", "price": 2.654, "discPct": 0.0}, {"id": 184, "corpus": "ГП2", "group": "ГП2", "floor": 12, "rooms": 2, "view": "на дорогу", "listPrice": 4.036, "sold": true, "appeal": "2022-05-25", "close": "2022-06-09", "manager": "Филипп", "price": 3.886, "discPct": 0.0372}, {"id": 185, "corpus": "ГП2", "group": "ГП2", "floor": 12, "rooms": 2, "view": "окна в окна", "listPrice": 2.878, "sold": true, "appeal": "2022-06-23", "close": "2022-07-28", "manager": "Филипп", "price": 2.878, "discPct": 0.0}, {"id": 186, "corpus": "ГП2", "group": "ГП2", "floor": 12, "rooms": 1, "view": "окна в окна", "listPrice": 2.075, "sold": true, "appeal": "2022-07-26", "close": "2022-08-03", "manager": "Миша", "price": 2.075, "discPct": 0.0}, {"id": 187, "corpus": "ГП2", "group": "ГП2", "floor": 12, "rooms": 3, "view": "на ЖК", "listPrice": 4.521, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 188, "corpus": "ГП2", "group": "ГП2", "floor": 12, "rooms": 1, "view": "окна в окна", "listPrice": 1.7, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 189, "corpus": "ГП2", "group": "ГП2", "floor": 12, "rooms": 2, "view": "окна в окна", "listPrice": 2.512, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 190, "corpus": "ГП2", "group": "ГП2", "floor": 12, "rooms": 1, "view": "на дорогу", "listPrice": 1.837, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 191, "corpus": "ГП2", "group": "ГП2", "floor": 13, "rooms": 2, "view": "на дорогу", "listPrice": 3.326, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 192, "corpus": "ГП2", "group": "ГП2", "floor": 13, "rooms": 2, "view": "окна в окна", "listPrice": 2.878, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 193, "corpus": "ГП2", "group": "ГП2", "floor": 13, "rooms": 1, "view": "окна в окна", "listPrice": 2.179, "sold": true, "appeal": "2022-07-13", "close": "2022-07-29", "manager": "Саша", "price": 2.129, "discPct": 0.0229}, {"id": 194, "corpus": "ГП2", "group": "ГП2", "floor": 13, "rooms": 3, "view": "на ЖК", "listPrice": 4.747, "sold": true, "appeal": "2022-06-29", "close": "2022-07-17", "manager": "Лиана", "price": 4.697, "discPct": 0.0105}, {"id": 195, "corpus": "ГП2", "group": "ГП2", "floor": 13, "rooms": 1, "view": "окна в окна", "listPrice": 1.785, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 196, "corpus": "ГП2", "group": "ГП2", "floor": 13, "rooms": 2, "view": "окна в окна", "listPrice": 2.638, "sold": true, "appeal": "2022-06-15", "close": "2022-06-24", "manager": "Филипп", "price": 2.638, "discPct": 0.0}, {"id": 197, "corpus": "ГП2", "group": "ГП2", "floor": 13, "rooms": 1, "view": "на дорогу", "listPrice": 2.927, "sold": true, "appeal": "2022-05-21", "close": "2022-07-10", "manager": "Миша", "price": 2.927, "discPct": 0.0}, {"id": 198, "corpus": "ГП2", "group": "ГП2", "floor": 14, "rooms": 2, "view": "на дорогу", "listPrice": 3.492, "sold": true, "appeal": "2022-06-11", "close": "2022-07-01", "manager": "Филипп", "price": 3.292, "discPct": 0.0573}, {"id": 199, "corpus": "ГП2", "group": "ГП2", "floor": 14, "rooms": 2, "view": "окна в окна", "listPrice": 3.022, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 200, "corpus": "ГП2", "group": "ГП2", "floor": 14, "rooms": 1, "view": "окна в окна", "listPrice": 2.288, "sold": true, "appeal": "2022-07-14", "close": "2022-07-29", "manager": "Лиана", "price": 2.288, "discPct": 0.0}, {"id": 201, "corpus": "ГП2", "group": "ГП2", "floor": 14, "rooms": 3, "view": "на ЖК", "listPrice": 4.985, "sold": true, "appeal": "2022-07-06", "close": "2022-07-14", "manager": "Иван", "price": 4.985, "discPct": 0.0}, {"id": 202, "corpus": "ГП2", "group": "ГП2", "floor": 14, "rooms": 1, "view": "окна в окна", "listPrice": 1.874, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 203, "corpus": "ГП2", "group": "ГП2", "floor": 14, "rooms": 2, "view": "окна в окна", "listPrice": 2.77, "sold": true, "appeal": "2022-06-16", "close": "2022-06-24", "manager": "Саша", "price": 2.77, "discPct": 0.0}, {"id": 204, "corpus": "ГП2", "group": "ГП2", "floor": 14, "rooms": 1, "view": "на дорогу", "listPrice": 3.073, "sold": true, "appeal": "2022-05-22", "close": "2022-06-05", "manager": "Иван", "price": 2.923, "discPct": 0.0488}, {"id": 205, "corpus": "ГП2", "group": "ГП2", "floor": 15, "rooms": 2, "view": "на дорогу", "listPrice": 4.19, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 206, "corpus": "ГП2", "group": "ГП2", "floor": 15, "rooms": 2, "view": "окна в окна", "listPrice": 3.627, "sold": true, "appeal": "2022-06-21", "close": "2022-07-31", "manager": "Филипп", "price": 3.477, "discPct": 0.0414}, {"id": 207, "corpus": "ГП2", "group": "ГП2", "floor": 15, "rooms": 1, "view": "окна в окна", "listPrice": 2.516, "sold": true, "appeal": "2022-07-14", "close": "2022-08-01", "manager": "Иван", "price": 2.516, "discPct": 0.0}, {"id": 208, "corpus": "ГП2", "group": "ГП2", "floor": 15, "rooms": 3, "view": "на ЖК", "listPrice": 5.483, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 209, "corpus": "ГП2", "group": "ГП2", "floor": 15, "rooms": 1, "view": "окна в окна", "listPrice": 2.061, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 210, "corpus": "ГП2", "group": "ГП2", "floor": 15, "rooms": 2, "view": "окна в окна", "listPrice": 3.047, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 211, "corpus": "ГП2", "group": "ГП2", "floor": 15, "rooms": 1, "view": "на дорогу", "listPrice": 3.38, "sold": true, "appeal": "2022-05-31", "close": "2022-07-19", "manager": "Миша", "price": 3.23, "discPct": 0.0444}, {"id": 212, "corpus": "ГП2", "group": "ГП2", "floor": 16, "rooms": 2, "view": "на дорогу", "listPrice": 4.609, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 213, "corpus": "ГП2", "group": "ГП2", "floor": 16, "rooms": 2, "view": "окна в окна", "listPrice": 3.989, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 214, "corpus": "ГП2", "group": "ГП2", "floor": 16, "rooms": 1, "view": "окна в окна", "listPrice": 2.768, "sold": true, "appeal": "2022-07-10", "close": "2022-08-03", "manager": "Саша", "price": 2.768, "discPct": 0.0}, {"id": 215, "corpus": "ГП2", "group": "ГП2", "floor": 16, "rooms": 3, "view": "на ЖК", "listPrice": 6.031, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 216, "corpus": "ГП2", "group": "ГП2", "floor": 16, "rooms": 1, "view": "окна в окна", "listPrice": 2.267, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 217, "corpus": "ГП2", "group": "ГП2", "floor": 16, "rooms": 2, "view": "окна в окна", "listPrice": 3.351, "sold": true, "appeal": "2022-06-12", "close": "2022-06-26", "manager": "Лиана", "price": 3.301, "discPct": 0.0149}, {"id": 218, "corpus": "ГП2", "group": "ГП2", "floor": 16, "rooms": 1, "view": "на дорогу", "listPrice": 3.718, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 219, "corpus": "ГП2", "group": "ГП2", "floor": 17, "rooms": 2, "view": "на дорогу", "listPrice": 5.07, "sold": true, "appeal": "2022-05-31", "close": "2022-07-04", "manager": "Иван", "price": 5.07, "discPct": 0.0}, {"id": 220, "corpus": "ГП2", "group": "ГП2", "floor": 17, "rooms": 2, "view": "окна в окна", "listPrice": 4.388, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 221, "corpus": "ГП2", "group": "ГП2", "floor": 17, "rooms": 1, "view": "окна в окна", "listPrice": 3.045, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 222, "corpus": "ГП2", "group": "ГП2", "floor": 17, "rooms": 3, "view": "на ЖК", "listPrice": 6.634, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 223, "corpus": "ГП2", "group": "ГП2", "floor": 17, "rooms": 1, "view": "окна в окна", "listPrice": 2.494, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 224, "corpus": "ГП2", "group": "ГП2", "floor": 17, "rooms": 2, "view": "окна в окна", "listPrice": 3.687, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 225, "corpus": "ГП2", "group": "ГП2", "floor": 17, "rooms": 1, "view": "на дорогу", "listPrice": 4.09, "sold": true, "appeal": "2022-05-31", "close": "2022-06-03", "manager": "Филипп", "price": 3.94, "discPct": 0.0367}, {"id": 226, "corpus": "ГП3", "group": "ГП3", "floor": 1, "rooms": 2, "view": "на дорогу", "listPrice": 1.583, "sold": true, "appeal": "2022-07-28", "close": "2022-07-29", "manager": "Иван", "price": 1.583, "discPct": 0.0}, {"id": 227, "corpus": "ГП3", "group": "ГП3", "floor": 2, "rooms": 2, "view": "на дорогу", "listPrice": 1.944, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 228, "corpus": "ГП3", "group": "ГП3", "floor": 2, "rooms": 2, "view": "окна в окна", "listPrice": 1.683, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 229, "corpus": "ГП3", "group": "ГП3", "floor": 2, "rooms": 1, "view": "окна в окна", "listPrice": 1.274, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 230, "corpus": "ГП3", "group": "ГП3", "floor": 2, "rooms": 3, "view": "на ЖК", "listPrice": 2.776, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 231, "corpus": "ГП3", "group": "ГП3", "floor": 2, "rooms": 1, "view": "на лес", "listPrice": 1.304, "sold": true, "appeal": "2022-06-04", "close": "2022-06-21", "manager": "Филипп", "price": 1.104, "discPct": 0.1533}, {"id": 232, "corpus": "ГП3", "group": "ГП3", "floor": 2, "rooms": 2, "view": "на лес", "listPrice": 1.928, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 233, "corpus": "ГП3", "group": "ГП3", "floor": 2, "rooms": 1, "view": "на дорогу", "listPrice": 1.711, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 234, "corpus": "ГП3", "group": "ГП3", "floor": 3, "rooms": 2, "view": "на дорогу", "listPrice": 2.042, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 235, "corpus": "ГП3", "group": "ГП3", "floor": 3, "rooms": 2, "view": "окна в окна", "listPrice": 1.767, "sold": true, "appeal": "2022-06-19", "close": "2022-07-17", "manager": "Миша", "price": 1.767, "discPct": 0.0}, {"id": 236, "corpus": "ГП3", "group": "ГП3", "floor": 3, "rooms": 1, "view": "окна в окна", "listPrice": 1.338, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 237, "corpus": "ГП3", "group": "ГП3", "floor": 3, "rooms": 3, "view": "на ЖК", "listPrice": 2.914, "sold": true, "appeal": "2022-06-26", "close": "2022-07-31", "manager": "Саша", "price": 2.914, "discPct": 0.0}, {"id": 238, "corpus": "ГП3", "group": "ГП3", "floor": 3, "rooms": 1, "view": "на лес", "listPrice": 1.37, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 239, "corpus": "ГП3", "group": "ГП3", "floor": 3, "rooms": 2, "view": "на лес", "listPrice": 2.024, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 240, "corpus": "ГП3", "group": "ГП3", "floor": 3, "rooms": 1, "view": "на дорогу", "listPrice": 1.797, "sold": true, "appeal": "2022-05-29", "close": "2022-06-19", "manager": "Саша", "price": 1.797, "discPct": 0.0}, {"id": 241, "corpus": "ГП3", "group": "ГП3", "floor": 4, "rooms": 2, "view": "на дорогу", "listPrice": 2.144, "sold": true, "appeal": "2022-06-10", "close": "2022-06-13", "manager": "Иван", "price": 1.994, "discPct": 0.07}, {"id": 242, "corpus": "ГП3", "group": "ГП3", "floor": 4, "rooms": 2, "view": "окна в окна", "listPrice": 1.855, "sold": true, "appeal": "2022-06-24", "close": "2022-07-11", "manager": "Лиана", "price": 1.805, "discPct": 0.0269}, {"id": 243, "corpus": "ГП3", "group": "ГП3", "floor": 4, "rooms": 1, "view": "окна в окна", "listPrice": 1.404, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 244, "corpus": "ГП3", "group": "ГП3", "floor": 4, "rooms": 3, "view": "на ЖК", "listPrice": 3.06, "sold": true, "appeal": "2022-07-03", "close": "2022-07-11", "manager": "Миша", "price": 3.06, "discPct": 0.0}, {"id": 245, "corpus": "ГП3", "group": "ГП3", "floor": 4, "rooms": 1, "view": "на лес", "listPrice": 1.438, "sold": true, "appeal": "2022-05-19", "close": "2022-06-15", "manager": "Филипп", "price": 1.438, "discPct": 0.0}, {"id": 246, "corpus": "ГП3", "group": "ГП3", "floor": 4, "rooms": 2, "view": "на лес", "listPrice": 2.125, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 247, "corpus": "ГП3", "group": "ГП3", "floor": 4, "rooms": 1, "view": "на дорогу", "listPrice": 1.886, "sold": true, "appeal": "2022-05-27", "close": "2022-06-05", "manager": "Лиана", "price": 1.886, "discPct": 0.0}, {"id": 248, "corpus": "ГП3", "group": "ГП3", "floor": 5, "rooms": 2, "view": "на дорогу", "listPrice": 2.251, "sold": true, "appeal": "2022-05-26", "close": "2022-06-30", "manager": "Филипп", "price": 2.251, "discPct": 0.0}, {"id": 249, "corpus": "ГП3", "group": "ГП3", "floor": 5, "rooms": 2, "view": "окна в окна", "listPrice": 1.948, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 250, "corpus": "ГП3", "group": "ГП3", "floor": 5, "rooms": 1, "view": "окна в окна", "listPrice": 1.475, "sold": true, "appeal": "2022-07-17", "close": "2022-08-08", "manager": "Филипп", "price": 1.475, "discPct": 0.0}, {"id": 251, "corpus": "ГП3", "group": "ГП3", "floor": 5, "rooms": 3, "view": "на ЖК", "listPrice": 3.213, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 252, "corpus": "ГП3", "group": "ГП3", "floor": 5, "rooms": 1, "view": "на лес", "listPrice": 1.51, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 253, "corpus": "ГП3", "group": "ГП3", "floor": 5, "rooms": 2, "view": "на лес", "listPrice": 2.232, "sold": true, "appeal": "2022-06-11", "close": "2022-07-21", "manager": "Миша", "price": 2.232, "discPct": 0.0}, {"id": 254, "corpus": "ГП3", "group": "ГП3", "floor": 5, "rooms": 1, "view": "на дорогу", "listPrice": 1.981, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 255, "corpus": "ГП3", "group": "ГП3", "floor": 6, "rooms": 2, "view": "на дорогу", "listPrice": 2.363, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 256, "corpus": "ГП3", "group": "ГП3", "floor": 6, "rooms": 2, "view": "окна в окна", "listPrice": 2.046, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 257, "corpus": "ГП3", "group": "ГП3", "floor": 6, "rooms": 1, "view": "окна в окна", "listPrice": 1.548, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 258, "corpus": "ГП3", "group": "ГП3", "floor": 6, "rooms": 3, "view": "на ЖК", "listPrice": 3.374, "sold": true, "appeal": "2022-06-25", "close": "2022-08-03", "manager": "Саша", "price": 3.374, "discPct": 0.0}, {"id": 259, "corpus": "ГП3", "group": "ГП3", "floor": 6, "rooms": 1, "view": "на лес", "listPrice": 1.585, "sold": true, "appeal": "2022-05-25", "close": "2022-06-02", "manager": "Иван", "price": 1.585, "discPct": 0.0}, {"id": 260, "corpus": "ГП3", "group": "ГП3", "floor": 6, "rooms": 2, "view": "на лес", "listPrice": 2.343, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 261, "corpus": "ГП3", "group": "ГП3", "floor": 6, "rooms": 1, "view": "на дорогу", "listPrice": 2.08, "sold": true, "appeal": "2022-06-03", "close": "2022-06-16", "manager": "Лиана", "price": 2.03, "discPct": 0.024}, {"id": 262, "corpus": "ГП3", "group": "ГП3", "floor": 7, "rooms": 2, "view": "на дорогу", "listPrice": 2.482, "sold": true, "appeal": "2022-05-30", "close": "2022-07-05", "manager": "Саша", "price": 2.482, "discPct": 0.0}, {"id": 263, "corpus": "ГП3", "group": "ГП3", "floor": 7, "rooms": 2, "view": "окна в окна", "listPrice": 2.148, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 264, "corpus": "ГП3", "group": "ГП3", "floor": 7, "rooms": 1, "view": "окна в окна", "listPrice": 1.626, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 265, "corpus": "ГП3", "group": "ГП3", "floor": 7, "rooms": 3, "view": "на ЖК", "listPrice": 3.542, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 266, "corpus": "ГП3", "group": "ГП3", "floor": 7, "rooms": 1, "view": "на лес", "listPrice": 1.665, "sold": true, "appeal": "2022-05-16", "close": "2022-06-02", "manager": "Иван", "price": 1.665, "discPct": 0.0}, {"id": 267, "corpus": "ГП3", "group": "ГП3", "floor": 7, "rooms": 2, "view": "на лес", "listPrice": 2.461, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 268, "corpus": "ГП3", "group": "ГП3", "floor": 7, "rooms": 1, "view": "на дорогу", "listPrice": 2.184, "sold": true, "appeal": "2022-05-25", "close": "2022-06-03", "manager": "Иван", "price": 2.184, "discPct": 0.0}, {"id": 269, "corpus": "ГП3", "group": "ГП3", "floor": 8, "rooms": 2, "view": "на дорогу", "listPrice": 2.606, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 270, "corpus": "ГП3", "group": "ГП3", "floor": 8, "rooms": 2, "view": "окна в окна", "listPrice": 2.255, "sold": true, "appeal": "2022-06-21", "close": "2022-07-19", "manager": "Саша", "price": 2.255, "discPct": 0.0}, {"id": 271, "corpus": "ГП3", "group": "ГП3", "floor": 8, "rooms": 1, "view": "окна в окна", "listPrice": 1.707, "sold": true, "appeal": "2022-07-21", "close": "2022-08-09", "manager": "Лиана", "price": 1.707, "discPct": 0.0}, {"id": 272, "corpus": "ГП3", "group": "ГП3", "floor": 8, "rooms": 3, "view": "на ЖК", "listPrice": 3.72, "sold": true, "appeal": "2022-06-22", "close": "2022-08-03", "manager": "Филипп", "price": 3.72, "discPct": 0.0}, {"id": 273, "corpus": "ГП3", "group": "ГП3", "floor": 8, "rooms": 1, "view": "на лес", "listPrice": 1.748, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 274, "corpus": "ГП3", "group": "ГП3", "floor": 8, "rooms": 2, "view": "на лес", "listPrice": 2.584, "sold": true, "appeal": "2022-06-08", "close": "2022-07-17", "manager": "Миша", "price": 2.584, "discPct": 0.0}, {"id": 275, "corpus": "ГП3", "group": "ГП3", "floor": 8, "rooms": 1, "view": "на дорогу", "listPrice": 2.293, "sold": true, "appeal": "2022-05-28", "close": "2022-07-06", "manager": "Саша", "price": 2.293, "discPct": 0.0}, {"id": 276, "corpus": "ГП3", "group": "ГП3", "floor": 9, "rooms": 2, "view": "на дорогу", "listPrice": 2.736, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 277, "corpus": "ГП3", "group": "ГП3", "floor": 9, "rooms": 2, "view": "окна в окна", "listPrice": 2.368, "sold": true, "appeal": "2022-06-17", "close": "2022-07-08", "manager": "Иван", "price": 2.368, "discPct": 0.0}, {"id": 278, "corpus": "ГП3", "group": "ГП3", "floor": 9, "rooms": 1, "view": "окна в окна", "listPrice": 1.792, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 279, "corpus": "ГП3", "group": "ГП3", "floor": 9, "rooms": 3, "view": "на ЖК", "listPrice": 3.906, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 280, "corpus": "ГП3", "group": "ГП3", "floor": 9, "rooms": 1, "view": "на лес", "listPrice": 1.835, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 281, "corpus": "ГП3", "group": "ГП3", "floor": 9, "rooms": 2, "view": "на лес", "listPrice": 2.713, "sold": true, "appeal": "2022-06-10", "close": "2022-06-24", "manager": "Лиана", "price": 2.663, "discPct": 0.0184}, {"id": 282, "corpus": "ГП3", "group": "ГП3", "floor": 9, "rooms": 1, "view": "на дорогу", "listPrice": 2.408, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 283, "corpus": "ГП3", "group": "ГП3", "floor": 10, "rooms": 2, "view": "на дорогу", "listPrice": 2.873, "sold": true, "appeal": "2022-06-06", "close": "2022-07-01", "manager": "Филипп", "price": 2.873, "discPct": 0.0}, {"id": 284, "corpus": "ГП3", "group": "ГП3", "floor": 10, "rooms": 2, "view": "окна в окна", "listPrice": 2.486, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 285, "corpus": "ГП3", "group": "ГП3", "floor": 10, "rooms": 1, "view": "окна в окна", "listPrice": 1.882, "sold": true, "appeal": "2022-07-12", "close": "2022-08-11", "manager": "Саша", "price": 1.882, "discPct": 0.0}, {"id": 286, "corpus": "ГП3", "group": "ГП3", "floor": 10, "rooms": 3, "view": "на ЖК", "listPrice": 4.101, "sold": true, "appeal": "2022-07-07", "close": "2022-07-11", "manager": "Миша", "price": 4.101, "discPct": 0.0}, {"id": 287, "corpus": "ГП3", "group": "ГП3", "floor": 10, "rooms": 1, "view": "на лес", "listPrice": 1.927, "sold": true, "appeal": "2022-05-29", "close": "2022-06-02", "manager": "Иван", "price": 1.927, "discPct": 0.0}, {"id": 288, "corpus": "ГП3", "group": "ГП3", "floor": 10, "rooms": 2, "view": "на лес", "listPrice": 2.848, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 289, "corpus": "ГП3", "group": "ГП3", "floor": 10, "rooms": 1, "view": "на дорогу", "listPrice": 2.528, "sold": true, "appeal": "2022-05-23", "close": "2022-07-12", "manager": "Филипп", "price": 2.528, "discPct": 0.0}, {"id": 290, "corpus": "ГП3", "group": "ГП3", "floor": 11, "rooms": 2, "view": "на дорогу", "listPrice": 3.016, "sold": true, "appeal": "2022-05-30", "close": "2022-07-21", "manager": "Миша", "price": 2.866, "discPct": 0.0497}, {"id": 291, "corpus": "ГП3", "group": "ГП3", "floor": 11, "rooms": 2, "view": "окна в окна", "listPrice": 2.611, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 292, "corpus": "ГП3", "group": "ГП3", "floor": 11, "rooms": 1, "view": "окна в окна", "listPrice": 1.976, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 293, "corpus": "ГП3", "group": "ГП3", "floor": 11, "rooms": 3, "view": "на ЖК", "listPrice": 4.306, "sold": true, "appeal": "2022-06-21", "close": "2022-07-11", "manager": "Филипп", "price": 4.156, "discPct": 0.0348}, {"id": 294, "corpus": "ГП3", "group": "ГП3", "floor": 11, "rooms": 1, "view": "на лес", "listPrice": 2.023, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 295, "corpus": "ГП3", "group": "ГП3", "floor": 11, "rooms": 2, "view": "на лес", "listPrice": 2.991, "sold": true, "appeal": "2022-06-11", "close": "2022-06-24", "manager": "Саша", "price": 2.991, "discPct": 0.0}, {"id": 296, "corpus": "ГП3", "group": "ГП3", "floor": 11, "rooms": 1, "view": "на дорогу", "listPrice": 2.654, "sold": true, "appeal": "2022-05-20", "close": "2022-07-07", "manager": "Иван", "price": 2.654, "discPct": 0.0}, {"id": 297, "corpus": "ГП3", "group": "ГП3", "floor": 12, "rooms": 2, "view": "на дорогу", "listPrice": 3.167, "sold": true, "appeal": "2022-06-03", "close": "2022-07-17", "manager": "Миша", "price": 3.017, "discPct": 0.0474}, {"id": 298, "corpus": "ГП3", "group": "ГП3", "floor": 12, "rooms": 2, "view": "окна в окна", "listPrice": 2.741, "sold": true, "appeal": "2022-06-24", "close": "2022-07-08", "manager": "Иван", "price": 2.741, "discPct": 0.0}, {"id": 299, "corpus": "ГП3", "group": "ГП3", "floor": 12, "rooms": 1, "view": "окна в окна", "listPrice": 2.075, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 300, "corpus": "ГП3", "group": "ГП3", "floor": 12, "rooms": 3, "view": "на ЖК", "listPrice": 4.521, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 301, "corpus": "ГП3", "group": "ГП3", "floor": 12, "rooms": 1, "view": "на лес", "listPrice": 2.125, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 302, "corpus": "ГП3", "group": "ГП3", "floor": 12, "rooms": 2, "view": "на лес", "listPrice": 3.14, "sold": true, "appeal": "2022-06-09", "close": "2022-06-24", "manager": "Филипп", "price": 2.94, "discPct": 0.0637}, {"id": 303, "corpus": "ГП3", "group": "ГП3", "floor": 12, "rooms": 1, "view": "на дорогу", "listPrice": 2.787, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 304, "corpus": "ГП3", "group": "ГП3", "floor": 13, "rooms": 2, "view": "на дорогу", "listPrice": 3.326, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 305, "corpus": "ГП3", "group": "ГП3", "floor": 13, "rooms": 2, "view": "окна в окна", "listPrice": 2.878, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 306, "corpus": "ГП3", "group": "ГП3", "floor": 13, "rooms": 1, "view": "окна в окна", "listPrice": 2.179, "sold": true, "appeal": "2022-07-26", "close": "2022-08-12", "manager": "Лиана", "price": 2.179, "discPct": 0.0}, {"id": 307, "corpus": "ГП3", "group": "ГП3", "floor": 13, "rooms": 3, "view": "на ЖК", "listPrice": 4.747, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 308, "corpus": "ГП3", "group": "ГП3", "floor": 13, "rooms": 1, "view": "на лес", "listPrice": 2.231, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 309, "corpus": "ГП3", "group": "ГП3", "floor": 13, "rooms": 2, "view": "на лес", "listPrice": 3.297, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 310, "corpus": "ГП3", "group": "ГП3", "floor": 13, "rooms": 1, "view": "на дорогу", "listPrice": 2.927, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 311, "corpus": "ГП3", "group": "ГП3", "floor": 14, "rooms": 2, "view": "на дорогу", "listPrice": 3.492, "sold": true, "appeal": "2022-06-01", "close": "2022-06-30", "manager": "Саша", "price": 3.492, "discPct": 0.0}, {"id": 312, "corpus": "ГП3", "group": "ГП3", "floor": 14, "rooms": 2, "view": "окна в окна", "listPrice": 3.022, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 313, "corpus": "ГП3", "group": "ГП3", "floor": 14, "rooms": 1, "view": "окна в окна", "listPrice": 2.288, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 314, "corpus": "ГП3", "group": "ГП3", "floor": 14, "rooms": 3, "view": "на ЖК", "listPrice": 4.985, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 315, "corpus": "ГП3", "group": "ГП3", "floor": 14, "rooms": 1, "view": "на лес", "listPrice": 2.342, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 316, "corpus": "ГП3", "group": "ГП3", "floor": 14, "rooms": 2, "view": "на лес", "listPrice": 3.462, "sold": true, "appeal": "2022-06-19", "close": "2022-07-22", "manager": "Миша", "price": 3.312, "discPct": 0.0433}, {"id": 317, "corpus": "ГП3", "group": "ГП3", "floor": 14, "rooms": 1, "view": "на дорогу", "listPrice": 3.073, "sold": true, "appeal": "2022-05-27", "close": "2022-06-05", "manager": "Саша", "price": 3.023, "discPct": 0.0163}, {"id": 318, "corpus": "ГП3", "group": "ГП3", "floor": 15, "rooms": 2, "view": "на дорогу", "listPrice": 4.19, "sold": true, "appeal": "2022-06-07", "close": "2022-06-28", "manager": "Иван", "price": 4.19, "discPct": 0.0}, {"id": 319, "corpus": "ГП3", "group": "ГП3", "floor": 15, "rooms": 2, "view": "окна в окна", "listPrice": 3.627, "sold": true, "appeal": "2022-06-26", "close": "2022-07-13", "manager": "Лиана", "price": 3.577, "discPct": 0.0138}, {"id": 320, "corpus": "ГП3", "group": "ГП3", "floor": 15, "rooms": 1, "view": "окна в окна", "listPrice": 2.516, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 321, "corpus": "ГП3", "group": "ГП3", "floor": 15, "rooms": 3, "view": "на ЖК", "listPrice": 5.483, "sold": true, "appeal": "2022-06-26", "close": "2022-07-11", "manager": "Филипп", "price": 5.483, "discPct": 0.0}, {"id": 322, "corpus": "ГП3", "group": "ГП3", "floor": 15, "rooms": 1, "view": "на лес", "listPrice": 2.577, "sold": true, "appeal": "2022-05-30", "close": "2022-06-19", "manager": "Лиана", "price": 2.527, "discPct": 0.0194}, {"id": 323, "corpus": "ГП3", "group": "ГП3", "floor": 15, "rooms": 2, "view": "на лес", "listPrice": 3.808, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 324, "corpus": "ГП3", "group": "ГП3", "floor": 15, "rooms": 1, "view": "на дорогу", "listPrice": 3.38, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 325, "corpus": "ГП3", "group": "ГП3", "floor": 16, "rooms": 2, "view": "на дорогу", "listPrice": 4.609, "sold": true, "appeal": "2022-06-09", "close": "2022-07-06", "manager": "Саша", "price": 4.609, "discPct": 0.0}, {"id": 326, "corpus": "ГП3", "group": "ГП3", "floor": 16, "rooms": 2, "view": "окна в окна", "listPrice": 3.989, "sold": true, "appeal": "2022-07-03", "close": "2022-07-08", "manager": "Иван", "price": 3.989, "discPct": 0.0}, {"id": 327, "corpus": "ГП3", "group": "ГП3", "floor": 16, "rooms": 1, "view": "окна в окна", "listPrice": 2.768, "sold": true, "appeal": "2022-07-26", "close": "2022-08-23", "manager": "Филипп", "price": 2.768, "discPct": 0.0}, {"id": 328, "corpus": "ГП3", "group": "ГП3", "floor": 16, "rooms": 3, "view": "на ЖК", "listPrice": 6.031, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 329, "corpus": "ГП3", "group": "ГП3", "floor": 16, "rooms": 1, "view": "на лес", "listPrice": 2.834, "sold": true, "appeal": "2022-05-24", "close": "2022-06-29", "manager": "Миша", "price": 2.834, "discPct": 0.0}, {"id": 330, "corpus": "ГП3", "group": "ГП3", "floor": 16, "rooms": 2, "view": "на лес", "listPrice": 4.189, "sold": true, "appeal": "2022-06-17", "close": "2022-06-29", "manager": "Саша", "price": 4.189, "discPct": 0.0}, {"id": 331, "corpus": "ГП3", "group": "ГП3", "floor": 16, "rooms": 1, "view": "на дорогу", "listPrice": 3.718, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 332, "corpus": "ГП3", "group": "ГП3", "floor": 17, "rooms": 2, "view": "на дорогу", "listPrice": 5.07, "sold": true, "appeal": "2022-06-03", "close": "2022-06-13", "manager": "Лиана", "price": 5.07, "discPct": 0.0}, {"id": 333, "corpus": "ГП3", "group": "ГП3", "floor": 17, "rooms": 2, "view": "окна в окна", "listPrice": 4.388, "sold": true, "appeal": "2022-06-27", "close": "2022-08-01", "manager": "Филипп", "price": 4.138, "discPct": 0.057}, {"id": 334, "corpus": "ГП3", "group": "ГП3", "floor": 17, "rooms": 1, "view": "окна в окна", "listPrice": 3.045, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 335, "corpus": "ГП3", "group": "ГП3", "floor": 17, "rooms": 3, "view": "на ЖК", "listPrice": 6.634, "sold": true, "appeal": "2022-06-25", "close": "2022-06-25", "manager": "Иван", "price": 6.634, "discPct": 0.0}, {"id": 336, "corpus": "ГП3", "group": "ГП3", "floor": 17, "rooms": 1, "view": "на лес", "listPrice": 3.118, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 337, "corpus": "ГП3", "group": "ГП3", "floor": 17, "rooms": 2, "view": "на лес", "listPrice": 4.608, "sold": true, "appeal": "2022-06-08", "close": "2022-06-24", "manager": "Саша", "price": 4.608, "discPct": 0.0}, {"id": 338, "corpus": "ГП3", "group": "ГП3", "floor": 17, "rooms": 1, "view": "на дорогу", "listPrice": 4.09, "sold": true, "appeal": "2022-05-27", "close": "2022-06-14", "manager": "Лиана", "price": 4.04, "discPct": 0.0122}, {"id": 339, "corpus": "ГП4", "group": "ГП4-А", "floor": 1, "rooms": 2, "view": "во двор", "listPrice": 2.457, "sold": true, "appeal": "2022-08-04", "close": "2022-08-07", "manager": "Миша", "price": 2.457, "discPct": 0.0}, {"id": 340, "corpus": "ГП4", "group": "ГП4-А", "floor": 1, "rooms": 1, "view": "на реку", "listPrice": 1.987, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 341, "corpus": "ГП4", "group": "ГП4-А", "floor": 1, "rooms": 2, "view": "на реку", "listPrice": 2.152, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 342, "corpus": "ГП4", "group": "ГП4-А", "floor": 1, "rooms": 1, "view": "на лес", "listPrice": 2.034, "sold": true, "appeal": "2022-07-31", "close": "2022-08-21", "manager": "Миша", "price": 2.034, "discPct": 0.0}, {"id": 343, "corpus": "ГП4", "group": "ГП4-А", "floor": 2, "rooms": 2, "view": "во двор", "listPrice": 2.278, "sold": true, "appeal": "2022-08-16", "close": "2022-08-23", "manager": "Лиана", "price": 2.278, "discPct": 0.0}, {"id": 344, "corpus": "ГП4", "group": "ГП4-А", "floor": 2, "rooms": 1, "view": "на реку", "listPrice": 2.24, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 345, "corpus": "ГП4", "group": "ГП4-А", "floor": 2, "rooms": 2, "view": "на реку", "listPrice": 2.33, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 346, "corpus": "ГП4", "group": "ГП4-А", "floor": 2, "rooms": 1, "view": "на лес", "listPrice": 1.883, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 347, "corpus": "ГП4", "group": "ГП4-А", "floor": 3, "rooms": 2, "view": "во двор", "listPrice": 2.643, "sold": true, "appeal": "2022-06-02", "close": "2022-06-27", "manager": "Иван", "price": 2.643, "discPct": 0.0}, {"id": 348, "corpus": "ГП4", "group": "ГП4-А", "floor": 3, "rooms": 1, "view": "на реку", "listPrice": 1.658, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 349, "corpus": "ГП4", "group": "ГП4-А", "floor": 3, "rooms": 2, "view": "на реку", "listPrice": 3.583, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 350, "corpus": "ГП4", "group": "ГП4-А", "floor": 3, "rooms": 1, "view": "на лес", "listPrice": 1.938, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 351, "corpus": "ГП4", "group": "ГП4-А", "floor": 4, "rooms": 2, "view": "во двор", "listPrice": 4.468, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 352, "corpus": "ГП4", "group": "ГП4-А", "floor": 4, "rooms": 1, "view": "на реку", "listPrice": 2.212, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 353, "corpus": "ГП4", "group": "ГП4-А", "floor": 4, "rooms": 2, "view": "на реку", "listPrice": 2.688, "sold": true, "appeal": "2022-08-02", "close": "2022-08-03", "manager": "Лиана", "price": 2.638, "discPct": 0.0186}, {"id": 354, "corpus": "ГП4", "group": "ГП4-А", "floor": 4, "rooms": 1, "view": "на лес", "listPrice": 2.769, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 355, "corpus": "ГП4", "group": "ГП4-А", "floor": 5, "rooms": 2, "view": "во двор", "listPrice": 5.418, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 356, "corpus": "ГП4", "group": "ГП4-А", "floor": 5, "rooms": 1, "view": "на реку", "listPrice": 2.683, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 357, "corpus": "ГП4", "group": "ГП4-А", "floor": 5, "rooms": 2, "view": "на реку", "listPrice": 4.168, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 358, "corpus": "ГП4", "group": "ГП4-А", "floor": 5, "rooms": 1, "view": "на лес", "listPrice": 2.895, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 359, "corpus": "ГП4", "group": "ГП4-А", "floor": 6, "rooms": 2, "view": "во двор", "listPrice": 4.481, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 360, "corpus": "ГП4", "group": "ГП4-А", "floor": 6, "rooms": 1, "view": "на реку", "listPrice": 5.088, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 361, "corpus": "ГП4", "group": "ГП4-А", "floor": 6, "rooms": 2, "view": "на реку", "listPrice": 5.296, "sold": true, "appeal": "2022-07-28", "close": "2022-08-07", "manager": "Филипп", "price": 5.146, "discPct": 0.0283}, {"id": 362, "corpus": "ГП4", "group": "ГП4-А", "floor": 6, "rooms": 1, "view": "на лес", "listPrice": 3.694, "sold": true, "appeal": "2022-05-30", "close": "2022-06-05", "manager": "Иван", "price": 3.694, "discPct": 0.0}, {"id": 363, "corpus": "ГП4", "group": "ГП4-А", "floor": 7, "rooms": 2, "view": "во двор", "listPrice": 6.289, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 364, "corpus": "ГП4", "group": "ГП4-А", "floor": 7, "rooms": 1, "view": "на реку", "listPrice": 4.18, "sold": true, "appeal": "2022-07-31", "close": "2022-08-18", "manager": "Саша", "price": 4.18, "discPct": 0.0}, {"id": 365, "corpus": "ГП4", "group": "ГП4-А", "floor": 7, "rooms": 2, "view": "на реку", "listPrice": 8.488, "sold": true, "appeal": "2022-06-06", "close": "2022-06-24", "manager": "Иван", "price": 8.388, "discPct": 0.0118}, {"id": 366, "corpus": "ГП4", "group": "ГП4-А", "floor": 7, "rooms": 1, "view": "на лес", "listPrice": 4.002, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 367, "corpus": "ГП4", "group": "ГП4-А", "floor": 8, "rooms": 2, "view": "во двор", "listPrice": 7.202, "sold": true, "appeal": "2022-08-05", "close": "2022-08-08", "manager": "Саша", "price": 7.202, "discPct": 0.0}, {"id": 368, "corpus": "ГП4", "group": "ГП4-А", "floor": 8, "rooms": 1, "view": "на реку", "listPrice": 8.196, "sold": true, "appeal": "2022-08-13", "close": "2022-08-22", "manager": "Саша", "price": 8.096, "discPct": 0.0122}, {"id": 369, "corpus": "ГП4", "group": "ГП4-А", "floor": 8, "rooms": 2, "view": "на реку", "listPrice": 8.531, "sold": true, "appeal": "2022-07-31", "close": "2022-08-02", "manager": "Филипп", "price": 8.381, "discPct": 0.0176}, {"id": 370, "corpus": "ГП4", "group": "ГП4-А", "floor": 8, "rooms": 1, "view": "на лес", "listPrice": 5.13, "sold": true, "appeal": "2022-07-29", "close": "2022-08-16", "manager": "Лиана", "price": 5.08, "discPct": 0.0097}, {"id": 371, "corpus": "ГП4", "group": "ГП4-А", "floor": 9, "rooms": 2, "view": "во двор", "listPrice": 12.205, "sold": true, "appeal": "2022-07-29", "close": "2022-08-25", "manager": "Филипп", "price": 12.005, "discPct": 0.0164}, {"id": 372, "corpus": "ГП4", "group": "ГП4-А", "floor": 9, "rooms": 1, "view": "на реку", "listPrice": 7.115, "sold": true, "appeal": "2022-06-06", "close": "2022-06-26", "manager": "Иван", "price": 7.115, "discPct": 0.0}, {"id": 373, "corpus": "ГП4", "group": "ГП4-А", "floor": 9, "rooms": 2, "view": "на реку", "listPrice": 8.09, "sold": true, "appeal": "2022-06-28", "close": "2022-07-05", "manager": "Иван", "price": 8.09, "discPct": 0.0}, {"id": 374, "corpus": "ГП4", "group": "ГП4-А", "floor": 9, "rooms": 1, "view": "на лес", "listPrice": 9.58, "sold": true, "appeal": "2022-06-27", "close": "2022-07-08", "manager": "Иван", "price": 9.58, "discPct": 0.0}, {"id": 375, "corpus": "ГП4", "group": "ГП4-А", "floor": 10, "rooms": 2, "view": "во двор", "listPrice": 16.983, "sold": true, "appeal": "2022-07-20", "close": "2022-08-03", "manager": "Филипп", "price": 16.783, "discPct": 0.0118}, {"id": 376, "corpus": "ГП4", "group": "ГП4-А", "floor": 10, "rooms": 1, "view": "на реку", "listPrice": 8.924, "sold": true, "appeal": "2022-07-25", "close": "2022-08-17", "manager": "Лиана", "price": 8.924, "discPct": 0.0}, {"id": 377, "corpus": "ГП4", "group": "ГП4-А", "floor": 10, "rooms": 2, "view": "на реку", "listPrice": 16.583, "sold": true, "appeal": "2022-07-23", "close": "2022-08-02", "manager": "Саша", "price": 16.583, "discPct": 0.0}, {"id": 378, "corpus": "ГП4", "group": "ГП4-А", "floor": 10, "rooms": 1, "view": "на лес", "listPrice": 10.521, "sold": true, "appeal": "2022-06-07", "close": "2022-06-28", "manager": "Иван", "price": 10.521, "discPct": 0.0}, {"id": 379, "corpus": "ГП4", "group": "ГП4-Б", "floor": 1, "rooms": 1, "view": "во двор", "listPrice": 2.002, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 380, "corpus": "ГП4", "group": "ГП4-Б", "floor": 1, "rooms": 3, "view": "на лес", "listPrice": 3.104, "sold": true, "appeal": "2022-08-18", "close": "2022-08-22", "manager": "Саша", "price": 3.054, "discPct": 0.0161}, {"id": 381, "corpus": "ГП4", "group": "ГП4-Б", "floor": 1, "rooms": 2, "view": "на лес", "listPrice": 2.452, "sold": true, "appeal": "2022-08-10", "close": "2022-08-21", "manager": "Миша", "price": 2.452, "discPct": 0.0}, {"id": 382, "corpus": "ГП4", "group": "ГП4-Б", "floor": 1, "rooms": 1, "view": "на лес", "listPrice": 1.698, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 383, "corpus": "ГП4", "group": "ГП4-Б", "floor": 2, "rooms": 1, "view": "во двор", "listPrice": 2.102, "sold": true, "appeal": "2022-07-25", "close": "2022-08-10", "manager": "Лиана", "price": 2.052, "discPct": 0.0238}, {"id": 384, "corpus": "ГП4", "group": "ГП4-Б", "floor": 2, "rooms": 3, "view": "на лес", "listPrice": 3.253, "sold": true, "appeal": "2022-05-28", "close": "2022-06-27", "manager": "Иван", "price": 3.203, "discPct": 0.0154}, {"id": 385, "corpus": "ГП4", "group": "ГП4-Б", "floor": 2, "rooms": 2, "view": "на лес", "listPrice": 3.205, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 386, "corpus": "ГП4", "group": "ГП4-Б", "floor": 2, "rooms": 1, "view": "на лес", "listPrice": 1.472, "sold": true, "appeal": "2022-08-01", "close": "2022-08-25", "manager": "Филипп", "price": 1.472, "discPct": 0.0}, {"id": 387, "corpus": "ГП4", "group": "ГП4-Б", "floor": 3, "rooms": 1, "view": "во двор", "listPrice": 1.734, "sold": true, "appeal": "2022-07-07", "close": "2022-07-07", "manager": "Иван", "price": 1.734, "discPct": 0.0}, {"id": 388, "corpus": "ГП4", "group": "ГП4-Б", "floor": 3, "rooms": 3, "view": "на лес", "listPrice": 4.16, "sold": true, "appeal": "2022-07-28", "close": "2022-08-07", "manager": "Саша", "price": 4.16, "discPct": 0.0}, {"id": 389, "corpus": "ГП4", "group": "ГП4-Б", "floor": 3, "rooms": 2, "view": "на лес", "listPrice": 3.365, "sold": true, "appeal": "2022-07-31", "close": "2022-08-18", "manager": "Миша", "price": 3.115, "discPct": 0.0743}, {"id": 390, "corpus": "ГП4", "group": "ГП4-Б", "floor": 3, "rooms": 1, "view": "на лес", "listPrice": 1.964, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 391, "corpus": "ГП4", "group": "ГП4-Б", "floor": 4, "rooms": 1, "view": "во двор", "listPrice": 2.319, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 392, "corpus": "ГП4", "group": "ГП4-Б", "floor": 4, "rooms": 3, "view": "на лес", "listPrice": 4.816, "sold": true, "appeal": "2022-08-06", "close": "2022-08-08", "manager": "Филипп", "price": 4.616, "discPct": 0.0415}, {"id": 393, "corpus": "ГП4", "group": "ГП4-Б", "floor": 4, "rooms": 2, "view": "на лес", "listPrice": 2.741, "sold": true, "appeal": "2022-08-14", "close": "2022-08-21", "manager": "Филипп", "price": 2.741, "discPct": 0.0}, {"id": 394, "corpus": "ГП4", "group": "ГП4-Б", "floor": 4, "rooms": 1, "view": "на лес", "listPrice": 2.738, "sold": true, "appeal": "2022-07-29", "close": "2022-08-09", "manager": "Миша", "price": 2.738, "discPct": 0.0}, {"id": 395, "corpus": "ГП4", "group": "ГП4-Б", "floor": 5, "rooms": 1, "view": "во двор", "listPrice": 4.33, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 396, "corpus": "ГП4", "group": "ГП4-Б", "floor": 5, "rooms": 3, "view": "на лес", "listPrice": 5.726, "sold": true, "appeal": "2022-07-20", "close": "2022-08-08", "manager": "Филипп", "price": 5.726, "discPct": 0.0}, {"id": 397, "corpus": "ГП4", "group": "ГП4-Б", "floor": 5, "rooms": 2, "view": "на лес", "listPrice": 3.324, "sold": true, "appeal": "2022-08-05", "close": "2022-08-19", "manager": "Саша", "price": 3.324, "discPct": 0.0}, {"id": 398, "corpus": "ГП4", "group": "ГП4-Б", "floor": 5, "rooms": 1, "view": "на лес", "listPrice": 2.156, "sold": true, "appeal": "2022-08-11", "close": "2022-08-22", "manager": "Миша", "price": 2.156, "discPct": 0.0}, {"id": 399, "corpus": "ГП4", "group": "ГП4-Б", "floor": 6, "rooms": 1, "view": "во двор", "listPrice": 3.768, "sold": true, "appeal": "2022-08-07", "close": "2022-08-22", "manager": "Миша", "price": 3.768, "discPct": 0.0}, {"id": 400, "corpus": "ГП4", "group": "ГП4-Б", "floor": 6, "rooms": 3, "view": "на лес", "listPrice": 9.402, "sold": true, "appeal": "2022-08-02", "close": "2022-08-08", "manager": "Саша", "price": 9.402, "discPct": 0.0}, {"id": 401, "corpus": "ГП4", "group": "ГП4-Б", "floor": 6, "rooms": 2, "view": "на лес", "listPrice": 4.031, "sold": true, "appeal": "2022-06-20", "close": "2022-07-14", "manager": "Лиана", "price": 3.981, "discPct": 0.0124}, {"id": 402, "corpus": "ГП4", "group": "ГП4-Б", "floor": 6, "rooms": 1, "view": "на лес", "listPrice": 2.615, "sold": true, "appeal": "2022-05-30", "close": "2022-06-28", "manager": "Иван", "price": 2.515, "discPct": 0.0382}, {"id": 403, "corpus": "ГП4", "group": "ГП4-Б", "floor": 7, "rooms": 1, "view": "во двор", "listPrice": 5.026, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 404, "corpus": "ГП4", "group": "ГП4-Б", "floor": 7, "rooms": 3, "view": "на лес", "listPrice": 8.921, "sold": true, "appeal": "2022-07-23", "close": "2022-08-09", "manager": "Филипп", "price": 8.721, "discPct": 0.0224}, {"id": 405, "corpus": "ГП4", "group": "ГП4-Б", "floor": 7, "rooms": 2, "view": "на лес", "listPrice": 4.666, "sold": true, "appeal": "2022-07-26", "close": "2022-08-05", "manager": "Филипп", "price": 4.516, "discPct": 0.0321}, {"id": 406, "corpus": "ГП4", "group": "ГП4-Б", "floor": 7, "rooms": 1, "view": "на лес", "listPrice": 6.177, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 407, "corpus": "ГП4", "group": "ГП4-Б", "floor": 8, "rooms": 1, "view": "во двор", "listPrice": 7.324, "sold": true, "appeal": "2022-06-03", "close": "2022-06-06", "manager": "Лиана", "price": 7.324, "discPct": 0.0}, {"id": 408, "corpus": "ГП4", "group": "ГП4-Б", "floor": 8, "rooms": 3, "view": "на лес", "listPrice": 11.335, "sold": true, "appeal": "2022-08-15", "close": "2022-08-21", "manager": "Филипп", "price": 11.085, "discPct": 0.0221}, {"id": 409, "corpus": "ГП4", "group": "ГП4-Б", "floor": 8, "rooms": 2, "view": "на лес", "listPrice": 10.153, "sold": true, "appeal": "2022-08-07", "close": "2022-08-19", "manager": "Саша", "price": 10.153, "discPct": 0.0}, {"id": 410, "corpus": "ГП4", "group": "ГП4-Б", "floor": 8, "rooms": 1, "view": "на лес", "listPrice": 4.674, "sold": true, "appeal": "2022-07-14", "close": "2022-08-18", "manager": "Иван", "price": 4.674, "discPct": 0.0}, {"id": 411, "corpus": "ГП4", "group": "ГП4-Б", "floor": 9, "rooms": 1, "view": "во двор", "listPrice": 6.519, "sold": true, "appeal": "2022-06-03", "close": "2022-06-24", "manager": "Иван", "price": 6.269, "discPct": 0.0384}, {"id": 412, "corpus": "ГП4", "group": "ГП4-Б", "floor": 9, "rooms": 3, "view": "на лес", "listPrice": 13.479, "sold": true, "appeal": "2022-07-30", "close": "2022-07-30", "manager": "Саша", "price": 13.479, "discPct": 0.0}, {"id": 413, "corpus": "ГП4", "group": "ГП4-Б", "floor": 9, "rooms": 2, "view": "на лес", "listPrice": 14.834, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 414, "corpus": "ГП4", "group": "ГП4-Б", "floor": 9, "rooms": 1, "view": "на лес", "listPrice": 6.365, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 415, "corpus": "ГП4", "group": "ГП4-Б", "floor": 10, "rooms": 1, "view": "во двор", "listPrice": 11.798, "sold": true, "appeal": "2022-05-27", "close": "2022-07-05", "manager": "Лиана", "price": 11.748, "discPct": 0.0042}, {"id": 416, "corpus": "ГП4", "group": "ГП4-Б", "floor": 10, "rooms": 3, "view": "на лес", "listPrice": 21.902, "sold": true, "appeal": "2022-07-18", "close": "2022-07-18", "manager": "Филипп", "price": 21.902, "discPct": 0.0}, {"id": 417, "corpus": "ГП4", "group": "ГП4-Б", "floor": 10, "rooms": 2, "view": "на лес", "listPrice": 11.457, "sold": true, "appeal": "2022-07-30", "close": "2022-08-09", "manager": "Саша", "price": 11.457, "discPct": 0.0}, {"id": 418, "corpus": "ГП4", "group": "ГП4-Б", "floor": 10, "rooms": 1, "view": "на лес", "listPrice": 12.068, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 419, "corpus": "ГП4", "group": "ГП4-В", "floor": 6, "rooms": 3, "view": "окна в окна", "listPrice": 4.972, "sold": true, "appeal": "2022-07-25", "close": "2022-08-08", "manager": "Филипп", "price": 4.522, "discPct": 0.0905}, {"id": 420, "corpus": "ГП4", "group": "ГП4-В", "floor": 2, "rooms": 3, "view": "окна в окна", "listPrice": 2.456, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 421, "corpus": "ГП4", "group": "ГП4-В", "floor": 3, "rooms": 3, "view": "окна в окна", "listPrice": 2.966, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 422, "corpus": "ГП4", "group": "ГП4-В", "floor": 4, "rooms": 3, "view": "окна в окна", "listPrice": 3.425, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 423, "corpus": "ГП4", "group": "ГП4-В", "floor": 5, "rooms": 3, "view": "окна в окна", "listPrice": 3.965, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 424, "corpus": "ГП4", "group": "ГП4-В", "floor": 7, "rooms": 3, "view": "окна в окна", "listPrice": 6.75, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 425, "corpus": "ГП4", "group": "ГП4-В", "floor": 8, "rooms": 3, "view": "окна в окна", "listPrice": 9.414, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 426, "corpus": "ГП4", "group": "ГП4-В", "floor": 9, "rooms": 3, "view": "окна в окна", "listPrice": 13.099, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 427, "corpus": "ГП4", "group": "ГП4-В", "floor": 10, "rooms": 3, "view": "окна в окна", "listPrice": 15.479, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 428, "corpus": "ГП4", "group": "ГП4-В", "floor": 10, "rooms": 3, "view": "на лес", "listPrice": 26.002, "sold": true, "appeal": "2022-06-03", "close": "2022-07-01", "manager": "Иван", "price": 25.852, "discPct": 0.0058}, {"id": 429, "corpus": "ГП4", "group": "ГП4-В", "floor": 6, "rooms": 3, "view": "на лес", "listPrice": 6.86, "sold": true, "appeal": "2022-06-20", "close": "2022-07-08", "manager": "Миша", "price": 6.71, "discPct": 0.0219}, {"id": 430, "corpus": "ГП4", "group": "ГП4-В", "floor": 9, "rooms": 3, "view": "на лес", "listPrice": 16.109, "sold": true, "appeal": "2022-07-18", "close": "2022-07-29", "manager": "Лиана", "price": 16.059, "discPct": 0.0031}, {"id": 431, "corpus": "ГП4", "group": "ГП4-В", "floor": 8, "rooms": 3, "view": "на лес", "listPrice": 11.944, "sold": true, "appeal": "2022-07-18", "close": "2022-08-08", "manager": "Саша", "price": 11.844, "discPct": 0.0084}, {"id": 432, "corpus": "ГП4", "group": "ГП4-В", "floor": 2, "rooms": 3, "view": "на лес", "listPrice": 3.481, "sold": true, "appeal": "2022-08-07", "close": "2022-08-09", "manager": "Саша", "price": 3.481, "discPct": 0.0}, {"id": 433, "corpus": "ГП4", "group": "ГП4-В", "floor": 5, "rooms": 3, "view": "на лес", "listPrice": 6.562, "sold": true, "appeal": "2022-08-02", "close": "2022-08-09", "manager": "Саша", "price": 6.562, "discPct": 0.0}, {"id": 434, "corpus": "ГП4", "group": "ГП4-В", "floor": 3, "rooms": 3, "view": "на лес", "listPrice": 4.029, "sold": true, "appeal": "2022-07-28", "close": "2022-08-09", "manager": "Филипп", "price": 3.779, "discPct": 0.062}, {"id": 435, "corpus": "ГП4", "group": "ГП4-В", "floor": 7, "rooms": 3, "view": "на лес", "listPrice": 9.032, "sold": true, "appeal": "2022-08-19", "close": "2022-08-22", "manager": "Миша", "price": 8.882, "discPct": 0.0166}, {"id": 436, "corpus": "ГП4", "group": "ГП4-В", "floor": 4, "rooms": 3, "view": "на лес", "listPrice": 7.9, "sold": true, "appeal": "2022-08-13", "close": "2022-08-23", "manager": "Миша", "price": 7.6, "discPct": 0.038}, {"id": 437, "corpus": "ГП4", "group": "ГП4-В", "floor": 5, "rooms": 2, "view": "во двор", "listPrice": 4.819, "sold": true, "appeal": "2022-05-27", "close": "2022-06-30", "manager": "Миша", "price": 4.569, "discPct": 0.0519}, {"id": 438, "corpus": "ГП4", "group": "ГП4-В", "floor": 9, "rooms": 2, "view": "во двор", "listPrice": 13.754, "sold": true, "appeal": "2022-06-20", "close": "2022-06-26", "manager": "Лиана", "price": 13.754, "discPct": 0.0}, {"id": 439, "corpus": "ГП4", "group": "ГП4-В", "floor": 10, "rooms": 2, "view": "во двор", "listPrice": 13.614, "sold": true, "appeal": "2022-07-29", "close": "2022-08-09", "manager": "Миша", "price": 13.614, "discPct": 0.0}, {"id": 440, "corpus": "ГП4", "group": "ГП4-В", "floor": 7, "rooms": 2, "view": "во двор", "listPrice": 5.041, "sold": true, "appeal": "2022-08-03", "close": "2022-08-22", "manager": "Саша", "price": 5.041, "discPct": 0.0}, {"id": 441, "corpus": "ГП4", "group": "ГП4-В", "floor": 2, "rooms": 2, "view": "во двор", "listPrice": 2.0, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 442, "corpus": "ГП4", "group": "ГП4-В", "floor": 4, "rooms": 2, "view": "во двор", "listPrice": 3.082, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 443, "corpus": "ГП4", "group": "ГП4-В", "floor": 3, "rooms": 2, "view": "во двор", "listPrice": 3.784, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 444, "corpus": "ГП4", "group": "ГП4-В", "floor": 6, "rooms": 2, "view": "во двор", "listPrice": 4.326, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 445, "corpus": "ГП4", "group": "ГП4-В", "floor": 8, "rooms": 2, "view": "во двор", "listPrice": 7.98, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}, {"id": 446, "corpus": "ГП4", "group": "ГП4-В", "floor": 4, "rooms": 2, "view": "на лес", "listPrice": 2.851, "sold": true, "appeal": "2022-05-28", "close": "2022-06-03", "manager": "Иван", "price": 2.851, "discPct": 0.0}, {"id": 447, "corpus": "ГП4", "group": "ГП4-В", "floor": 8, "rooms": 2, "view": "на лес", "listPrice": 5.747, "sold": true, "appeal": "2022-05-22", "close": "2022-06-06", "manager": "Лиана", "price": 5.697, "discPct": 0.0087}, {"id": 448, "corpus": "ГП4", "group": "ГП4-В", "floor": 5, "rooms": 2, "view": "на лес", "listPrice": 3.458, "sold": true, "appeal": "2022-05-24", "close": "2022-06-27", "manager": "Иван", "price": 3.458, "discPct": 0.0}, {"id": 449, "corpus": "ГП4", "group": "ГП4-В", "floor": 6, "rooms": 2, "view": "на лес", "listPrice": 5.566, "sold": true, "appeal": "2022-06-25", "close": "2022-07-05", "manager": "Иван", "price": 5.566, "discPct": 0.0}, {"id": 450, "corpus": "ГП4", "group": "ГП4-В", "floor": 10, "rooms": 2, "view": "на лес", "listPrice": 10.118, "sold": true, "appeal": "2022-06-20", "close": "2022-07-17", "manager": "Лиана", "price": 10.118, "discPct": 0.0}, {"id": 451, "corpus": "ГП4", "group": "ГП4-В", "floor": 9, "rooms": 2, "view": "на лес", "listPrice": 10.251, "sold": true, "appeal": "2022-08-12", "close": "2022-08-21", "manager": "Филипп", "price": 10.001, "discPct": 0.0244}, {"id": 452, "corpus": "ГП4", "group": "ГП4-В", "floor": 2, "rooms": 2, "view": "на лес", "listPrice": 2.029, "sold": true, "appeal": "2022-08-11", "close": "2022-08-22", "manager": "Миша", "price": 2.029, "discPct": 0.0}, {"id": 453, "corpus": "ГП4", "group": "ГП4-В", "floor": 7, "rooms": 2, "view": "на лес", "listPrice": 7.393, "sold": true, "appeal": "2022-08-07", "close": "2022-08-24", "manager": "Саша", "price": 7.393, "discPct": 0.0}, {"id": 454, "corpus": "ГП4", "group": "ГП4-В", "floor": 3, "rooms": 2, "view": "на лес", "listPrice": 2.42, "sold": false, "appeal": null, "close": null, "manager": null, "price": null, "discPct": null}];
+</script>
+<script>
+const { createApp } = Vue;
+
+// ---------- Date helpers (LOCAL-safe — never use toISOString for calendar dates) ----------
+const parseDate = d3.timeParse('%Y-%m-%d');
+const formatISO = d3.timeFormat('%Y-%m-%d');
+const formatDateShort = d3.timeFormat('%d.%m');
+const formatDateFull = d3.timeFormat('%d.%m.%Y');
+const DAY_MS = 86400000;
+
+function fmtComma(x, digits) {
+  return x.toFixed(digits).replace('.', ',');
+}
+function pluralDays(n) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m100 >= 11 && m100 <= 14) return 'дней';
+  if (m10 === 1) return 'день';
+  if (m10 >= 2 && m10 <= 4) return 'дня';
+  return 'дней';
+}
+
+// ---------- Price color scale (D3, log scale, same palette as before) ----------
+const allPricesForScale = APARTMENTS.map(a => a.sold ? a.price : a.listPrice);
+const PMIN = d3.min(allPricesForScale);
+const PMAX = d3.max(allPricesForScale);
+const priceColorScale = d3.scaleSequentialLog(d3.interpolateRgb('rgb(230,241,251)', 'rgb(4,44,83)'))
+  .domain([Math.max(PMIN, 0.001), PMAX]);
+
+function priceColor(p) {
+  return priceColorScale(Math.max(p, 0.001));
+}
+
+// ---------- Date range for the whole dataset ----------
+const soldApts = APARTMENTS.filter(a => a.sold);
+const MIN_DATE = d3.min(soldApts, a => parseDate(a.appeal));
+const MAX_DATE = d3.max(soldApts, a => parseDate(a.close));
+const TOTAL_DAYS = Math.round((MAX_DATE - MIN_DATE) / DAY_MS);
+
+// ---------- Static lists ----------
+const GROUPS_LIST = ['ГП1', 'ГП2', 'ГП3', 'ГП4-А', 'ГП4-Б', 'ГП4-В'];
+const VIEWS_LIST = [
+  { value: 'на дорогу', label: 'дорога' },
+  { value: 'на реку', label: 'река' },
+  { value: 'окна в окна', label: 'окна в окна' },
+  { value: 'на ЖК', label: 'жк' },
+  { value: 'на лес', label: 'лес' },
+  { value: 'во двор', label: 'двор' }
+];
+const VIEW_SHORT = Object.fromEntries(VIEWS_LIST.map(v => [v.value, v.label]));
+const MANAGERS_LIST = ['Иван', 'Филипп', 'Саша', 'Лиана', 'Миша'];
+
+const TILE_SIZE = 24;
+const TILE_GAP = 2;
+
+// ---------- Per-group structural facts ----------
+const MAX_FLOOR_FOR_GROUP = {};
+const ROOM_COUNTS_FOR_GROUP = {};
+const MAX_COUNT_FOR_ROOM = {};
+const TOTAL_SLOTS_FOR_GROUP = {};
+const TILE_WIDTH_FOR_GROUP = {};
+
+GROUPS_LIST.forEach(g => {
+  const inGroup = APARTMENTS.filter(a => a.group === g);
+  MAX_FLOOR_FOR_GROUP[g] = d3.max(inGroup, a => a.floor);
+  const rooms = [...new Set(inGroup.map(a => a.rooms))].sort((a, b) => a - b);
+  ROOM_COUNTS_FOR_GROUP[g] = rooms;
+  let total = 0;
+  rooms.forEach(room => {
+    const perFloor = {};
+    inGroup.filter(a => a.rooms === room).forEach(a => { perFloor[a.floor] = (perFloor[a.floor] || 0) + 1; });
+    const maxN = Math.max(...Object.values(perFloor), 1);
+    MAX_COUNT_FOR_ROOM[g + '|' + room] = maxN;
+    total += maxN;
+  });
+  TOTAL_SLOTS_FOR_GROUP[g] = total;
+  TILE_WIDTH_FOR_GROUP[g] = total * (TILE_SIZE + TILE_GAP) - TILE_GAP;
+});
+const TOP_FLOOR = d3.max(Object.values(MAX_FLOOR_FOR_GROUP));
+
+// ---------- Grid layout: FIXED pixel column widths ----------
+const COL = { 'ГП1': 3, 'ГП2': 5, 'ГП3': 7, 'ГП4-А': 9, 'ГП4-Б': 11, 'ГП4-В': 13 };
+const FLOOR_AXIS_W = 46, SPACER_WIDE = 28, SPACER_NARROW = 6, SPACER_AXIS = 14;
+function groupColWidthPx(g) {
+  const titleMin = g.startsWith('ГП4-') ? 110 : 205;
+  return Math.max(TILE_WIDTH_FOR_GROUP[g], titleMin);
+}
+const GRID_TEMPLATE_COLUMNS = [
+  FLOOR_AXIS_W + 'px', SPACER_AXIS + 'px',
+  groupColWidthPx('ГП1') + 'px', SPACER_WIDE + 'px',
+  groupColWidthPx('ГП2') + 'px', SPACER_WIDE + 'px',
+  groupColWidthPx('ГП3') + 'px', SPACER_WIDE + 'px',
+  groupColWidthPx('ГП4-А') + 'px', SPACER_NARROW + 'px',
+  groupColWidthPx('ГП4-Б') + 'px', SPACER_NARROW + 'px',
+  groupColWidthPx('ГП4-В') + 'px'
+].join(' ');
+
+// precise pixel width for floor-hover lanes, ending exactly at the last REAL tile
+// (not the padded column edge) — computed once from the same constants as the grid
+const FLOOR_LANE_WIDTH_GP3 = FLOOR_AXIS_W + SPACER_AXIS +
+  TILE_WIDTH_FOR_GROUP['ГП1'] + SPACER_WIDE +
+  TILE_WIDTH_FOR_GROUP['ГП2'] + SPACER_WIDE +
+  TILE_WIDTH_FOR_GROUP['ГП3'];
+const FLOOR_LANE_WIDTH_FULL = FLOOR_LANE_WIDTH_GP3 + SPACER_WIDE +
+  TILE_WIDTH_FOR_GROUP['ГП4-А'] + SPACER_NARROW +
+  TILE_WIDTH_FOR_GROUP['ГП4-Б'] + SPACER_NARROW +
+  TILE_WIDTH_FOR_GROUP['ГП4-В'];
+
+function rowForFloor(fl) { return 2 + (TOP_FLOOR - fl); }
+const ROW_BRACKETS = rowForFloor(1) + 1;
+function titleRowForGroup(g) { return rowForFloor(MAX_FLOOR_FOR_GROUP[g]) - 1; }
+const FLOORS_DESC = Array.from({ length: TOP_FLOOR }, (_, i) => TOP_FLOOR - i);
+const GP4_MAX_FLOOR = MAX_FLOOR_FOR_GROUP['ГП4-А'];
+
+// ---------- Static list of ALWAYS-RENDERED hover lanes, visibility toggled via class ----------
+const ROOM_LANES_STATIC = [];
+GROUPS_LIST.forEach(g => {
+  let offset = 0;
+  ROOM_COUNTS_FOR_GROUP[g].forEach(room => {
+    const cnt = MAX_COUNT_FOR_ROOM[g + '|' + room];
+    ROOM_LANES_STATIC.push({
+      key: 'lane-' + g + '-' + room,
+      room,
+      left: offset * (TILE_SIZE + TILE_GAP),
+      width: cnt * (TILE_SIZE + TILE_GAP) - TILE_GAP,
+      col: COL[g],
+      rowStart: rowForFloor(MAX_FLOOR_FOR_GROUP[g]),
+      rowEnd: ROW_BRACKETS + 1
+    });
+    offset += cnt;
+  });
+});
+const FLOOR_LANES_STATIC = FLOORS_DESC.map(fl => ({
+  key: 'flane-' + fl,
+  floor: fl,
+  width: fl > GP4_MAX_FLOOR ? FLOOR_LANE_WIDTH_GP3 : FLOOR_LANE_WIDTH_FULL,
+  row: rowForFloor(fl)
+}));
+
+// ---------- Pre-group revenue-by-day ----------
+function buildRevenueDays() {
+  const byDate = {};
+  soldApts.forEach(a => {
+    if (!byDate[a.close]) byDate[a.close] = [];
+    byDate[a.close].push(a);
+  });
+  const days = [];
+  for (let t = MIN_DATE.getTime(); t <= MAX_DATE.getTime(); t += DAY_MS) {
+    const d = new Date(t);
+    const dateStr = formatISO(d);
+    const deals = (byDate[dateStr] || []).slice().sort((a, b) => a.price - b.price);
+    const netTotal = deals.reduce((s, a) => s + a.price * (1 - a.discPct), 0);
+    days.push({ date: dateStr, day: d, deals, netTotal });
+  }
+  return days;
+}
+const REVENUE_DAYS_STATIC = buildRevenueDays();
+const MAX_DAILY_REVENUE = d3.max(REVENUE_DAYS_STATIC, d => d.netTotal) || 1;
+
+const managerTotals = MANAGERS_LIST.map(m =>
+  soldApts.filter(a => a.manager === m).reduce((s, a) => s + a.price, 0)
+);
+const MAX_MANAGER_TOTAL = d3.max(managerTotals) || 1;
+
+const MANAGER_DEALS_STATIC = {};
+MANAGERS_LIST.forEach(m => {
+  MANAGER_DEALS_STATIC[m] = soldApts.filter(a => a.manager === m).sort((a, b) => a.close.localeCompare(b.close));
+});
+
+createApp({
+  data() {
+    return {
+      dayIdx: 0,
+      playing: false,
+      playTimer: null,
+      activeView: null,
+      activeFloors: [],
+      activeRooms: [],
+      selectedId: null,
+      hoverRevDate: null,
+      hoverRoom: null,
+      hoverFloor: null,
+      tileSize: TILE_SIZE,
+      gap: TILE_GAP
+    };
+  },
+
+  computed: {
+    totalDays() { return TOTAL_DAYS; },
+    groupsList() { return GROUPS_LIST; },
+    floorsDesc() { return FLOORS_DESC; },
+    viewsList() { return VIEWS_LIST; },
+    managersList() { return MANAGERS_LIST; },
+    gridTemplateColumns() { return GRID_TEMPLATE_COLUMNS; },
+    roomLanes() { return ROOM_LANES_STATIC; },
+    floorLanes() { return FLOOR_LANES_STATIC; },
+
+    currentDate() { return new Date(MIN_DATE.getTime() + this.dayIdx * DAY_MS); },
+    currentDateStr() { return formatISO(this.currentDate); },
+    currentDateLabel() { return formatDateFull(this.currentDate); },
+    sliderPct() { return TOTAL_DAYS ? (this.dayIdx / TOTAL_DAYS * 100) : 0; },
+
+    priceScaleMin() { return fmtComma(PMIN, 3); },
+    priceScaleMax() { return fmtComma(PMAX, 3); },
+
+    totalCountFiltered() { return APARTMENTS.filter(a => this.matchesFilters(a)).length; },
+    soldCountFiltered() { return APARTMENTS.filter(a => this.matchesFilters(a) && this.aptState(a) === 'closed').length; },
+    pctSoldFiltered() { return this.totalCountFiltered ? Math.round(this.soldCountFiltered / this.totalCountFiltered * 100) : 0; },
+    revenueFiltered() {
+      return APARTMENTS
+        .filter(a => this.matchesFilters(a) && this.aptState(a) === 'closed')
+        .reduce((s, a) => s + a.price * (1 - a.discPct), 0);
+    },
+
+    gridCells() {
+      const cells = [];
+      cells.push({ key: 'ax-fl', kind: 'axis-caption-floors', col: 1, row: 1 });
+      cells.push({ key: 'ax-rm', kind: 'axis-caption-rooms', col: 1, row: ROW_BRACKETS });
+      this.floorsDesc.forEach(fl => {
+        cells.push({ key: 'fl-' + fl, kind: 'floor-label', col: 1, row: rowForFloor(fl), floor: fl });
+      });
+      cells.push({ key: 'gp4-agg', kind: 'gp4agg', col: COL['ГП4-А'], row: 1 });
+
+      this.groupsList.forEach(g => {
+        cells.push({ key: 'title-' + g, kind: 'title', col: COL[g], row: titleRowForGroup(g), group: g, tileWidth: TILE_WIDTH_FOR_GROUP[g] });
+        this.floorsDesc.forEach(fl => {
+          if (fl > MAX_FLOOR_FOR_GROUP[g]) return;
+          cells.push({ key: 'tl-' + g + '-' + fl, kind: 'tiles', col: COL[g], row: rowForFloor(fl), group: g, floor: fl });
+        });
+        cells.push({ key: 'br-' + g, kind: 'brackets', col: COL[g], row: ROW_BRACKETS, group: g });
+      });
+      return cells;
+    },
+
+    revenueDays() {
+      return REVENUE_DAYS_STATIC.map(d => {
+        const hasSelected = this.selectedId !== null && d.deals.some(a => a.id === this.selectedId);
+        return { ...d, revealed: d.date <= this.currentDateStr || hasSelected };
+      });
+    },
+    revenueMaxDay() { return MAX_DAILY_REVENUE; },
+    revenueChartHeight() { return 260; },
+    revenuePxPerMillion() { return this.revenueChartHeight / MAX_DAILY_REVENUE; },
+    revenueYTicks() {
+      return d3.scaleLinear().domain([0, MAX_DAILY_REVENUE]).ticks(10).filter(t => t > 0);
+    },
+    revenueXTicks() {
+      const ticks = [];
+      const n = REVENUE_DAYS_STATIC.length;
+      REVENUE_DAYS_STATIC.forEach((d, i) => {
+        const dom = d.day.getDate();
+        if (dom === 1 || dom === 15 || i === 0 || i === n - 1) {
+          ticks.push({ date: d.date, label: formatDateShort(d.day), leftPct: ((i + 0.5) / n * 100) + '%' });
+        }
+      });
+      return ticks;
+    },
+    activeRevDate() {
+      if (this.hoverRevDate !== null) return this.hoverRevDate;
+      if (this.selectedId !== null) {
+        const apt = soldApts.find(a => a.id === this.selectedId);
+        if (apt) return apt.close;
+      }
+      return null;
+    },
+    activeRevTick() {
+      if (this.activeRevDate === null) return null;
+      if (this.revenueXTicks.some(t => t.date === this.activeRevDate)) return null;
+      const idx = REVENUE_DAYS_STATIC.findIndex(d => d.date === this.activeRevDate);
+      if (idx === -1) return null;
+      const n = REVENUE_DAYS_STATIC.length;
+      return { label: formatDateShort(REVENUE_DAYS_STATIC[idx].day), leftPct: ((idx + 0.5) / n * 100) + '%' };
+    }
+  },
+
+  methods: {
+    fmtMoney(x) { return fmtComma(x, 1); },
+    cellStyle(cell) { return { gridColumn: cell.col, gridRow: cell.row }; },
+    titleStyle(cell) {
+      return { gridColumn: cell.col, gridRow: cell.row, width: cell.tileWidth + 'px' };
+    },
+    roomLaneStyle(lane) {
+      return {
+        gridColumn: lane.col,
+        gridRow: lane.rowStart + ' / ' + lane.rowEnd,
+        marginLeft: lane.left + 'px',
+        width: lane.width + 'px'
+      };
+    },
+    floorLaneStyle(lane) {
+      return { gridColumn: 1, gridRow: lane.row, width: lane.width + 'px' };
+    },
+
+    toggleView(v) { this.activeView = this.activeView === v ? null : v; },
+    toggleFloor(f) {
+      const i = this.activeFloors.indexOf(f);
+      if (i === -1) this.activeFloors.push(f); else this.activeFloors.splice(i, 1);
+      this.hoverFloor = null;
+      this.hoverRoom = null;
+    },
+    toggleRooms(r) {
+      const i = this.activeRooms.indexOf(r);
+      if (i === -1) this.activeRooms.push(r); else this.activeRooms.splice(i, 1);
+      this.hoverFloor = null;
+      this.hoverRoom = null;
+    },
+    matchesFilters(apt) {
+      if (this.activeView && apt.view !== this.activeView) return false;
+      if (this.activeFloors.length && !this.activeFloors.includes(apt.floor)) return false;
+      if (this.activeRooms.length && !this.activeRooms.includes(apt.rooms)) return false;
+      return true;
+    },
+
+    pickTile(id) {
+      this.selectedId = this.selectedId === id ? null : id;
+      this.hoverFloor = null;
+      this.hoverRoom = null;
+    },
+
+    aptState(apt) {
+      if (!apt.sold) return 'unsold';
+      if (this.currentDateStr < apt.appeal) return 'future';
+      if (this.currentDateStr < apt.close) return 'progress';
+      return 'closed';
+    },
+
+    fillStyle(apt) {
+      const state = this.aptState(apt);
+      if (state !== 'closed') return { height: '0%' };
+      return { height: ((1 - apt.discPct) * 100) + '%', background: priceColor(apt.price) };
+    },
+
+    corpusStat(filterFn) {
+      const subset = APARTMENTS.filter(a => filterFn(a) && this.matchesFilters(a));
+      const sold = subset.filter(a => this.aptState(a) === 'closed');
+      const revenue = sold.reduce((s, a) => s + a.price * (1 - a.discPct), 0);
+      return { count: sold.length, pct: subset.length ? Math.round(sold.length / subset.length * 100) : 0, revenue };
+    },
+    titleLabel(g) {
+      if (g === 'ГП1' || g === 'ГП2' || g === 'ГП3') return g;
+      return g.split('-')[1];
+    },
+    isGp4Sub(g) { return g.startsWith('ГП4-'); },
+    titleStat(g) {
+      const filterFn = g.startsWith('ГП4-') ? (a => a.group === g) : (a => a.corpus === g);
+      return this.corpusStat(filterFn);
+    },
+    gp4AggStat() { return this.corpusStat(a => a.corpus === 'ГП4'); },
+
+    roomBracketsFor(g) {
+      return ROOM_COUNTS_FOR_GROUP[g].map(room => ({ room, count: MAX_COUNT_FOR_ROOM[g + '|' + room] }));
+    },
+    slotsFor(g, fl) {
+      const slots = [];
+      ROOM_COUNTS_FOR_GROUP[g].forEach(room => {
+        const apts = APARTMENTS
+          .filter(a => a.group === g && a.floor === fl && a.rooms === room)
+          .sort((a, b) => (a.sold ? a.price : a.listPrice) - (b.sold ? b.price : b.listPrice));
+        const maxN = MAX_COUNT_FOR_ROOM[g + '|' + room];
+        for (let i = 0; i < maxN; i++) slots.push({ apt: apts[i] || null, room });
+      });
+      return slots;
+    },
+    tileClass(apt) {
+      return { dim: !this.matchesFilters(apt), picked: this.selectedId === apt.id };
+    },
+    tileStyle(apt) {
+      const state = this.aptState(apt);
+      const size = this.tileSize + 'px';
+      const color = (state === 'closed' || state === 'progress') ? priceColor(apt.price) : priceColor(apt.listPrice);
+      const borderW = state === 'closed' ? '1px' : '2px';
+      return { width: size, height: size, border: borderW + ' solid ' + color };
+    },
+    tileTitle(apt) {
+      const line1 = apt.group + ', ' + apt.floor + ' эт., ' + apt.rooms + ' к., ' + VIEW_SHORT[apt.view];
+      if (!apt.sold) {
+        return line1 + '\nне продана\nцена ' + fmtComma(apt.listPrice, 3) + ' млн ₽';
+      }
+      const days = Math.round((parseDate(apt.close) - parseDate(apt.appeal)) / DAY_MS);
+      const line2 = formatDateFull(parseDate(apt.appeal)) + '—' + formatDateFull(parseDate(apt.close)) + ' (' + days + ' ' + pluralDays(days) + ')';
+      const line3 = 'цена ' + fmtComma(apt.listPrice, 3) + ' млн ₽';
+      const line4 = 'продажа ' + fmtComma(apt.price, 3) + ' млн ₽';
+      const line5 = 'скидка ' + fmtComma(apt.discPct * 100, 1) + '%';
+      return line1 + '\n' + line2 + '\n' + line3 + '\n' + line4 + '\n' + line5;
+    },
+
+    setHoverRoom(r) { this.hoverRoom = r; },
+    clearHoverRoom() { this.hoverRoom = null; },
+    setHoverFloor(f) { this.hoverFloor = f; },
+    clearHoverFloor() { this.hoverFloor = null; },
+
+    revTileStyle(apt) {
+      if (this.currentDateStr < apt.close) return { height: '10px', background: 'transparent' };
+      const netHeight = apt.price * (1 - apt.discPct) * this.revenuePxPerMillion;
+      return { height: netHeight + 'px', background: priceColor(apt.price) };
+    },
+    revTileClass(apt) {
+      return { dim: !this.matchesFilters(apt), picked: this.selectedId === apt.id };
+    },
+
+    managerDeals(m) { return MANAGER_DEALS_STATIC[m]; },
+    managerVisible(apt) {
+      return apt.appeal <= this.currentDateStr || this.selectedId === apt.id;
+    },
+    managerStats(m) {
+      const deals = MANAGER_DEALS_STATIC[m].filter(a => this.aptState(a) === 'closed');
+      const count = deals.length;
+      const sum = deals.reduce((s, a) => s + a.price * (1 - a.discPct), 0);
+      const avgDisc = count ? (deals.reduce((s, a) => s + a.discPct, 0) / count * 100) : 0;
+      const avgDays = count ? (deals.reduce((s, a) => (parseDate(a.close) - parseDate(a.appeal)) / DAY_MS + s, 0) / count) : 0;
+      return { count, sum, avgDisc: fmtComma(avgDisc, 1), avgDays: Math.round(avgDays) };
+    },
+    managerTileStyle(apt) {
+      if (!this.managerVisible(apt)) return { width: '0px', border: 'none' };
+      const state = this.aptState(apt);
+      if (state !== 'closed' && state !== 'progress') {
+        return { width: '14px', border: '1px solid transparent' };
+      }
+      const widthPct = (apt.price / MAX_MANAGER_TOTAL * 100) + '%';
+      const borderW = state === 'closed' ? '1px' : '2px';
+      return { width: widthPct, border: borderW + ' solid ' + priceColor(apt.price) };
+    },
+    managerTileClass(apt) {
+      return {
+        dim: !this.matchesFilters(apt),
+        picked: this.selectedId === apt.id,
+        hidden: !this.managerVisible(apt)
+      };
+    },
+
+    togglePlay() {
+      this.playing = !this.playing;
+      if (this.playing) {
+        this.playTimer = setInterval(() => {
+          if (this.dayIdx >= TOTAL_DAYS) {
+            this.playing = false;
+            clearInterval(this.playTimer);
+            return;
+          }
+          this.dayIdx++;
+        }, 160);
+      } else {
+        clearInterval(this.playTimer);
+      }
+    }
+  }
+}).mount('#app');
+
+</script>
+</body>
+</html>
