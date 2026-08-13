@@ -824,6 +824,7 @@ createApp({
     togglePlay() {
       this.playing = !this.playing;
       if (this.playing) {
+        this.dayIdx = 0;
         this.playTimer = setInterval(() => {
           if (this.dayIdx >= TOTAL_DAYS) {
             this.playing = false;
