@@ -131,7 +131,6 @@ button:focus-visible { outline: none; }
 /* ---------- Grid (shahmatka), pure CSS Grid with FIXED column widths ---------- */
 .grid-table {
   display: grid;
-  row-gap: 2px;
   column-gap: 0;
   align-items: end;
   justify-items: stretch;
@@ -156,11 +155,11 @@ button:focus-visible { outline: none; }
 .axis-square.active { background: var(--accent-muted); color: #fff; font-weight: 600; }
 .floor-square { justify-self: end; margin-right: 12px; }
 
-.group-title { font-weight: 600; font-size: 14px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; }
+.group-title { font-weight: 600; font-size: 15px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; }
 .gt-label { margin-right: 3px; }
 .gt-money { color: var(--text-secondary); font-weight: 400; margin-left: 3px; }
 
-.room-brackets { display: flex; gap: 2px; align-self: start; justify-self: start; position: relative; z-index: 1; }
+.room-brackets { display: flex; align-self: start; justify-self: start; position: relative; z-index: 1; }
 .room-bracket { display: flex; flex-direction: column; align-items: center; }
 .bracket-shape {
   width: 100%; height: 7px;
@@ -169,7 +168,7 @@ button:focus-visible { outline: none; }
   margin-bottom: 1px;
 }
 
-.tiles { display: flex; gap: 2px; height: 100%; align-items: center; justify-self: start; position: relative; z-index: 1; }
+.tiles { display: flex; height: 100%; align-items: center; justify-self: start; position: relative; z-index: 1; }
 .tile {
   position: relative;
   border-radius: 3px;
@@ -184,6 +183,7 @@ button:focus-visible { outline: none; }
 .tile-fill { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; }
 
 .hover-lane-row { align-self: stretch; background: transparent; border-radius: 3px; z-index: 2; pointer-events: none; }
+.hover-trigger { align-self: stretch; z-index: 0; cursor: pointer; }
 .hover-lane-row.visible { background: rgba(241, 239, 233, 0.25); }
 .hover-lane-col { align-self: stretch; background: transparent; border-radius: 3px; z-index: 2; pointer-events: none; }
 .hover-lane-col.visible { background: rgba(241, 239, 233, 0.25); }
@@ -193,7 +193,7 @@ button:focus-visible { outline: none; }
 .filters-label { font-size: 13px; color: var(--text-secondary); }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip {
-  padding: 6px 14px 10px;
+  padding: 7px 14px 9px;
   border-radius: 16px; border: 1px solid var(--border-strong);
   background: var(--surface); cursor: pointer; font-size: 13px; color: var(--text-primary);
   font-weight: 400; line-height: 1;
@@ -278,10 +278,15 @@ button:focus-visible { outline: none; }
       </div>
     </div>
 
-    <div class="grid-table" :style="{gridTemplateColumns: gridTemplateColumns}">
+    <div class="grid-table" :style="{gridTemplateColumns: gridTemplateColumns, rowGap: gap+'px'}">
 
       <div v-for="lane in floorLanes" :key="lane.key" class="hover-lane-row" :class="{visible: hoverFloor===lane.floor}" :style="floorLaneStyle(lane)"></div>
       <div v-for="lane in roomLanes" :key="lane.key" class="hover-lane-col" :class="{visible: hoverRoom===lane.room}" :style="roomLaneStyle(lane)"></div>
+
+      <!-- invisible hover-trigger strips: wider hit-area than the floor-number button alone -->
+      <div v-for="t in floorTriggers" :key="t.key" class="hover-trigger"
+           :style="floorTriggerStyle(t)"
+           @mouseenter="setHoverFloor(t.floor)" @mouseleave="clearHoverFloor"></div>
 
       <template v-for="cell in gridCells" :key="cell.key">
 
@@ -296,14 +301,14 @@ button:focus-visible { outline: none; }
                 @mouseenter="setHoverFloor(cell.floor)" @mouseleave="clearHoverFloor">{{ cell.floor }}</button>
 
         <div v-else-if="cell.kind==='gp4agg'" class="group-title" :style="cellStyle(cell)">
-          <span class="gt-label">ГП4</span><span class="num" style="min-width:2.4ch">{{ gp4AggStat().count }}</span> (<span class="num" style="min-width:3ch">{{ gp4AggStat().pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(gp4AggStat().revenue) }}</span> млн ₽</span>
+          <span class="gt-label">ГП4</span><span class="num" style="min-width:3ch">{{ gp4AggStat().count }}</span> (<span class="num" style="min-width:3ch">{{ gp4AggStat().pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(gp4AggStat().revenue) }}</span> млн ₽</span>
         </div>
 
         <div v-else-if="cell.kind==='title'" class="group-title" :style="titleStyle(cell)">
-          <span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="num" style="min-width:2.4ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:3ch">{{ titleStat(cell.group).pct }}</span>%)<span v-if="!isGp4Sub(cell.group)" class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(titleStat(cell.group).revenue) }}</span> млн ₽</span>
+          <span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="num" style="min-width:3ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:3ch">{{ titleStat(cell.group).pct }}</span>%)<span v-if="!isGp4Sub(cell.group)" class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(titleStat(cell.group).revenue) }}</span> млн ₽</span>
         </div>
 
-        <div v-else-if="cell.kind==='brackets'" class="room-brackets" :style="cellStyle(cell)">
+        <div v-else-if="cell.kind==='brackets'" class="room-brackets" :style="[cellStyle(cell), {gap: gap+'px'}]">
           <div v-for="rb in roomBracketsFor(cell.group)" :key="rb.room"
                class="room-bracket"
                :style="{width: (rb.count * (tileSize+gap) - gap) + 'px'}"
@@ -315,7 +320,7 @@ button:focus-visible { outline: none; }
           </div>
         </div>
 
-        <div v-else-if="cell.kind==='tiles'" class="tiles" :style="cellStyle(cell)">
+        <div v-else-if="cell.kind==='tiles'" class="tiles" :style="[cellStyle(cell), {gap: gap+'px'}]">
           <template v-for="(slot, idx) in slotsFor(cell.group, cell.floor)" :key="idx">
             <div v-if="slot.apt" class="tile"
                  :class="tileClass(slot.apt)"
@@ -477,8 +482,8 @@ const VIEWS_LIST = [
 const VIEW_SHORT = Object.fromEntries(VIEWS_LIST.map(v => [v.value, v.label]));
 const MANAGERS_LIST = ['Иван', 'Филипп', 'Саша', 'Лиана', 'Миша'];
 
-const TILE_SIZE = 24;
-const TILE_GAP = 2;
+const TILE_SIZE = 28;
+const TILE_GAP = 3;
 
 // ---------- Per-group structural facts ----------
 const MAX_FLOOR_FOR_GROUP = {};
@@ -579,6 +584,14 @@ const FLOOR_LANES_STATIC = FLOORS_DESC.map(fl => ({
   width: fl > GP4_MAX_FLOOR ? FLOOR_LANE_WIDTH_GP3 : FLOOR_LANE_WIDTH_FULL,
   row: rowForFloor(fl)
 }));
+// invisible hover-trigger strips: extend the hoverable area from the floor-axis
+// rightward through the spacer, up to (not through) the first tile column
+const FLOOR_AXIS_TRIGGER_W = FLOOR_AXIS_W + SPACER_AXIS;
+const FLOOR_TRIGGERS_STATIC = FLOORS_DESC.map(fl => ({
+  key: 'ftrig-' + fl,
+  floor: fl,
+  row: rowForFloor(fl)
+}));
 
 // ---------- Pre-group revenue-by-day ----------
 function buildRevenueDays() {
@@ -638,6 +651,7 @@ createApp({
     gridTotalWidth() { return GRID_TOTAL_WIDTH; },
     roomLanes() { return ROOM_LANES_STATIC; },
     floorLanes() { return FLOOR_LANES_STATIC; },
+    floorTriggers() { return FLOOR_TRIGGERS_STATIC; },
 
     currentDate() { return new Date(MIN_DATE.getTime() + this.dayIdx * DAY_MS); },
     currentDateStr() { return formatISO(this.currentDate); },
@@ -753,6 +767,9 @@ createApp({
     },
     floorLaneStyle(lane) {
       return { gridColumn: 1, gridRow: lane.row, width: lane.width + 'px' };
+    },
+    floorTriggerStyle(t) {
+      return { gridColumn: 1, gridRow: t.row, width: FLOOR_AXIS_TRIGGER_W + 'px' };
     },
 
     toggleView(v) { this.activeView = this.activeView === v ? null : v; },
