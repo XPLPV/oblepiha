@@ -153,7 +153,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .axis-square.active { background: var(--accent-muted); color: #fff; font-weight: 600; }
 .floor-square { justify-self: start; }
 
-.group-title { font-weight: 600; font-size: 15px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; }
+.group-title { font-weight: 600; font-size: 14px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; }
 .gt-label { margin-right: 7px; }
 .gt-money { color: var(--text-secondary); font-weight: 400; margin-left: 7px; }
 
@@ -202,9 +202,9 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 /* ---------- Revenue by day ---------- */
 .revenue-section { margin-bottom: 40px; }
 .revenue-chart-wrap { display: flex; }
-.revenue-y-axis { position: relative; width: 44px; flex-shrink: 0; }
-.revenue-unit-label { width: 44px; text-align: left; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; margin-bottom: 10px; }
-.y-tick { position: absolute; left: 0; width: 44px; text-align: right; font-size: 11px; color: var(--text-secondary); transform: translateY(50%); }
+.revenue-y-axis { position: relative; width: 36px; flex-shrink: 0; }
+.revenue-unit-label { width: 36px; text-align: left; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; margin-bottom: 10px; }
+.y-tick { position: absolute; left: 0; width: 36px; text-align: right; font-size: 11px; color: var(--text-secondary); transform: translateY(50%); }
 .revenue-chart {
   flex: 1; display: flex; align-items: flex-end; gap: 0;
   border-bottom: 1px solid var(--border-strong); position: relative; min-width: 0;
@@ -216,7 +216,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .rev-tile.dim { opacity: var(--dim-opacity); }
 .rev-tile.picked { outline: 2px solid var(--pick-color); outline-offset: -1px; z-index: 3; }
 .revenue-x-axis-row { display: flex; align-items: flex-start; margin-top: 4px; }
-.revenue-x-caption { width: 44px; font-size: 11px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; line-height: 14px; margin: 0; }
+.revenue-x-caption { width: 36px; font-size: 11px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; line-height: 14px; margin: 0; }
 .revenue-x-axis { position: relative; flex: 1; height: 28px; font-size: 11px; color: var(--text-secondary); margin-left: 6px; }
 .x-tick { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 0; line-height: 14px; }
 .x-tick-active { top: 14px; }
@@ -259,7 +259,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 
   <section class="quarters-section">
 
-    <div class="stats-row">
+    <div class="stats-row" :style="{maxWidth: gridTotalWidth+'px'}">
       <div class="stat-block stat-block-sold">
         <div class="stat-label">Продано</div>
         <div class="stat-value"><span class="num" style="min-width:3ch">{{ soldCountFiltered }}</span> из <span class="num" style="min-width:3ch">{{ totalCountFiltered }}</span> <span class="stat-pct">(<span class="num" style="min-width:3ch">{{ pctSoldFiltered }}</span>%)</span></div>
@@ -506,7 +506,7 @@ const TOP_FLOOR = d3.max(Object.values(MAX_FLOOR_FOR_GROUP));
 const COL = { 'ГП1': 3, 'ГП2': 5, 'ГП3': 7, 'ГП4-А': 9, 'ГП4-Б': 11, 'ГП4-В': 13 };
 const FLOOR_AXIS_W = 46, SPACER_WIDE = 28, SPACER_NARROW = 6, SPACER_AXIS = 14;
 function groupColWidthPx(g) {
-  const titleMin = g.startsWith('ГП4-') ? 110 : 200;
+  const titleMin = g.startsWith('ГП4-') ? 110 : 180;
   return Math.max(TILE_WIDTH_FOR_GROUP[g], titleMin);
 }
 const GP4_AGG_WIDTH = groupColWidthPx('ГП4-А') + SPACER_NARROW +
@@ -521,6 +521,13 @@ const GRID_TEMPLATE_COLUMNS = [
   groupColWidthPx('ГП4-Б') + 'px', SPACER_NARROW + 'px',
   groupColWidthPx('ГП4-В') + 'px'
 ].join(' ');
+const GRID_TOTAL_WIDTH = FLOOR_AXIS_W + SPACER_AXIS +
+  groupColWidthPx('ГП1') + SPACER_WIDE +
+  groupColWidthPx('ГП2') + SPACER_WIDE +
+  groupColWidthPx('ГП3') + SPACER_WIDE +
+  groupColWidthPx('ГП4-А') + SPACER_NARROW +
+  groupColWidthPx('ГП4-Б') + SPACER_NARROW +
+  groupColWidthPx('ГП4-В');
 
 // precise pixel width for floor-hover lanes, ending exactly at the last REAL tile.
 // groups BEFORE the endpoint must use their PADDED column width (groupColWidthPx,
@@ -625,6 +632,7 @@ createApp({
     viewsList() { return VIEWS_LIST; },
     managersList() { return MANAGERS_LIST; },
     gridTemplateColumns() { return GRID_TEMPLATE_COLUMNS; },
+    gridTotalWidth() { return GRID_TOTAL_WIDTH; },
     roomLanes() { return ROOM_LANES_STATIC; },
     floorLanes() { return FLOOR_LANES_STATIC; },
 
