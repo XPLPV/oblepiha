@@ -147,10 +147,10 @@ button:focus-visible { outline: none; }
 .sales-panel-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
 .sp-tab {
   padding: 5px 11px; border-radius: 12px; border: 1px solid var(--border-strong);
-  background: var(--bg); cursor: pointer; font-size: 12px; color: var(--text-secondary);
+  background: var(--surface); cursor: pointer; font-size: 12px; color: var(--text-primary);
   font-weight: 400;
 }
-.sp-tab:hover { background: var(--surface); }
+.sp-tab:hover { background: var(--surface-2); }
 .sp-tab.active { background: var(--accent-muted); border-color: var(--accent-muted); color: #fff; }
 .sales-panel-bars { display: flex; flex-direction: column; gap: 12px; }
 .sp-row { display: flex; align-items: center; gap: 10px; border-radius: 4px; padding: 2px 4px; margin: -2px -4px; }
@@ -534,15 +534,18 @@ const MANAGERS_LIST = ['Иван', 'Филипп', 'Саша', 'Лиана', 'М
 
 // ---------- Sales breakdown panel: grouping definitions ----------
 function floorBand(fl) {
-  if (fl <= 5) return '1–5 эт.';
-  if (fl <= 10) return '6–10 эт.';
-  return '11–17 эт.';
+  if (fl <= 5) return '1–5 этажей';
+  if (fl <= 10) return '6–10 этажей';
+  return '11–17 этажей';
+}
+function roomsLabel(n) {
+  return n + ' ' + (n === 1 ? 'комната' : 'комнаты');
 }
 const SALES_DIMENSIONS = [
-  { key: 'view', label: 'Вид', order: VIEWS_LIST.map(v => v.label), getCategory: a => VIEW_SHORT[a.view] },
-  { key: 'floor', label: 'Этаж', order: ['1–5 эт.', '6–10 эт.', '11–17 эт.'], getCategory: a => floorBand(a.floor) },
-  { key: 'rooms', label: 'Комнат', order: ['1 к.', '2 к.', '3 к.'], getCategory: a => a.rooms + ' к.' },
-  { key: 'corpus', label: 'Корпус', order: ['ГП1', 'ГП2', 'ГП3', 'ГП4'], getCategory: a => a.corpus }
+  { key: 'corpus', label: 'Корпус', order: ['ГП1', 'ГП2', 'ГП3', 'ГП4'], getCategory: a => a.corpus },
+  { key: 'rooms', label: 'Комнаты', order: [1, 2, 3].map(roomsLabel), getCategory: a => roomsLabel(a.rooms) },
+  { key: 'floor', label: 'Этаж', order: ['1–5 этажей', '6–10 этажей', '11–17 этажей'], getCategory: a => floorBand(a.floor) },
+  { key: 'view', label: 'Вид', order: VIEWS_LIST.map(v => v.label), getCategory: a => VIEW_SHORT[a.view] }
 ];
 
 const TILE_SIZE = 28;
