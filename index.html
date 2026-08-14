@@ -62,7 +62,7 @@ h2 { font-size: 17px; font-weight: 600; margin: 0 0 26px; }
 
 button { font-family: inherit; }
 button:focus { outline: none; }
-button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1px; }
+button:focus-visible { outline: none; }
 
 .num { display: inline-block; text-align: right; font-variant-numeric: tabular-nums; }
 
@@ -75,6 +75,8 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 
 .slider-row { display: flex; align-items: center; margin-bottom: 22px; }
 .spacer-16 { width: 16px; flex-shrink: 0; }
+.spacer-28 { width: 28px; flex-shrink: 0; }
+.spacer-4 { width: 4px; flex-shrink: 0; }
 .play-btn {
   width: 36px; height: 36px; border-radius: 50%;
   border: 1px solid var(--border-strong); background: var(--surface);
@@ -402,10 +404,10 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
       <button class="play-btn" @click="togglePlay" :title="playing ? 'Пауза' : 'Воспроизвести'">
         <span v-if="!playing" class="play-icon">▶</span><span v-else>⏸</span>
       </button>
-      <div class="spacer-16"></div>
+      <div class="spacer-28"></div>
       <input type="range" class="date-slider" min="0" :max="totalDays" v-model.number="dayIdx"
              :style="{background: 'linear-gradient(to right, var(--slider-fill) ' + sliderPct + '%, var(--slider-track) ' + sliderPct + '%)'}">
-      <div class="spacer-16"></div>
+      <div class="spacer-4"></div>
       <div class="date-label date-label-big">{{ currentDateLabel }}</div>
     </div>
   </div>
