@@ -115,7 +115,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 }
 .date-label-big { font-size: 20px; font-weight: 700; min-width: 140px; text-align: right; margin: 0; flex-shrink: 0; position: relative; top: -2px; }
 
-.stats-row { display: flex; align-items: flex-start; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.stats-row { display: flex; align-items: center; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
 .stat-block-sold { width: 280px; flex-shrink: 0; }
 .stat-block-revenue { width: 180px; flex-shrink: 0; }
 .stat-label { font-size: 17px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 400; }
@@ -141,6 +141,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
   font-size: 11px; color: var(--text-secondary); font-weight: 600;
   width: 100%; text-align: left; align-self: end; padding-bottom: 4px;
 }
+.axis-caption-floors { text-align: left; }
 
 .axis-square {
   width: 24px; height: 24px;
@@ -151,7 +152,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
   position: relative; z-index: 1;
 }
 .axis-square.active { background: var(--accent-muted); color: #fff; font-weight: 600; }
-.floor-square { justify-self: start; }
+.floor-square { justify-self: end; margin-right: 12px; }
 
 .group-title { font-weight: 600; font-size: 14px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; }
 .gt-label { margin-right: 7px; }
@@ -202,9 +203,9 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 /* ---------- Revenue by day ---------- */
 .revenue-section { margin-bottom: 40px; }
 .revenue-chart-wrap { display: flex; }
-.revenue-y-axis { position: relative; width: 36px; flex-shrink: 0; }
-.revenue-unit-label { width: 36px; text-align: left; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; margin-bottom: 10px; }
-.y-tick { position: absolute; left: 0; width: 36px; text-align: right; font-size: 11px; color: var(--text-secondary); transform: translateY(50%); }
+.revenue-y-axis { position: relative; width: 32px; flex-shrink: 0; }
+.revenue-unit-label { width: 32px; text-align: left; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; margin-bottom: 10px; }
+.y-tick { position: absolute; left: 0; width: 32px; text-align: right; font-size: 11px; color: var(--text-secondary); transform: translateY(50%); }
 .revenue-chart {
   flex: 1; display: flex; align-items: flex-end; gap: 0;
   border-bottom: 1px solid var(--border-strong); position: relative; min-width: 0;
@@ -216,7 +217,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .rev-tile.dim { opacity: var(--dim-opacity); }
 .rev-tile.picked { outline: 2px solid var(--pick-color); outline-offset: -1px; z-index: 3; }
 .revenue-x-axis-row { display: flex; align-items: flex-start; margin-top: 4px; }
-.revenue-x-caption { width: 36px; font-size: 11px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; line-height: 14px; margin: 0; }
+.revenue-x-caption { width: 32px; font-size: 11px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; line-height: 14px; margin: 0; }
 .revenue-x-axis { position: relative; flex: 1; height: 28px; font-size: 11px; color: var(--text-secondary); margin-left: 6px; }
 .x-tick { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 0; line-height: 14px; }
 .x-tick-active { top: 14px; }
@@ -282,7 +283,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 
       <template v-for="cell in gridCells" :key="cell.key">
 
-        <div v-if="cell.kind==='axis-caption-floors'" class="axis-caption" :style="cellStyle(cell)">Этажи</div>
+        <div v-if="cell.kind==='axis-caption-floors'" class="axis-caption axis-caption-floors" :style="cellStyle(cell)">Этажи</div>
 
         <div v-else-if="cell.kind==='axis-caption-rooms'" class="axis-caption" :style="cellStyle(cell)">Комнаты</div>
 
