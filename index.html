@@ -153,7 +153,11 @@ button:focus-visible { outline: none; }
 .sp-tab:hover { background: var(--surface); }
 .sp-tab.active { background: var(--accent-muted); border-color: var(--accent-muted); color: #fff; }
 .sales-panel-bars { display: flex; flex-direction: column; gap: 12px; }
-.sp-row { display: flex; align-items: center; gap: 10px; }
+.sp-row { display: flex; align-items: center; gap: 10px; border-radius: 4px; padding: 2px 4px; margin: -2px -4px; }
+.sp-row.clickable { cursor: pointer; }
+.sp-row.clickable:hover { background: var(--surface); }
+.sp-row.active .sp-row-label { color: var(--text-primary); font-weight: 600; }
+.sp-row.active .sp-row-bar { background: var(--pick-color); }
 .sp-row-label { width: 78px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); }
 .sp-row-bar-wrap { flex: 1; height: 14px; background: var(--surface); border-radius: 3px; overflow: hidden; }
 .sp-row-bar { height: 100%; background: var(--accent-muted); border-radius: 3px; }
@@ -368,7 +372,9 @@ button:focus-visible { outline: none; }
                 @click="salesDim=dim.key">{{ dim.label }}</button>
       </div>
       <div class="sales-panel-bars">
-        <div v-for="row in salesBreakdown" :key="row.label" class="sp-row">
+        <div v-for="row in salesBreakdown" :key="row.label" class="sp-row"
+             :class="{clickable: salesDim==='view', active: salesDim==='view' && activeView===row.value}"
+             @click="salesDim==='view' && toggleView(row.value)">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap">
             <div class="sp-row-bar" :style="{width: row.pct+'%'}"></div>
@@ -523,6 +529,7 @@ const VIEWS_LIST = [
   { value: 'во двор', label: 'двор' }
 ];
 const VIEW_SHORT = Object.fromEntries(VIEWS_LIST.map(v => [v.value, v.label]));
+const LABEL_TO_VIEW_VALUE = Object.fromEntries(VIEWS_LIST.map(v => [v.label, v.value]));
 const MANAGERS_LIST = ['Иван', 'Филипп', 'Саша', 'Лиана', 'Миша'];
 
 // ---------- Sales breakdown panel: grouping definitions ----------
@@ -690,7 +697,7 @@ createApp({
       activeRooms: [],
       selectedId: null,
       hoverRevDate: null,
-      salesDim: 'view',
+      salesDim: 'corpus',
       hoverRoom: null,
       hoverFloor: null,
       tileSize: TILE_SIZE,
@@ -720,6 +727,7 @@ createApp({
         .filter(cat => buckets[cat])
         .map(cat => ({
           label: cat,
+          value: LABEL_TO_VIEW_VALUE[cat],
           pct: buckets[cat].total ? Math.round(buckets[cat].sold / buckets[cat].total * 100) : 0
         }));
     },
@@ -852,18 +860,20 @@ createApp({
       return { gridColumn: 1, gridRow: t.row, width: FLOOR_AXIS_TRIGGER_W + 'px' };
     },
 
-    toggleView(v) { this.activeView = this.activeView === v ? null : v; },
+    toggleView(v) { this.activeView = this.activeView === v ? null : v; this.salesDim = 'view'; },
     toggleFloor(f) {
       const i = this.activeFloors.indexOf(f);
       if (i === -1) this.activeFloors.push(f); else this.activeFloors.splice(i, 1);
       this.hoverFloor = null;
       this.hoverRoom = null;
+      this.salesDim = 'floor';
     },
     toggleRooms(r) {
       const i = this.activeRooms.indexOf(r);
       if (i === -1) this.activeRooms.push(r); else this.activeRooms.splice(i, 1);
       this.hoverFloor = null;
       this.hoverRoom = null;
+      this.salesDim = 'rooms';
     },
     matchesFilters(apt) {
       if (this.activeView && apt.view !== this.activeView) return false;
