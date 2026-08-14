@@ -37,7 +37,24 @@ body {
 #app {
   max-width: 1680px;
   margin: 0 auto;
-  padding: 24px 32px 64px;
+  padding: 24px 32px 110px;
+}
+
+/* sticky bottom player bar, like a media player transport control */
+.player-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 8px rgba(42,42,38,0.06);
+  z-index: 50;
+}
+.player-bar-inner {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
 }
 
 h1 { margin: 0; font-size: 24px; font-weight: 600; }
@@ -183,7 +200,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .revenue-section { margin-bottom: 40px; }
 .revenue-chart-wrap { display: flex; }
 .revenue-y-axis { position: relative; width: 44px; flex-shrink: 0; }
-.revenue-unit-label { position: absolute; top: -18px; left: 0; width: 44px; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; }
+.revenue-unit-label { width: 44px; text-align: left; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; margin-bottom: 10px; }
 .y-tick { position: absolute; left: 0; width: 44px; text-align: right; font-size: 11px; color: var(--text-secondary); transform: translateY(50%); }
 .revenue-chart {
   flex: 1; display: flex; align-items: flex-end; gap: 0;
@@ -200,6 +217,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .revenue-x-axis { position: relative; flex: 1; height: 28px; font-size: 11px; color: var(--text-secondary); margin-left: 6px; }
 .x-tick { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 0; line-height: 14px; }
 .x-tick-active { top: 14px; }
+.rev-count-badge { position: absolute; transform: translateX(-50%); font-size: 11px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; z-index: 4; pointer-events: none; }
 
 /* ---------- Managers ---------- */
 .managers-section { margin-bottom: 24px; }
@@ -238,21 +256,10 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 
   <section class="quarters-section">
 
-    <div class="slider-row">
-      <button class="play-btn" @click="togglePlay" :title="playing ? 'Пауза' : 'Воспроизвести'">
-        <span v-if="!playing">▶</span><span v-else>⏸</span>
-      </button>
-      <div class="spacer-16"></div>
-      <input type="range" class="date-slider" min="0" :max="totalDays" v-model.number="dayIdx"
-             :style="{background: 'linear-gradient(to right, var(--slider-fill) ' + sliderPct + '%, var(--slider-track) ' + sliderPct + '%)'}">
-      <div class="spacer-16"></div>
-      <div class="date-label date-label-big">{{ currentDateLabel }}</div>
-    </div>
-
     <div class="stats-row">
       <div class="stat-block stat-block-sold">
         <div class="stat-label">Продано</div>
-        <div class="stat-value"><span class="num" style="min-width:2.6ch">{{ soldCountFiltered }}</span> из <span class="num" style="min-width:2.6ch">{{ totalCountFiltered }}</span> <span class="stat-pct">(<span class="num" style="min-width:2ch">{{ pctSoldFiltered }}</span>%)</span></div>
+        <div class="stat-value"><span class="num" style="min-width:3ch">{{ soldCountFiltered }}</span> из <span class="num" style="min-width:3ch">{{ totalCountFiltered }}</span> <span class="stat-pct">(<span class="num" style="min-width:3ch">{{ pctSoldFiltered }}</span>%)</span></div>
       </div>
       <div class="stat-block stat-block-revenue">
         <div class="stat-label">Выручка</div>
@@ -331,19 +338,20 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 
   <section class="revenue-section">
     <h2>Динамика выручки по дням</h2>
+    <div class="revenue-unit-label">млн ₽</div>
     <div class="revenue-chart-wrap">
       <div class="revenue-y-axis" :style="{height: revenueChartHeight+'px'}">
-        <div class="revenue-unit-label">млн ₽</div>
         <div v-for="t in revenueYTicks" :key="t" class="y-tick" :style="{bottom: (t/revenueMaxDay*revenueChartHeight)+'px'}">{{ t }}</div>
       </div>
       <div class="revenue-chart" :style="{height: revenueChartHeight+'px'}">
+        <div v-if="hoverRevBadge" class="rev-count-badge" :style="{left: hoverRevBadge.leftPct, bottom: hoverRevBadge.bottomPx+'px'}">{{ hoverRevBadge.text }}</div>
         <div class="revenue-day" v-for="d in revenueDays" :key="d.date">
           <div class="revenue-col" :style="{height: d.revealed ? (d.netTotal*revenuePxPerMillion)+'px' : '0px'}">
             <div v-for="apt in d.deals" :key="apt.id"
                  class="rev-tile"
                  :class="revTileClass(apt)"
                  :style="revTileStyle(apt)"
-                 :title="tileTitle(apt)"
+                 :title="revTileTitle(apt, d)"
                  @click="pickTile(apt.id)"
                  @mouseenter="hoverRevDate = d.date"
                  @mouseleave="hoverRevDate = null"></div>
@@ -385,6 +393,19 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
     </div>
   </section>
 
+  <div class="player-bar">
+    <div class="player-bar-inner">
+      <button class="play-btn" @click="togglePlay" :title="playing ? 'Пауза' : 'Воспроизвести'">
+        <span v-if="!playing">▶</span><span v-else>⏸</span>
+      </button>
+      <div class="spacer-16"></div>
+      <input type="range" class="date-slider" min="0" :max="totalDays" v-model.number="dayIdx"
+             :style="{background: 'linear-gradient(to right, var(--slider-fill) ' + sliderPct + '%, var(--slider-track) ' + sliderPct + '%)'}">
+      <div class="spacer-16"></div>
+      <div class="date-label date-label-big">{{ currentDateLabel }}</div>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
@@ -411,6 +432,13 @@ function pluralDays(n) {
   if (m10 === 1) return 'день';
   if (m10 >= 2 && m10 <= 4) return 'дня';
   return 'дней';
+}
+function pluralDeals(n) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m100 >= 11 && m100 <= 14) return 'сделок';
+  if (m10 === 1) return 'сделка';
+  if (m10 >= 2 && m10 <= 4) return 'сделки';
+  return 'сделок';
 }
 
 // ---------- Price color scale (D3, log scale, same palette as before) ----------
@@ -478,6 +506,9 @@ function groupColWidthPx(g) {
   const titleMin = g.startsWith('ГП4-') ? 110 : 205;
   return Math.max(TILE_WIDTH_FOR_GROUP[g], titleMin);
 }
+const GP4_AGG_WIDTH = groupColWidthPx('ГП4-А') + SPACER_NARROW +
+  groupColWidthPx('ГП4-Б') + SPACER_NARROW +
+  TILE_WIDTH_FOR_GROUP['ГП4-В'];
 const GRID_TEMPLATE_COLUMNS = [
   FLOOR_AXIS_W + 'px', SPACER_AXIS + 'px',
   groupColWidthPx('ГП1') + 'px', SPACER_WIDE + 'px',
@@ -612,7 +643,7 @@ createApp({
       this.floorsDesc.forEach(fl => {
         cells.push({ key: 'fl-' + fl, kind: 'floor-label', col: 1, row: rowForFloor(fl), floor: fl });
       });
-      cells.push({ key: 'gp4-agg', kind: 'gp4agg', col: COL['ГП4-А'], row: 1 });
+      cells.push({ key: 'gp4-agg', kind: 'gp4agg', col: COL['ГП4-А'], row: 1, tileWidth: GP4_AGG_WIDTH });
 
       this.groupsList.forEach(g => {
         cells.push({ key: 'title-' + g, kind: 'title', col: COL[g], row: titleRowForGroup(g), group: g, tileWidth: TILE_WIDTH_FOR_GROUP[g] });
@@ -655,6 +686,26 @@ createApp({
         if (apt) return apt.close;
       }
       return null;
+    },
+    hoverRevBadge() {
+      const dateStr = this.hoverRevDate;
+      if (dateStr === null) return null;
+      const idx = REVENUE_DAYS_STATIC.findIndex(d => d.date === dateStr);
+      if (idx === -1) return null;
+      const days = REVENUE_DAYS_STATIC;
+      const n = days.length;
+      const heightOf = i => (i >= 0 && i < n) ? days[i].netTotal * this.revenuePxPerMillion : 0;
+      const ownHeight = heightOf(idx);
+      // if a neighbouring bar is taller, the label would visually sit on top of it —
+      // anchor the label above the taller neighbour instead of its own bar in that case
+      const neighborMax = Math.max(heightOf(idx - 1), heightOf(idx + 1));
+      const baseHeight = Math.max(ownHeight, neighborMax > ownHeight ? neighborMax : 0);
+      const extra = ownHeight < 26 ? 22 : 8;
+      return {
+        text: this.fmtMoney(days[idx].netTotal),
+        leftPct: ((idx + 0.5) / n * 100) + '%',
+        bottomPx: baseHeight + extra
+      };
     },
     activeRevTick() {
       if (this.activeRevDate === null) return null;
@@ -775,6 +826,14 @@ createApp({
       const line4 = 'продажа ' + fmtComma(apt.price, 3) + ' млн ₽';
       const line5 = 'скидка ' + fmtComma(apt.discPct * 100, 1) + '%';
       return line1 + '\n' + line2 + '\n' + line3 + '\n' + line4 + '\n' + line5;
+    },
+    dayTooltip(d) {
+      const day = formatDateFull(d.day);
+      const n = d.deals.length;
+      return day + '\n' + n + ' ' + pluralDeals(n) + '\nсумма ' + this.fmtMoney(d.netTotal) + ' млн ₽';
+    },
+    revTileTitle(apt, d) {
+      return this.selectedId === apt.id ? this.tileTitle(apt) : this.dayTooltip(d);
     },
 
     setHoverRoom(r) { this.hoverRoom = r; },
