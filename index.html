@@ -136,7 +136,28 @@ button:focus-visible { outline: none; }
   justify-items: stretch;
   position: relative;
   margin-bottom: 14px;
+  flex-shrink: 0;
 }
+
+.quarters-main-row { display: flex; align-items: flex-start; gap: 36px; }
+.quarters-left { flex-shrink: 0; }
+
+.sales-panel { flex: 1; min-width: 260px; max-width: 380px; padding-top: 2px; }
+.sales-panel-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+.sales-panel-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.sp-tab {
+  padding: 5px 11px; border-radius: 12px; border: 1px solid var(--border-strong);
+  background: var(--bg); cursor: pointer; font-size: 12px; color: var(--text-secondary);
+  font-weight: 400;
+}
+.sp-tab:hover { background: var(--surface); }
+.sp-tab.active { background: var(--accent-muted); border-color: var(--accent-muted); color: #fff; }
+.sales-panel-bars { display: flex; flex-direction: column; gap: 12px; }
+.sp-row { display: flex; align-items: center; gap: 10px; }
+.sp-row-label { width: 78px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); }
+.sp-row-bar-wrap { flex: 1; height: 14px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+.sp-row-bar { height: 100%; background: var(--accent-muted); border-radius: 3px; }
+.sp-row-pct { width: 34px; flex-shrink: 0; text-align: right; font-size: 13px; font-weight: 600; color: var(--text-primary); }
 
 .axis-caption {
   font-size: 13px; color: var(--text-secondary); font-weight: 600;
@@ -262,6 +283,8 @@ button:focus-visible { outline: none; }
 
   <section class="quarters-section">
 
+    <div class="quarters-main-row">
+    <div class="quarters-left">
     <div class="stats-row" :style="{maxWidth: gridTotalWidth+'px'}">
       <div class="stat-block stat-block-sold">
         <div class="stat-label">Продано</div>
@@ -278,7 +301,7 @@ button:focus-visible { outline: none; }
       </div>
     </div>
 
-    <div class="grid-table" :style="{gridTemplateColumns: gridTemplateColumns, rowGap: gap+'px'}">
+    <div class="grid-table" :style="{gridTemplateColumns: gridTemplateColumns, rowGap: gap+'px', width: gridTotalWidth+'px'}">
 
       <div v-for="lane in floorLanes" :key="lane.key" class="hover-lane-row" :class="{visible: hoverFloor===lane.floor}" :style="floorLaneStyle(lane)"></div>
       <div v-for="lane in roomLanes" :key="lane.key" class="hover-lane-col" :class="{visible: hoverRoom===lane.room}" :style="roomLaneStyle(lane)"></div>
@@ -334,6 +357,26 @@ button:focus-visible { outline: none; }
         </div>
 
       </template>
+    </div>
+    </div>
+
+    <div class="sales-panel">
+      <div class="sales-panel-title">Общие продажи</div>
+      <div class="sales-panel-tabs">
+        <button v-for="dim in salesDimensions" :key="dim.key"
+                class="sp-tab" :class="{active: salesDim===dim.key}"
+                @click="salesDim=dim.key">{{ dim.label }}</button>
+      </div>
+      <div class="sales-panel-bars">
+        <div v-for="row in salesBreakdown" :key="row.label" class="sp-row">
+          <div class="sp-row-label">{{ row.label }}</div>
+          <div class="sp-row-bar-wrap">
+            <div class="sp-row-bar" :style="{width: row.pct+'%'}"></div>
+          </div>
+          <div class="sp-row-pct">{{ row.pct }}%</div>
+        </div>
+      </div>
+    </div>
     </div>
 
     <div class="filters-section">
@@ -481,6 +524,19 @@ const VIEWS_LIST = [
 ];
 const VIEW_SHORT = Object.fromEntries(VIEWS_LIST.map(v => [v.value, v.label]));
 const MANAGERS_LIST = ['Иван', 'Филипп', 'Саша', 'Лиана', 'Миша'];
+
+// ---------- Sales breakdown panel: grouping definitions ----------
+function floorBand(fl) {
+  if (fl <= 5) return '1–5 эт.';
+  if (fl <= 10) return '6–10 эт.';
+  return '11–17 эт.';
+}
+const SALES_DIMENSIONS = [
+  { key: 'view', label: 'Вид', order: VIEWS_LIST.map(v => v.label), getCategory: a => VIEW_SHORT[a.view] },
+  { key: 'floor', label: 'Этаж', order: ['1–5 эт.', '6–10 эт.', '11–17 эт.'], getCategory: a => floorBand(a.floor) },
+  { key: 'rooms', label: 'Комнат', order: ['1 к.', '2 к.', '3 к.'], getCategory: a => a.rooms + ' к.' },
+  { key: 'corpus', label: 'Корпус', order: ['ГП1', 'ГП2', 'ГП3', 'ГП4'], getCategory: a => a.corpus }
+];
 
 const TILE_SIZE = 28;
 const TILE_GAP = 3;
@@ -634,6 +690,7 @@ createApp({
       activeRooms: [],
       selectedId: null,
       hoverRevDate: null,
+      salesDim: 'view',
       hoverRoom: null,
       hoverFloor: null,
       tileSize: TILE_SIZE,
@@ -649,6 +706,23 @@ createApp({
     managersList() { return MANAGERS_LIST; },
     gridTemplateColumns() { return GRID_TEMPLATE_COLUMNS; },
     gridTotalWidth() { return GRID_TOTAL_WIDTH; },
+    salesDimensions() { return SALES_DIMENSIONS; },
+    salesBreakdown() {
+      const dim = SALES_DIMENSIONS.find(d => d.key === this.salesDim);
+      const buckets = {};
+      APARTMENTS.forEach(a => {
+        const cat = dim.getCategory(a);
+        if (!buckets[cat]) buckets[cat] = { total: 0, sold: 0 };
+        buckets[cat].total++;
+        if (this.aptState(a) === 'closed') buckets[cat].sold++;
+      });
+      return dim.order
+        .filter(cat => buckets[cat])
+        .map(cat => ({
+          label: cat,
+          pct: buckets[cat].total ? Math.round(buckets[cat].sold / buckets[cat].total * 100) : 0
+        }));
+    },
     roomLanes() { return ROOM_LANES_STATIC; },
     floorLanes() { return FLOOR_LANES_STATIC; },
     floorTriggers() { return FLOOR_TRIGGERS_STATIC; },
