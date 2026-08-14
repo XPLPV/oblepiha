@@ -125,7 +125,7 @@ button:focus-visible { outline: none; }
 .stat-pct { font-size: 26px; font-weight: 700; }
 
 .price-scale { display: flex; align-items: center; gap: 8px; margin-left: auto; margin-top: 4px; }
-.ps-label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+.ps-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
 .ps-bar { width: 140px; height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--price-lo), var(--price-hi)); }
 
 /* ---------- Grid (shahmatka), pure CSS Grid with FIXED column widths ---------- */
@@ -139,21 +139,21 @@ button:focus-visible { outline: none; }
 }
 
 .axis-caption {
-  font-size: 11px; color: var(--text-secondary); font-weight: 600;
+  font-size: 13px; color: var(--text-secondary); font-weight: 600;
   width: 100%; text-align: left; align-self: end; padding-bottom: 4px;
 }
 .axis-caption-floors { text-align: left; }
 
 .axis-square {
-  width: 24px; height: 24px;
+  width: 26px; height: 26px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; border: none; background: none; margin: 0; padding: 0;
+  font-size: 13px; border: none; background: none; margin: 0; padding: 0;
   cursor: pointer; color: var(--text-secondary); border-radius: 3px;
   justify-self: end;
   position: relative; z-index: 1;
 }
 .axis-square.active { background: var(--accent-muted); color: #fff; font-weight: 600; }
-.floor-square { justify-self: end; margin-right: 12px; }
+.floor-square { justify-self: end; margin-right: 6px; }
 
 .group-title { font-weight: 600; font-size: 15px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; }
 .gt-label { margin-right: 3px; }
@@ -190,12 +190,12 @@ button:focus-visible { outline: none; }
 
 /* ---------- Filters ---------- */
 .filters-section { display: flex; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
-.filters-label { font-size: 13px; color: var(--text-secondary); }
+.filters-label { font-size: 15px; color: var(--text-secondary); }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip {
-  padding: 7px 14px 9px;
+  padding: 8px 17px 10px;
   border-radius: 16px; border: 1px solid var(--border-strong);
-  background: var(--surface); cursor: pointer; font-size: 13px; color: var(--text-primary);
+  background: var(--surface); cursor: pointer; font-size: 15px; color: var(--text-primary);
   font-weight: 400; line-height: 1;
   display: inline-flex; align-items: center; justify-content: center;
 }
@@ -206,12 +206,12 @@ button:focus-visible { outline: none; }
 .revenue-section { margin-bottom: 40px; }
 .revenue-chart-wrap { display: flex; }
 .revenue-y-axis { position: relative; width: 32px; flex-shrink: 0; }
-.revenue-unit-label { width: 32px; text-align: left; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; margin-bottom: 10px; }
-.y-tick { position: absolute; left: 0; width: 32px; text-align: right; font-size: 11px; color: var(--text-secondary); transform: translateY(50%); }
+.revenue-unit-label { width: 40px; text-align: left; font-size: 13px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 16px; margin-bottom: 10px; }
+.y-tick { position: absolute; left: 0; width: 40px; text-align: right; font-size: 13px; color: var(--text-secondary); transform: translateY(50%); }
 .revenue-chart {
   flex: 1; display: flex; align-items: flex-end; gap: 0;
   border-bottom: 1px solid var(--border-strong); position: relative; min-width: 0;
-  margin-left: 6px;
+  margin-left: 4px;
 }
 .revenue-day { flex: 1 1 0; display: flex; align-items: flex-end; min-width: 1px; }
 .revenue-col { width: 100%; display: flex; flex-direction: column-reverse; overflow: hidden; }
@@ -219,11 +219,11 @@ button:focus-visible { outline: none; }
 .rev-tile.dim { opacity: var(--dim-opacity); }
 .rev-tile.picked { outline: 2px solid var(--pick-color); outline-offset: -1px; z-index: 3; }
 .revenue-x-axis-row { display: flex; align-items: flex-start; margin-top: 4px; }
-.revenue-x-caption { width: 32px; font-size: 11px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; line-height: 14px; margin: 0; }
-.revenue-x-axis { position: relative; flex: 1; height: 28px; font-size: 11px; color: var(--text-secondary); margin-left: 6px; }
+.revenue-x-caption { width: 40px; font-size: 13px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; line-height: 16px; margin: 0; position: relative; top: -3px; }
+.revenue-x-axis { position: relative; flex: 1; height: 28px; font-size: 13px; color: var(--text-secondary); margin-left: 4px; }
 .x-tick { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 0; line-height: 14px; }
 .x-tick-active { top: 14px; }
-.rev-count-badge { position: absolute; transform: translateX(-50%); font-size: 11px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; z-index: 4; pointer-events: none; }
+.rev-count-badge { position: absolute; transform: translateX(-50%); font-size: 13px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; z-index: 4; pointer-events: none; }
 
 /* ---------- Managers ---------- */
 .managers-section { margin-bottom: 24px; }
