@@ -115,14 +115,14 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 }
 .date-label-big { font-size: 20px; font-weight: 700; min-width: 140px; text-align: right; margin: 0; flex-shrink: 0; position: relative; top: -2px; }
 
-.stats-row { display: flex; align-items: center; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.stats-row { display: flex; align-items: flex-start; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
 .stat-block-sold { width: 280px; flex-shrink: 0; }
 .stat-block-revenue { width: 180px; flex-shrink: 0; }
 .stat-label { font-size: 17px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 400; }
 .stat-value { font-size: 26px; font-weight: 700; white-space: nowrap; }
 .stat-pct { font-size: 26px; font-weight: 700; }
 
-.price-scale { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.price-scale { display: flex; align-items: center; gap: 8px; margin-left: auto; margin-top: 4px; }
 .ps-label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
 .ps-bar { width: 140px; height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--price-lo), var(--price-hi)); }
 
@@ -155,8 +155,8 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .floor-square { justify-self: end; margin-right: 12px; }
 
 .group-title { font-weight: 600; font-size: 14px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; }
-.gt-label { margin-right: 7px; }
-.gt-money { color: var(--text-secondary); font-weight: 400; margin-left: 7px; }
+.gt-label { margin-right: 3px; }
+.gt-money { color: var(--text-secondary); font-weight: 400; margin-left: 3px; }
 
 .room-brackets { display: flex; gap: 2px; align-self: start; justify-self: start; position: relative; z-index: 1; }
 .room-bracket { display: flex; flex-direction: column; align-items: center; }
@@ -294,11 +294,11 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
                 @mouseenter="setHoverFloor(cell.floor)" @mouseleave="clearHoverFloor">{{ cell.floor }}</button>
 
         <div v-else-if="cell.kind==='gp4agg'" class="group-title" :style="cellStyle(cell)">
-          <span class="gt-label">ГП4</span><span class="num" style="min-width:2.4ch">{{ gp4AggStat().count }}</span> (<span class="num" style="min-width:2ch">{{ gp4AggStat().pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(gp4AggStat().revenue) }}</span> млн ₽</span>
+          <span class="gt-label">ГП4</span><span class="num" style="min-width:2.4ch">{{ gp4AggStat().count }}</span> (<span class="num" style="min-width:3ch">{{ gp4AggStat().pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(gp4AggStat().revenue) }}</span> млн ₽</span>
         </div>
 
         <div v-else-if="cell.kind==='title'" class="group-title" :style="titleStyle(cell)">
-          <span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="num" style="min-width:2.4ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:2ch">{{ titleStat(cell.group).pct }}</span>%)<span v-if="!isGp4Sub(cell.group)" class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(titleStat(cell.group).revenue) }}</span> млн ₽</span>
+          <span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="num" style="min-width:2.4ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:3ch">{{ titleStat(cell.group).pct }}</span>%)<span v-if="!isGp4Sub(cell.group)" class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(titleStat(cell.group).revenue) }}</span> млн ₽</span>
         </div>
 
         <div v-else-if="cell.kind==='brackets'" class="room-brackets" :style="cellStyle(cell)">
