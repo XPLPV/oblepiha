@@ -52,7 +52,7 @@ body {
 .player-bar-inner {
   max-width: 1680px;
   margin: 0 auto;
-  padding: 16px 32px;
+  padding: 10px 32px;
   display: flex;
   align-items: center;
 }
@@ -76,10 +76,13 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .slider-row { display: flex; align-items: center; margin-bottom: 22px; }
 .spacer-16 { width: 16px; flex-shrink: 0; }
 .play-btn {
-  width: 40px; height: 40px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   border: 1px solid var(--border-strong); background: var(--surface);
   cursor: pointer; font-size: 14px; margin: 0; padding: 0; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
+.play-btn span { display: inline-block; line-height: 1; }
+.play-btn .play-icon { transform: translateX(1px); }
 .play-btn:hover { background: var(--surface-2); }
 
 .date-slider {
@@ -150,8 +153,9 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .axis-square.active { background: var(--accent-muted); color: #fff; font-weight: 600; }
 .floor-square { justify-self: start; }
 
-.group-title { font-weight: 600; font-size: 15px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; text-align: right; overflow: visible; }
-.gt-label { margin-right: 7px; }
+.group-title { font-weight: 600; font-size: 15px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; display: flex; align-items: baseline; justify-content: space-between; }
+.gt-label { margin-right: 7px; flex-shrink: 0; }
+.gt-right { text-align: right; }
 .gt-money { color: var(--text-secondary); font-weight: 400; margin-left: 7px; }
 
 .room-brackets { display: flex; gap: 2px; align-self: start; justify-self: start; position: relative; z-index: 1; }
@@ -200,7 +204,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
 .revenue-section { margin-bottom: 40px; }
 .revenue-chart-wrap { display: flex; }
 .revenue-y-axis { position: relative; width: 44px; flex-shrink: 0; }
-.revenue-unit-label { width: 44px; text-align: left; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; margin-bottom: 10px; }
+.revenue-unit-label { width: 44px; text-align: right; font-size: 11px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 14px; margin-bottom: 10px; }
 .y-tick { position: absolute; left: 0; width: 44px; text-align: right; font-size: 11px; color: var(--text-secondary); transform: translateY(50%); }
 .revenue-chart {
   flex: 1; display: flex; align-items: flex-end; gap: 0;
@@ -290,11 +294,11 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
                 @mouseenter="setHoverFloor(cell.floor)" @mouseleave="clearHoverFloor">{{ cell.floor }}</button>
 
         <div v-else-if="cell.kind==='gp4agg'" class="group-title" :style="cellStyle(cell)">
-          <span class="gt-label">ГП4</span><span class="num" style="min-width:2.4ch">{{ gp4AggStat().count }}</span> (<span class="num" style="min-width:2ch">{{ gp4AggStat().pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(gp4AggStat().revenue) }}</span> млн ₽</span>
+          <span class="gt-label">ГП4</span><span class="gt-right"><span class="num" style="min-width:2.4ch">{{ gp4AggStat().count }}</span> (<span class="num" style="min-width:2ch">{{ gp4AggStat().pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(gp4AggStat().revenue) }}</span> млн ₽</span></span>
         </div>
 
         <div v-else-if="cell.kind==='title'" class="group-title" :style="titleStyle(cell)">
-          <span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="num" style="min-width:2.4ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:2ch">{{ titleStat(cell.group).pct }}</span>%)<span v-if="!isGp4Sub(cell.group)" class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(titleStat(cell.group).revenue) }}</span> млн ₽</span>
+          <span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="gt-right"><span class="num" style="min-width:2.4ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:2ch">{{ titleStat(cell.group).pct }}</span>%)<span v-if="!isGp4Sub(cell.group)" class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(titleStat(cell.group).revenue) }}</span> млн ₽</span></span>
         </div>
 
         <div v-else-if="cell.kind==='brackets'" class="room-brackets" :style="cellStyle(cell)">
@@ -396,7 +400,7 @@ button:focus-visible { outline: 2px solid var(--accent-muted); outline-offset: 1
   <div class="player-bar">
     <div class="player-bar-inner">
       <button class="play-btn" @click="togglePlay" :title="playing ? 'Пауза' : 'Воспроизвести'">
-        <span v-if="!playing">▶</span><span v-else>⏸</span>
+        <span v-if="!playing" class="play-icon">▶</span><span v-else>⏸</span>
       </button>
       <div class="spacer-16"></div>
       <input type="range" class="date-slider" min="0" :max="totalDays" v-model.number="dayIdx"
@@ -519,15 +523,21 @@ const GRID_TEMPLATE_COLUMNS = [
   groupColWidthPx('ГП4-В') + 'px'
 ].join(' ');
 
-// precise pixel width for floor-hover lanes, ending exactly at the last REAL tile
-// (not the padded column edge) — computed once from the same constants as the grid
+// precise pixel width for floor-hover lanes, ending exactly at the last REAL tile.
+// groups BEFORE the endpoint must use their PADDED column width (groupColWidthPx,
+// which can be wider than the tiles themselves to fit the title text) since that's
+// where the grid actually places the next column — only the FINAL group in the span
+// uses its real, unpadded tile width, since that's the true endpoint.
 const FLOOR_LANE_WIDTH_GP3 = FLOOR_AXIS_W + SPACER_AXIS +
-  TILE_WIDTH_FOR_GROUP['ГП1'] + SPACER_WIDE +
-  TILE_WIDTH_FOR_GROUP['ГП2'] + SPACER_WIDE +
+  groupColWidthPx('ГП1') + SPACER_WIDE +
+  groupColWidthPx('ГП2') + SPACER_WIDE +
   TILE_WIDTH_FOR_GROUP['ГП3'];
-const FLOOR_LANE_WIDTH_FULL = FLOOR_LANE_WIDTH_GP3 + SPACER_WIDE +
-  TILE_WIDTH_FOR_GROUP['ГП4-А'] + SPACER_NARROW +
-  TILE_WIDTH_FOR_GROUP['ГП4-Б'] + SPACER_NARROW +
+const FLOOR_LANE_WIDTH_FULL = FLOOR_AXIS_W + SPACER_AXIS +
+  groupColWidthPx('ГП1') + SPACER_WIDE +
+  groupColWidthPx('ГП2') + SPACER_WIDE +
+  groupColWidthPx('ГП3') + SPACER_WIDE +
+  groupColWidthPx('ГП4-А') + SPACER_NARROW +
+  groupColWidthPx('ГП4-Б') + SPACER_NARROW +
   TILE_WIDTH_FOR_GROUP['ГП4-В'];
 
 function rowForFloor(fl) { return 2 + (TOP_FLOOR - fl); }
