@@ -63,11 +63,14 @@ h2 { font-size: 17px; font-weight: 600; margin: 0 0 26px; }
 button { font-family: inherit; }
 button:focus { outline: none; }
 button:focus-visible { outline: none; }
+select:focus { outline: none; }
+select:focus-visible { outline: none; }
 
 .num { display: inline-block; text-align: right; font-variant-numeric: tabular-nums; }
 
 /* ---------- Header ---------- */
-.header { margin-bottom: 30px; }
+.header { display: flex; align-items: flex-start; gap: 180px; margin-bottom: 24px; margin-top: 24px; flex-wrap: wrap; }
+.header-title-block { flex-shrink: 0; }
 .address { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
 
 /* ---------- Quarters section ---------- */
@@ -119,14 +122,15 @@ button:focus-visible { outline: none; }
 }
 .date-label-big { font-size: 20px; font-weight: 700; min-width: 140px; text-align: right; margin: 0; flex-shrink: 0; position: relative; top: -2px; }
 
-.stats-row { display: flex; align-items: flex-start; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.stats-row { display: flex; align-items: flex-start; gap: 40px; flex-wrap: wrap; flex: 1; }
 .stat-block-sold { width: 280px; flex-shrink: 0; }
 .stat-block-revenue { width: 180px; flex-shrink: 0; }
-.stat-label { font-size: 17px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 400; }
+.stat-block { position: relative; }
+.stat-label { position: absolute; top: -20px; left: 0; font-size: 15px; color: var(--text-secondary); font-weight: 400; white-space: nowrap; }
 .stat-value { font-size: 26px; font-weight: 700; white-space: nowrap; }
 .stat-pct { font-size: 26px; font-weight: 700; }
 
-.price-scale { display: flex; align-items: center; gap: 8px; margin-left: auto; margin-top: 4px; }
+.price-scale { display: flex; align-items: center; gap: 8px; margin-left: auto; margin-top: 0px; }
 .ps-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
 .ps-bar { width: 140px; height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--price-lo), var(--price-hi)); }
 
@@ -164,7 +168,7 @@ button:focus-visible { outline: none; }
 .sp-overall-row { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
 .sp-overall-row .sales-panel-title-big { width: 72px; flex-shrink: 0; margin: 0; }
 .sales-panel-bars { display: flex; flex-direction: column; gap: 12px; }
-.sp-row { display: flex; align-items: center; gap: 4px; border-radius: 4px; padding: 1px 4px; margin: -1px -4px; }
+.sp-row { display: flex; align-items: center; gap: 8px; border-radius: 4px; padding: 1px 4px; margin: -1px -4px; }
 .sp-row-overall { padding-left: 0; margin-left: 0; }
 .sp-row-label-empty { width: 72px; }
 .sp-row-sub .sp-row-label { padding-left: 16px; width: 72px; }
@@ -185,7 +189,7 @@ button:focus-visible { outline: none; }
 .axis-caption-floors { text-align: left; }
 
 .axis-square {
-  width: 26px; height: 26px;
+  width: 24px; height: 24px;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; border: none; background: none; margin: 0; padding: 0;
   cursor: pointer; color: var(--text-secondary); border-radius: 3px;
@@ -196,7 +200,7 @@ button:focus-visible { outline: none; }
 .axis-square:hover:not(.active) { background: var(--surface); }
 .floor-square { justify-self: end; margin-right: 6px; }
 
-.group-title { font-weight: 600; font-size: 15px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; display: flex; flex-direction: column; gap: 2px; }
+.group-title { font-weight: 600; font-size: 14px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; display: flex; flex-direction: column; gap: 2px; }
 .group-title.clickable { cursor: pointer; border-radius: 4px; padding: 2px 4px; margin: -2px -4px 2px; }
 .group-title.clickable:hover:not(:has(.view-icon-item:hover)) { background: var(--surface); }
 .group-title.active { color: var(--pick-color); }
@@ -218,15 +222,16 @@ button:focus-visible { outline: none; }
 .view-icon-shape { display: flex; justify-content: center; margin-top: 5px; color: #9a9790; }
 .view-icon-bracket { width: 100%; height: 0px; border: none; margin-top: 0; }
 .gt-top { white-space: nowrap; }
-.gt-bars { display: flex; gap: 28px; }
+.gt-bars { display: flex; gap: 10px; }
 .gt-bars .mini-bar-wrap { flex: 1; }
-.gt-sub-money { font-size: 15px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; }
+.gt-sub-money { font-size: 14px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; }
 .mini-bar-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; width: 260px; }
 .mini-bar-wrap { width: 100%; height: 5px; background: var(--surface); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
-.gt-sub-bar { width: 89px; }
+.gt-sub-bar { width: 105px; }
 .view-icons-row-sub { margin-top: 5px; width: 100%; }
 .gt-bars .mini-bar-wrap { flex: 1; width: auto; }
-.gt-bars-agg .mini-bar-wrap { flex: none; width: 89px; }
+.gt-bars-agg { width: 195px; }
+.gt-bars-agg .mini-bar-wrap { flex: 1; width: auto; }
 .mini-bar-row .mini-bar-wrap { flex: none; width: 180px; }
 .mini-bar { height: 5px; background: var(--accent-muted); border-radius: 2px; }
 .group-title.active .mini-bar { background: var(--pick-color); }
@@ -289,25 +294,70 @@ button:focus-visible { outline: none; }
 
 /* ---------- Revenue by day ---------- */
 .revenue-section { margin-bottom: 40px; }
+.revenue-header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 40px; margin-bottom: 16px; }
+.period-controls { display: flex; align-items: center; gap: 10px; }
+.period-controls { display: flex; align-items: center; gap: 6px; }
+.period-btn { padding: 2px 12px 6px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; font-size: 12px; color: var(--text-primary); font-weight: 400; }
+.period-btn:hover { background: var(--surface-2); }
+.period-btn.active { background: var(--accent-muted); border-color: var(--accent-muted); color: #fff; }
+.period-select-wrap { position: relative; display: inline-flex; }
+.period-select-wrap::after {
+  content: ''; position: absolute; right: 9px; top: 50%; margin-top: -5px;
+  width: 6px; height: 6px; pointer-events: none;
+  border-right: 1.4px solid var(--text-secondary); border-bottom: 1.4px solid var(--text-secondary);
+  transform: rotate(45deg);
+}
+.period-select-wrap.active::after { border-color: #fff; }
+.period-btn-select {
+  padding-right: 22px;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.period-dropdown-list {
+  position: absolute; top: calc(100% + 4px); right: 0; z-index: 20;
+  background: #fff; border: 1px solid var(--border-strong); border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(42,42,38,0.12);
+  width: max-content; max-width: 220px; max-height: 260px; overflow-y: auto; overflow-x: hidden;
+  padding: 4px;
+}
+.period-dropdown-item {
+  padding: 6px 10px; font-size: 12px; color: var(--text-primary); border-radius: 6px;
+  cursor: pointer; white-space: nowrap; text-align: left;
+}
+.period-dropdown-item:hover { background: var(--surface); }
+.period-dropdown-item.active { background: var(--accent-muted); color: #fff; }
+.chart-legend-row { display: flex; gap: 16px; margin-bottom: 10px; font-size: 12px; color: var(--text-secondary); }
+.chart-legend-item { display: flex; align-items: center; gap: 5px; }
+.chart-legend-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+.swatch-revenue { background: var(--accent-muted); }
+.swatch-appeals { background: none; border: 1.5px solid var(--accent-muted); }
+.chart-legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pick-color); display: inline-block; }
+.revenue-unit-label { position: absolute; top: -12px; left: 0; font-size: 13px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
 .revenue-chart-wrap { display: flex; }
+.revenue-y-axis-col { width: 40px; flex-shrink: 0; position: relative; }
 .revenue-y-axis { position: relative; width: 32px; flex-shrink: 0; }
-.revenue-unit-label { width: 40px; text-align: left; font-size: 13px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; line-height: 16px; margin-bottom: 20px; }
 .y-tick { position: absolute; left: 0; width: 40px; text-align: right; font-size: 13px; color: var(--text-secondary); transform: translateY(50%); }
 .revenue-chart {
   flex: 1; display: flex; align-items: flex-end; gap: 0;
   border-bottom: 1px solid var(--border-strong); position: relative; min-width: 0;
-  margin-left: 4px;
+  margin-left: 16px;
 }
-.revenue-day { flex: 1 1 0; display: flex; align-items: flex-end; min-width: 1px; }
-.revenue-col { width: 100%; display: flex; flex-direction: column-reverse; overflow: hidden; }
+.period-col { flex: 1 1 0; position: relative; height: 100%; min-width: 1px; cursor: pointer; }
+.period-stack { position: absolute; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column-reverse; }
 .rev-tile { width: 100%; flex-shrink: 0; transition: opacity 0.15s; cursor: pointer; position: relative; }
 .rev-tile.dim { opacity: var(--dim-opacity); }
 .rev-tile.picked { outline: 2px solid var(--pick-color); outline-offset: -1px; z-index: 3; }
-.revenue-x-axis-row { display: flex; align-items: flex-start; margin-top: 4px; }
+.appeal-tile { width: 100%; box-sizing: border-box; background: var(--tile-base); flex-shrink: 0; }
+.appeal-tile.dim { opacity: var(--dim-opacity); }
+.deals-dot-wrap { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; z-index: 10; pointer-events: none; }
+.deals-dot { position: absolute; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; margin-bottom: -2.5px; border-radius: 50%; background: var(--pick-color); z-index: 10; }
+.deals-line-svg-wrap { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 10; pointer-events: none; }
+.deals-line-svg { position: absolute; left: 0; bottom: 0; width: 100%; pointer-events: none; }
+.revenue-x-axis-row { display: flex; align-items: flex-start; margin-top: 12px; }
 .revenue-x-caption { width: 40px; font-size: 13px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; line-height: 16px; margin: 0; position: relative; top: -3px; }
-.revenue-x-axis { position: relative; flex: 1; height: 28px; font-size: 13px; color: var(--text-secondary); margin-left: 4px; }
+.revenue-x-axis { position: relative; flex: 1; height: 44px; font-size: 13px; color: var(--text-secondary); margin-left: 4px; }
 .x-tick { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 0; line-height: 14px; }
-.x-tick-active { top: 14px; }
+.x-tick-active { color: var(--text-secondary); font-weight: 400; top: 16px; }
 .rev-count-badge { position: absolute; transform: translateX(-50%); font-size: 13px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; z-index: 4; pointer-events: none; }
 
 /* ---------- Managers ---------- */
@@ -337,6 +387,8 @@ button:focus-visible { outline: none; }
 }
 .apt-card-header { font-weight: 700; font-size: 13.5px; color: var(--text-primary); margin-bottom: 5px; }
 .apt-card-row { display: flex; justify-content: space-between; gap: 16px; line-height: 1.18; }
+.apt-card-row-period { justify-content: flex-start; gap: 8px; }
+.apt-card-row-period .apt-card-label { flex-shrink: 0; }
 .apt-card-label { color: var(--text-secondary); }
 .apt-card-value { font-weight: 700; color: var(--text-primary); text-align: right; white-space: nowrap; }
 
@@ -352,15 +404,11 @@ button:focus-visible { outline: none; }
 
 <div id="app">
   <header class="header">
-    <h1>ЖК «Облепиха»</h1>
-    <div class="address">Новосибирск, ул. Сиреневая, д. 1</div>
-  </header>
-
-  <section class="quarters-section">
-
-    <div class="quarters-main-row">
-    <div class="quarters-left">
-    <div class="stats-row" :style="{maxWidth: gridTotalWidth+'px'}">
+    <div class="header-title-block">
+      <h1>ЖК «Облепиха»</h1>
+      <div class="address">Новосибирск, ул. Сиреневая, д. 1</div>
+    </div>
+    <div class="stats-row">
       <div class="stat-block stat-block-sold">
         <div class="stat-label">Продано</div>
         <div class="stat-value"><span class="num" style="min-width:3ch">{{ soldCountFiltered }}</span> из <span class="num" style="min-width:3ch">{{ totalCountFiltered }}</span> <span class="stat-pct">(<span class="num" style="min-width:3ch">{{ pctSoldFiltered }}</span>%)</span></div>
@@ -379,12 +427,18 @@ button:focus-visible { outline: none; }
           <div class="mini-bar-num">{{ fmtMoney(totalValueFiltered) }}</div>
         </div>
       </div>
-      <div class="price-scale">
+      <div class="price-scale" :style="priceScaleAlignStyle">
         <span class="ps-label">{{ priceScaleMin }} млн ₽</span>
         <div class="ps-bar"></div>
         <span class="ps-label">{{ priceScaleMax }} млн ₽</span>
       </div>
     </div>
+  </header>
+
+  <section class="quarters-section">
+
+    <div class="quarters-main-row">
+    <div class="quarters-left">
 
     <div class="grid-table" :style="{gridTemplateColumns: gridTemplateColumns, rowGap: gap+'px', width: gridTotalWidth+'px'}">
 
@@ -396,7 +450,7 @@ button:focus-visible { outline: none; }
 
         <button v-else-if="cell.kind==='floor-label'"
                 class="axis-square floor-square" :class="{active: activeFloors.includes(cell.floor)}"
-                :style="cellStyle(cell)"
+                :style="[cellStyle(cell), {width: tileSize+'px', height: tileSize+'px'}]"
                 @click="toggleFloor(cell.floor)">{{ cell.floor }}</button>
 
         <div v-else-if="cell.kind==='view-icons'" class="view-icons-row" :style="cellStyle(cell)">
@@ -426,6 +480,7 @@ button:focus-visible { outline: none; }
             <div class="bracket-shape"></div>
             <button class="axis-square"
                     :class="{active: activeRooms.includes(rb.room)}"
+                    :style="{width: tileSize+'px', height: tileSize+'px'}"
                     @click="toggleRooms(rb.room)">{{ rb.room }}</button>
           </div>
         </div>
@@ -485,6 +540,7 @@ button:focus-visible { outline: none; }
             <div class="bracket-shape"></div>
             <button class="axis-square"
                     :class="{active: activeRooms.includes(rb.room)}"
+                    :style="{width: tileSize+'px', height: tileSize+'px'}"
                     @click="toggleRooms(rb.room)">{{ rb.room }}</button>
           </div>
         </div>
@@ -519,6 +575,80 @@ button:focus-visible { outline: none; }
         </div>
       </div>
     </div>
+  <section class="revenue-section">
+    <div class="revenue-header">
+      <h2>Динамика продаж</h2>
+      <div class="period-controls">
+        <button class="period-btn" :class="{active: chartPeriod==='day'}" @click="setChartPeriod('day')">День</button>
+        <div class="period-select-wrap" :class="{active: chartPeriod==='week'}">
+          <button class="period-btn period-btn-select" :class="{active: chartPeriod==='week'}" @click="toggleDropdown('week')">
+            {{ chartPeriod==='week' && chartSubPeriod ? currentSubPeriodLabel : 'Неделя' }}
+          </button>
+          <div v-if="openDropdown==='week'" class="period-dropdown-list">
+            <div class="period-dropdown-item" :class="{active: !chartSubPeriod}" @click="selectSubPeriod('week', '')">Неделя</div>
+            <div v-for="opt in periodSelectorListFor('week')" :key="opt.value"
+                 class="period-dropdown-item" :class="{active: chartSubPeriod===opt.value}"
+                 @click="selectSubPeriod('week', opt.value)">{{ opt.label }}</div>
+          </div>
+        </div>
+        <div class="period-select-wrap" :class="{active: chartPeriod==='month'}">
+          <button class="period-btn period-btn-select" :class="{active: chartPeriod==='month'}" @click="toggleDropdown('month')">
+            {{ chartPeriod==='month' && chartSubPeriod ? currentSubPeriodLabel : 'Месяц' }}
+          </button>
+          <div v-if="openDropdown==='month'" class="period-dropdown-list">
+            <div class="period-dropdown-item" :class="{active: !chartSubPeriod}" @click="selectSubPeriod('month', '')">Месяц</div>
+            <div v-for="opt in periodSelectorListFor('month')" :key="opt.value"
+                 class="period-dropdown-item" :class="{active: chartSubPeriod===opt.value}"
+                 @click="selectSubPeriod('month', opt.value)">{{ opt.label }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="revenue-chart-wrap">
+      <div class="revenue-y-axis-col" :style="{marginTop: '0px'}">
+        <div class="revenue-unit-label">млн ₽</div>
+        <div class="revenue-y-axis" :style="{height: revenueChartHeight+'px'}">
+          <div v-for="t in revenueYTicks" :key="t" class="y-tick" :style="{bottom: (t/revenueMaxDay*revenueChartHeight)+'px'}">{{ t }}</div>
+        </div>
+      </div>
+      <div class="revenue-chart" :style="{height: revenueChartHeight+'px'}">
+        <div class="period-col" v-for="d in periodData" :key="d.key"
+             @mouseenter="hoverRevDate = d.key; showPeriodCard(d, $event)"
+             @mousemove="moveCard($event)"
+             @mouseleave="hoverRevDate = null; hidePeriodCard()">
+          <div class="deals-dot-wrap">
+            <div v-if="d.revealed && d.deals>0" class="deals-dot" :style="{bottom: dealsMarkerBottom(d)+'px'}"></div>
+          </div>
+          <div class="period-stack">
+            <div v-for="apt in d.dealsArr" :key="'dl-'+apt.id"
+                 class="rev-tile"
+                 :class="revTileClass(apt)"
+                 :style="revTileStyle(apt)"
+                 @click.stop="pickTile(apt.id)"
+                 @mouseenter="selectedId===apt.id ? showCard(apt, $event) : showPeriodCard(d, $event)"
+                 @mousemove="moveCard($event)"
+                 @mouseleave="hideCard(); hidePeriodCard()"></div>
+            <div v-if="chartPeriod==='month'" class="appeal-tile appeal-tile-agg"
+                 :style="{height: (d.revealed ? Math.max(3, d.appealsValue*revenuePxPerMillion) : 0)+'px', border: '1px solid var(--accent-muted)', background: 'var(--tile-base)', boxSizing: 'border-box'}"></div>
+            <template v-else>
+              <div v-for="apt in d.appealsArr" :key="'ap-'+apt.id"
+                   class="appeal-tile"
+                   :class="{dim: !matchesFilters(apt)}"
+                   :style="{height: (d.revealed ? Math.max(3, apt.price*revenuePxPerMillion) : 0)+'px', border: '1px solid '+aptPriceColor(apt), background: 'var(--tile-base)', boxSizing: 'border-box'}"></div>
+            </template>
+          </div>
+        </div>
+        <div class="deals-line-svg-wrap" v-html="dealsLineSvgMarkup"></div>
+      </div>
+    </div>
+    <div class="revenue-x-axis-row">
+      <div class="revenue-x-caption">Дата</div>
+      <div class="revenue-x-axis">
+        <span v-for="t in periodXTicks" :key="t.label" class="x-tick" :style="{left: t.leftPct}">{{ t.label }}</span>
+        <span v-if="activeRevTick" class="x-tick x-tick-active" :style="{left: activeRevTick.leftPct}">{{ activeRevTick.label }}</span>
+      </div>
+    </div>
+  </section>
     </div>
 
     <div class="sales-panel">
@@ -586,37 +716,6 @@ button:focus-visible { outline: none; }
 
   </section>
 
-  <section class="revenue-section">
-    <h2>Динамика продаж</h2>
-    <div class="revenue-unit-label">млн ₽</div>
-    <div class="revenue-chart-wrap">
-      <div class="revenue-y-axis" :style="{height: revenueChartHeight+'px'}">
-        <div v-for="t in revenueYTicks" :key="t" class="y-tick" :style="{bottom: (t/revenueMaxDay*revenueChartHeight)+'px'}">{{ t }}</div>
-      </div>
-      <div class="revenue-chart" :style="{height: revenueChartHeight+'px'}">
-        <div v-if="hoverRevBadge" class="rev-count-badge" :style="{left: hoverRevBadge.leftPct, bottom: hoverRevBadge.bottomPx+'px'}">{{ hoverRevBadge.text }}</div>
-        <div class="revenue-day" v-for="d in revenueDays" :key="d.date">
-          <div class="revenue-col" :style="{height: d.revealed ? (d.netTotal*revenuePxPerMillion)+'px' : '0px'}">
-            <div v-for="apt in d.deals" :key="apt.id"
-                 class="rev-tile"
-                 :class="revTileClass(apt)"
-                 :style="revTileStyle(apt)"
-                 :title="revTileTitle(apt, d)"
-                 @click="pickTile(apt.id)"
-                 @mouseenter="hoverRevDate = d.date"
-                 @mouseleave="hoverRevDate = null"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="revenue-x-axis-row">
-      <div class="revenue-x-caption">Дата</div>
-      <div class="revenue-x-axis">
-        <span v-for="t in revenueXTicks" :key="t.label" class="x-tick" :style="{left: t.leftPct}">{{ t.label }}</span>
-        <span v-if="activeRevTick" class="x-tick x-tick-active" :style="{left: activeRevTick.leftPct}">{{ activeRevTick.label }}</span>
-      </div>
-    </div>
-  </section>
 
   <section class="managers-section">
     <h2>Эффективность менеджеров</h2>
@@ -659,6 +758,14 @@ button:focus-visible { outline: none; }
   <div v-if="cardApt" class="apt-card" :style="{left: (cardX+16)+'px', top: (cardY+16)+'px'}">
     <div class="apt-card-header">{{ cardApt.code }}</div>
     <div class="apt-card-row" v-for="row in aptCardRows(cardApt)" :key="row.label">
+      <div class="apt-card-label">{{ row.label }}</div>
+      <div class="apt-card-value">{{ row.value }}</div>
+    </div>
+  </div>
+
+  <div v-if="cardPeriod" class="apt-card" :style="{left: (cardX+16)+'px', top: (cardY+16)+'px'}">
+    <div class="apt-card-header">{{ cardPeriod.label }}</div>
+    <div class="apt-card-row apt-card-row-period" v-for="row in periodCardRows(cardPeriod)" :key="row.label">
       <div class="apt-card-label">{{ row.label }}</div>
       <div class="apt-card-value">{{ row.value }}</div>
     </div>
@@ -754,7 +861,7 @@ const SALES_DIMENSIONS = [
   { key: 'view', label: 'Вид', order: VIEWS_LIST.map(v => v.label), getCategory: a => VIEW_SHORT[a.view] }
 ];
 
-const TILE_SIZE = 28;
+const TILE_SIZE = 24;
 const TILE_GAP = 3;
 
 // ---------- Per-group structural facts ----------
@@ -854,7 +961,7 @@ const COL = { 'ГП1': 3, 'ГП2': 5, 'ГП3': 7 };
 const GP4_COL = { 'ГП4-А': 1, 'ГП4-Б': 3, 'ГП4-В': 5 };
 const FLOOR_AXIS_W = 46, SPACER_WIDE = 28, SPACER_NARROW = 6, SPACER_AXIS = 14;
 function groupColWidthPx(g) {
-  const titleMin = g.startsWith('ГП4-') ? 110 : 180;
+  const titleMin = g.startsWith('ГП4-') ? 110 : 195;
   return Math.max(TILE_WIDTH_FOR_GROUP[g], titleMin);
 }
 const GP4_AGG_WIDTH = groupColWidthPx('ГП4-А') + SPACER_NARROW +
@@ -963,6 +1070,46 @@ function buildRevenueDays() {
 const REVENUE_DAYS_STATIC = buildRevenueDays();
 const MAX_DAILY_REVENUE = d3.max(REVENUE_DAYS_STATIC, d => d.netTotal) || 1;
 
+// ---------- Period-based sales dynamics (day / week / month), filter-aware ----------
+function isoWeekKey(d) {
+  const dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = (dt.getUTCDay() + 6) % 7; // Monday = 0
+  dt.setUTCDate(dt.getUTCDate() - day);
+  return formatISO(dt); // Monday of that week, used as the bucket key
+}
+function monthKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+function periodKeyFor(period, d) {
+  if (period === 'day') return formatISO(d);
+  if (period === 'week') return isoWeekKey(d);
+  return monthKey(d);
+}
+function periodLabelFor(period, key, d) {
+  if (period === 'day') return formatDateShort(d);
+  if (period === 'week') return formatDateShort(d) + '–' + formatDateShort(new Date(d.getTime() + 6 * DAY_MS));
+  const MONTHS_FULL = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+  return MONTHS_FULL[d.getMonth()] + ' ' + d.getFullYear();
+}
+// build the ordered list of period buckets (keys + representative start-date) spanning the
+// whole project date range, for a given granularity — apartments are matched into these later
+function buildPeriodSkeleton(period) {
+  const seen = new Set();
+  const list = [];
+  for (let t = MIN_DATE.getTime(); t <= MAX_DATE.getTime(); t += DAY_MS) {
+    const d = new Date(t);
+    const key = periodKeyFor(period, d);
+    if (!seen.has(key)) {
+      seen.add(key);
+      const startDate = period === 'week' ? new Date(t - ((d.getDay() + 6) % 7) * DAY_MS) :
+        period === 'month' ? new Date(d.getFullYear(), d.getMonth(), 1) : d;
+      list.push({ key, startDate });
+    }
+  }
+  return list;
+}
+const PERIOD_SKELETONS = { day: buildPeriodSkeleton('day'), week: buildPeriodSkeleton('week'), month: buildPeriodSkeleton('month') };
+
 const managerTotals = MANAGERS_LIST.map(m =>
   soldApts.filter(a => a.manager === m).reduce((s, a) => s + a.price, 0)
 );
@@ -978,6 +1125,11 @@ createApp({
     return {
       dayIdx: TOTAL_DAYS,
       playing: false,
+      chartPeriod: 'week',
+      chartSubPeriod: null,
+      openDropdown: null,
+      chartPixelWidth: 1000,
+      sidebarBarRight: null,
       playTimer: null,
       activeView: null,
       activeFloors: [],
@@ -987,6 +1139,7 @@ createApp({
       hoverRevDate: null,
       salesDim: 'corpus',
       cardApt: null,
+      cardPeriod: null,
       cardX: 0,
       cardY: 0,
       gp4TopOffsetMeasured: 155,
@@ -1000,6 +1153,29 @@ createApp({
   mounted() {
     this.stabilizeGp4Offset();
     window.addEventListener('resize', () => this.stabilizeGp4Offset());
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.period-select-wrap')) this.openDropdown = null;
+    });
+    this.$nextTick(() => {
+      const chartEl = document.querySelector('.revenue-chart');
+      if (chartEl && window.ResizeObserver) {
+        const ro = new ResizeObserver(entries => {
+          for (const entry of entries) this.chartPixelWidth = entry.contentRect.width;
+        });
+        ro.observe(chartEl);
+      }
+      const updateSidebarBarRight = () => {
+        const pct = document.querySelector('.sales-panel .sp-row-pct');
+        if (pct) this.sidebarBarRight = pct.getBoundingClientRect().right;
+      };
+      updateSidebarBarRight();
+      window.addEventListener('resize', updateSidebarBarRight);
+      const sp = document.querySelector('.sales-panel');
+      if (sp && window.ResizeObserver) {
+        const ro2 = new ResizeObserver(updateSidebarBarRight);
+        ro2.observe(sp);
+      }
+    });
   },
   computed: {
     VIEW_ICON_MAP() { return VIEW_ICON; },
@@ -1163,28 +1339,183 @@ createApp({
         return { ...d, revealed: d.date <= this.currentDateStr || hasSelected };
       });
     },
+    // period-aware, filter-aware sales dynamics data: respects activeView/activeFloors/
+    // activeRooms/activeCorpus (and drilling into one specific week/month) simultaneously
+    effectivePeriod() {
+      return this.chartSubPeriod ? 'day' : this.chartPeriod;
+    },
+    periodRange() {
+      if (!this.chartSubPeriod) return null;
+      const [period, key] = this.chartSubPeriod.split('|');
+      const skel = PERIOD_SKELETONS[period].find(p => p.key === key);
+      if (!skel) return null;
+      const start = skel.startDate;
+      const end = period === 'week' ? new Date(start.getTime() + 6 * DAY_MS) :
+        new Date(start.getFullYear(), start.getMonth() + 1, 0);
+      return { start, end };
+    },
+    periodData() {
+      const period = this.effectivePeriod;
+      const range = this.periodRange;
+      const skeleton = range
+        ? PERIOD_SKELETONS.day.filter(p => p.startDate >= range.start && p.startDate <= range.end)
+        : PERIOD_SKELETONS[period];
+
+      const revByKey = {}, dealsByKey = {}, appealsByKey = {}, dealsArrByKey = {}, appealsArrByKey = {};
+      soldApts.filter(a => this.matchesFilters(a)).forEach(a => {
+        const closeD = parseDate(a.close);
+        const closeKey = periodKeyFor(period, closeD);
+        revByKey[closeKey] = (revByKey[closeKey] || 0) + a.price * (1 - a.discPct);
+        dealsByKey[closeKey] = (dealsByKey[closeKey] || 0) + 1;
+        if (!dealsArrByKey[closeKey]) dealsArrByKey[closeKey] = [];
+        dealsArrByKey[closeKey].push(a);
+        const appealD = parseDate(a.appeal);
+        const appealKey = periodKeyFor(period, appealD);
+        appealsByKey[appealKey] = (appealsByKey[appealKey] || 0) + 1;
+        if (!appealsArrByKey[appealKey]) appealsArrByKey[appealKey] = [];
+        appealsArrByKey[appealKey].push(a);
+      });
+
+      const sortArr = (arr, dateField) => arr.slice().sort((a, b) => {
+        if (period === 'day') return a.price - b.price;
+        const dc = parseDate(a[dateField]) - parseDate(b[dateField]);
+        return dc !== 0 ? dc : a.price - b.price;
+      });
+
+      return skeleton.map(p => ({
+        key: p.key,
+        startDate: p.startDate,
+        label: periodLabelFor(period, p.key, p.startDate),
+        revenue: revByKey[p.key] || 0,
+        deals: dealsByKey[p.key] || 0,
+        dealsArr: sortArr(dealsArrByKey[p.key] || [], 'close'),
+        appeals: appealsByKey[p.key] || 0,
+        appealsArr: sortArr(appealsArrByKey[p.key] || [], 'appeal'),
+        appealsValue: (appealsArrByKey[p.key] || []).reduce((s, a) => s + a.price, 0),
+        revealed: formatISO(p.startDate) <= this.currentDateStr
+      }));
+    },
+    chartTopPadding() { return 1; },
+    priceScaleAlignStyle() {
+      // keep the price-scale's right edge lined up with the sidebar bars' right
+      // edge, even though they live in different sections — measured live via
+      // ResizeObserver since the sidebar bar's width is itself responsive
+      if (this.sidebarBarRight === null) return {};
+      const header = document.querySelector('.header');
+      if (!header) return {};
+      const headerRight = header.getBoundingClientRect().right;
+      const offset = headerRight - this.sidebarBarRight;
+      return { marginRight: offset + 'px' };
+    },
+    periodMaxRevenue() {
+      // the Y-axis must cover deals AND appeals stacked together (same scale). Naively
+      // scaling by raw price sums breaks down because many small-price appeal tiles each
+      // need a minimum rendered height (for their border to show), and that minimum
+      // itself depends on the scale — so solve it iteratively until stable, instead of
+      // one algebraic correction (which can undershoot: a coarser scale forces *more*
+      // tiles onto the floor, which can grow the very overflow it was meant to fix).
+      // On the month view appeals render as a single aggregate tile, so only THAT one
+      // tile needs the minimum-height floor there, not each individual apartment.
+      const MIN_PX = 3;
+      const isMonth = this.chartPeriod === 'month';
+      const targetH = this.revenueChartHeight - this.chartTopPadding;
+      let scaleMax = d3.max(this.periodData, d => d.revenue + d.appealsValue) || 1;
+      for (let i = 0; i < 6; i++) {
+        const px = targetH / scaleMax;
+        const neededMax = d3.max(this.periodData, d => {
+          const appealsPx = isMonth
+            ? Math.max(MIN_PX, d.appealsValue * px)
+            : d.appealsArr.reduce((s, a) => s + Math.max(MIN_PX, a.price * px), 0);
+          return d.revenue * px + appealsPx;
+        }) || 1;
+        scaleMax = scaleMax * (neededMax / targetH);
+      }
+      return scaleMax;
+    },
+    periodMaxCount() {
+      return d3.max(this.periodData, d => d.deals) || 1;
+    },
     revenueMaxDay() { return this.revenueYMax; },
-    revenueChartHeight() { return 260; },
+    revenueChartHeight() { return 340; },
+    periodColWidth() { return 1000 / Math.max(this.periodData.length, 1); },
     revenuePxPerMillion() { return this.revenueChartHeight / this.revenueYMax; },
     revenueYScale() {
-      return d3.scaleLinear().domain([0, MAX_DAILY_REVENUE]).nice();
+      return d3.scaleLinear().domain([0, this.periodMaxRevenue]).nice();
     },
     revenueYMax() {
       return this.revenueYScale.domain()[1];
     },
     revenueYTicks() {
-      return this.revenueYScale.ticks(10).filter(t => t > 0);
+      // top tick shows the EXACT data max (not the nice-rounded scale ceiling) so
+      // it reads as the real number, not an arbitrary round figure. Drop any
+      // "nice" tick that would land too close underneath it (avoids two crowded
+      // labels stacked within a few px of each other).
+      const exactMax = this.periodMaxRevenue;
+      const niceMax = this.revenueYMax;
+      const step = niceMax / 8;
+      let ticks = this.revenueYScale.ticks(8).filter(t => t > 0 && t < exactMax - step * 0.4);
+      ticks.push(Math.round(exactMax));
+      ticks.unshift(0);
+      return ticks;
     },
-    revenueXTicks() {
-      const ticks = [];
-      const n = REVENUE_DAYS_STATIC.length;
-      REVENUE_DAYS_STATIC.forEach((d, i) => {
-        const dom = d.day.getDate();
-        if (dom === 1 || dom === 15 || i === 0 || i === n - 1) {
-          ticks.push({ date: d.date, label: formatDateShort(d.day), leftPct: ((i + 0.5) / n * 100) + '%' });
+    periodXTicks() {
+      const n = this.periodData.length;
+      if (!n) return [];
+      // estimate how many labels can fit without overlapping, then thin them out
+      // evenly — but always keep every period if there's room, and never let two
+      // labels land close enough to visually collide (checked in pixels, not just
+      // by index step, since the forced-last-tick can otherwise sit right next to
+      // the previous regular-step tick)
+      const maxLabelLen = Math.max(...this.periodData.map(d => d.label.length), 5);
+      const estLabelPx = maxLabelLen * 6.2 + 10;
+      const w = Math.max(this.chartPixelWidth, 1);
+      const maxFit = Math.max(1, Math.floor(w / estLabelPx));
+      const step = Math.max(1, Math.ceil(n / maxFit));
+
+      const candidates = this.periodData
+        .map((d, i) => ({ d, i }))
+        .filter(({ i }) => i === 0 || i === n - 1 || i % step === 0);
+
+      const minGapPx = estLabelPx * 0.9;
+      const kept = [];
+      candidates.forEach((c, idx) => {
+        const leftPx = (c.i + 0.5) / n * w;
+        const isLast = idx === candidates.length - 1;
+        const prev = kept[kept.length - 1];
+        if (!prev || leftPx - prev.leftPx >= minGapPx || isLast) {
+          // when the new tick is too close to the previous one, drop the PREVIOUS
+          // one instead of the guaranteed-last tick, so the final date always shows
+          if (prev && leftPx - prev.leftPx < minGapPx && isLast) kept.pop();
+          kept.push({ d: c.d, leftPx });
         }
       });
-      return ticks;
+      return kept.map(({ d, leftPx }) => ({ key: d.key, label: d.label, leftPct: (leftPx / w * 100) + '%' }));
+    },
+    periodOptions() {
+      return [{ value: 'day', label: 'День' }, { value: 'week', label: 'Неделя' }, { value: 'month', label: 'Месяц' }];
+    },
+    currentSubPeriodLabel() {
+      if (!this.chartSubPeriod) return '';
+      const [period, key] = this.chartSubPeriod.split('|');
+      const skel = PERIOD_SKELETONS[period] && PERIOD_SKELETONS[period].find(p => p.key === key);
+      return skel ? periodLabelFor(period, key, skel.startDate) : '';
+    },
+    dealsLinePoints() {
+      const n = this.periodData.length;
+      if (!n) return '';
+      const totalH = this.revenueChartHeight;
+      return this.periodData.map((d, i) => {
+        const x = i + 0.5;
+        const y = totalH - this.dealsMarkerBottom(d);
+        return x + ',' + y;
+      }).join(' ');
+    },
+    dealsLineSvgMarkup() {
+      const n = this.periodData.length;
+      const totalH = this.revenueChartHeight;
+      return '<svg class="deals-line-svg" width="100%" height="' + totalH + '" viewBox="0 0 ' + n + ' ' + totalH + '" preserveAspectRatio="none" style="bottom:0">' +
+        '<polyline points="' + this.dealsLinePoints + '" fill="none" stroke="var(--pick-color)" stroke-width="2" vector-effect="non-scaling-stroke"/>' +
+        '</svg>';
     },
     activeRevDate() {
       if (this.hoverRevDate !== null) return this.hoverRevDate;
@@ -1195,32 +1526,34 @@ createApp({
       return null;
     },
     hoverRevBadge() {
-      const dateStr = this.hoverRevDate;
-      if (dateStr === null) return null;
-      const idx = REVENUE_DAYS_STATIC.findIndex(d => d.date === dateStr);
+      const key = this.hoverRevDate;
+      if (key === null) return null;
+      const idx = this.periodData.findIndex(d => d.key === key);
       if (idx === -1) return null;
-      const days = REVENUE_DAYS_STATIC;
+      const days = this.periodData;
       const n = days.length;
-      const heightOf = i => (i >= 0 && i < n) ? days[i].netTotal * this.revenuePxPerMillion : 0;
+      const heightOf = i => {
+        if (i < 0 || i >= n || !days[i].revealed) return 0;
+        return days[i].revenue * this.revenuePxPerMillion + this.appealsHeightPx(days[i]);
+      };
       const ownHeight = heightOf(idx);
-      // if a neighbouring bar is taller, the label would visually sit on top of it —
-      // anchor the label above the taller neighbour instead of its own bar in that case
       const neighborMax = Math.max(heightOf(idx - 1), heightOf(idx + 1));
       const baseHeight = Math.max(ownHeight, neighborMax > ownHeight ? neighborMax : 0);
       const extra = ownHeight < 26 ? 22 : 8;
       return {
-        text: this.fmtMoney(days[idx].netTotal),
+        text: this.fmtMoney(days[idx].revenue) + ' млн ₽',
         leftPct: ((idx + 0.5) / n * 100) + '%',
         bottomPx: baseHeight + extra
       };
     },
     activeRevTick() {
-      if (this.activeRevDate === null) return null;
-      if (this.revenueXTicks.some(t => t.date === this.activeRevDate)) return null;
-      const idx = REVENUE_DAYS_STATIC.findIndex(d => d.date === this.activeRevDate);
+      const key = this.hoverRevDate;
+      if (key === null) return null;
+      if (this.periodXTicks.some(t => t.key === key)) return null;
+      const idx = this.periodData.findIndex(d => d.key === key);
       if (idx === -1) return null;
-      const n = REVENUE_DAYS_STATIC.length;
-      return { label: formatDateShort(REVENUE_DAYS_STATIC[idx].day), leftPct: ((idx + 0.5) / n * 100) + '%' };
+      const n = this.periodData.length;
+      return { label: this.periodData[idx].label, leftPct: ((idx + 0.5) / n * 100) + '%' };
     }
   },
 
@@ -1445,8 +1778,18 @@ createApp({
     },
     showCard(apt, evt) {
       this.cardApt = apt;
+      this.cardPeriod = null;
       this.cardX = evt.clientX;
       this.cardY = evt.clientY;
+    },
+    showPeriodCard(d, evt) {
+      this.cardPeriod = d;
+      this.cardApt = null;
+      this.cardX = evt.clientX;
+      this.cardY = evt.clientY;
+    },
+    hidePeriodCard() {
+      this.cardPeriod = null;
     },
     moveCard(evt) {
       this.cardX = evt.clientX;
@@ -1461,7 +1804,57 @@ createApp({
       return day + '\n' + n + ' ' + pluralDeals(n) + '\nсумма ' + this.fmtMoney(d.netTotal) + ' млн ₽';
     },
     revTileTitle(apt, d) {
-      return this.selectedId === apt.id ? this.tileTitle(apt) : this.dayTooltip(d);
+      return this.selectedId === apt.id ? this.tileTitle(apt) : this.periodTooltip(d);
+    },
+    setChartPeriod(p) {
+      this.chartPeriod = p;
+      this.chartSubPeriod = null;
+    },
+    periodSelectorListFor(period) {
+      return PERIOD_SKELETONS[period].map(p => ({
+        value: period + '|' + p.key,
+        label: periodLabelFor(period, p.key, p.startDate)
+      }));
+    },
+    onSubPeriodSelect(period, value) {
+      this.chartPeriod = period;
+      this.chartSubPeriod = value || null;
+    },
+    toggleDropdown(period) {
+      if (this.openDropdown === period) {
+        this.openDropdown = null;
+      } else if (this.chartPeriod === period) {
+        // already the active period — a second click opens the dropdown
+        this.openDropdown = period;
+      } else {
+        // first click on a not-yet-active period just selects it, no dropdown yet
+        this.chartPeriod = period;
+        this.chartSubPeriod = null;
+        this.openDropdown = null;
+      }
+    },
+    closeDropdown(period) {
+      if (this.openDropdown === period) this.openDropdown = null;
+    },
+    selectSubPeriod(period, value) {
+      this.chartPeriod = period;
+      this.chartSubPeriod = value || null;
+      this.openDropdown = null;
+    },
+    pickPeriod(d) {
+      if (this.chartSubPeriod) return; // already drilled into a single day, nothing further to pick
+      if (this.chartPeriod === 'day') return;
+      this.chartSubPeriod = this.chartPeriod + '|' + d.key;
+    },
+    periodTooltip(d) {
+      return d.label + '\nсделок: ' + d.deals + '\nобращений: ' + d.appeals + '\nсумма ' + this.fmtMoney(d.revenue) + ' млн ₽';
+    },
+    periodCardRows(d) {
+      return [
+        { label: 'сделки', value: d.deals },
+        { label: 'обращения', value: d.appeals },
+        { label: 'сумма', value: this.fmtMoney(d.revenue) + ' млн ₽' }
+      ];
     },
 
     setHoverRoom(r) { this.hoverRoom = r; },
@@ -1470,12 +1863,37 @@ createApp({
     clearHoverFloor() { this.hoverFloor = null; },
 
     revTileStyle(apt) {
-      if (this.currentDateStr < apt.close) return { height: '10px', background: 'transparent' };
+      if (this.currentDateStr < apt.close) return { height: '0px', background: 'transparent' };
       const netHeight = apt.price * (1 - apt.discPct) * this.revenuePxPerMillion;
       return { height: netHeight + 'px', background: priceColor(apt.price) };
     },
     revTileClass(apt) {
       return { dim: !this.matchesFilters(apt), picked: this.selectedId === apt.id };
+    },
+    aptPriceColor(apt) { return priceColor(apt.price); },
+    appealsHeightPx(d) {
+      if (!d.revealed) return 0;
+      if (this.chartPeriod === 'month') return Math.max(3, d.appealsValue * this.revenuePxPerMillion);
+      return d.appealsArr.reduce((s, a) => s + Math.max(3, a.price * this.revenuePxPerMillion), 0);
+    },
+    dealsActualHeight(d) {
+      // the true rendered height of the deals stack right now — while playing back
+      // through time, apartments that haven't individually closed yet still render
+      // as a small 10px placeholder (see revTileStyle), so the real stack is shorter
+      // than d.revenue*px would suggest. Appeals must anchor to THIS, not the full
+      // period revenue, or they visibly float above the actual top of the deals bar.
+      if (!d.revealed) return 0;
+      return d.dealsArr.reduce((s, apt) => {
+        if (this.currentDateStr < apt.close) return s;
+        return s + apt.price * (1 - apt.discPct) * this.revenuePxPerMillion;
+      }, 0);
+    },
+    dealsMarkerBottom(d) {
+      // deals-count line uses its own secondary scale spanning most of the chart height
+      // (like a proper right-hand axis overlaid on the same bars), not a separate strip.
+      // Capped below 100% so the tallest point never touches/exceeds the chart's own top.
+      if (!d.revealed) return 0;
+      return d.deals / this.periodMaxCount * this.revenueChartHeight * 0.8;
     },
 
     managerDeals(m) { return MANAGER_DEALS_STATIC[m]; },
@@ -1526,6 +1944,7 @@ createApp({
     }
   }
 }).mount('#app');
+window.__DEBUG_APP__ = document.getElementById('app').__vue_app__;
 
 </script>
 </body>
