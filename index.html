@@ -14,7 +14,7 @@
   --text-primary: #2a2a26;
   --text-secondary: #6b6960;
   --text-muted: #93908a;
-  --accent-muted: #4a6f8e;
+  --accent-muted: #708090;
   --slider-fill: #6f7d92;
   --slider-track: #e3e1d8;
   --pick-color: #cf4040;
@@ -158,10 +158,13 @@ select:focus-visible { outline: none; }
   z-index: 1;
 }
 
-.quarters-main-row { display: flex; align-items: flex-start; gap: 36px; }
-.quarters-left { flex-shrink: 0; }
+.quarters-main-row { display: flex; align-items: stretch; gap: 36px; position: relative; }
+.quarters-left { flex-shrink: 0; align-self: flex-start; }
 
-.sales-panel { flex: 1; min-width: 260px; max-width: 380px; padding-top: 14px; }
+.sales-panel-overall { position: absolute; top: -34px; width: 380px; }
+.sales-panel-outer { flex: 0 1 380px; min-width: 220px; overflow: visible; position: relative; }
+.sales-panel-wrap { position: relative; top: 5px; width: 100%; }
+.sales-panel { padding-top: 14px; position: sticky; top: 8px; }
 .sp-section { margin-bottom: 14px; }
 .sales-panel-title { font-size: 15px; font-weight: 600; line-height: 1; color: var(--text-primary); margin-bottom: 6px; }
 .sales-panel-title-big { font-size: 17px; line-height: 1; margin-bottom: 6px; }
@@ -170,14 +173,14 @@ select:focus-visible { outline: none; }
 .sales-panel-bars { display: flex; flex-direction: column; gap: 12px; }
 .sp-row { display: flex; align-items: center; gap: 8px; border-radius: 4px; padding: 1px 4px; margin: -1px -4px; }
 .sp-row-overall { padding-left: 0; margin-left: 0; }
-.sp-row-label-empty { width: 72px; }
-.sp-row-sub .sp-row-label { padding-left: 16px; width: 72px; }
+.sp-row-label-empty { width: 78px; }
+.sp-row-sub .sp-row-label { padding-left: 16px; width: 78px; }
 .sp-row.clickable { cursor: pointer; }
 .sp-row.clickable:hover { background: var(--surface); }
 .sp-row.active .sp-row-label { color: var(--text-primary); font-weight: 600; }
 .sp-row.active .sp-row-bar { background: var(--pick-color); }
 .sp-row.muted { opacity: 0.35; pointer-events: none; }
-.sp-row-label { width: 72px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); }
+.sp-row-label { width: 78px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
 .sp-row-bar-wrap { flex: 1; height: 14px; background: var(--surface); border-radius: 3px; overflow: hidden; }
 .sp-row-bar { height: 100%; background: var(--accent-muted); border-radius: 3px; }
 .sp-row-pct { width: 34px; flex-shrink: 0; text-align: right; font-size: 13px; font-weight: 600; color: var(--text-primary); }
@@ -294,7 +297,7 @@ select:focus-visible { outline: none; }
 
 /* ---------- Revenue by day ---------- */
 .revenue-section { margin-bottom: 40px; }
-.revenue-header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 40px; margin-bottom: 16px; }
+.revenue-header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 25px; margin-bottom: -2px; }
 .period-controls { display: flex; align-items: center; gap: 10px; }
 .period-controls { display: flex; align-items: center; gap: 6px; }
 .period-btn { padding: 2px 12px 6px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; font-size: 12px; color: var(--text-primary); font-weight: 400; }
@@ -332,7 +335,7 @@ select:focus-visible { outline: none; }
 .swatch-revenue { background: var(--accent-muted); }
 .swatch-appeals { background: none; border: 1.5px solid var(--accent-muted); }
 .chart-legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pick-color); display: inline-block; }
-.revenue-unit-label { position: absolute; top: -12px; left: 0; font-size: 13px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+.revenue-unit-label { position: absolute; top: -10px; left: 0; font-size: 13px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
 .revenue-chart-wrap { display: flex; }
 .revenue-y-axis-col { width: 40px; flex-shrink: 0; position: relative; }
 .revenue-y-axis { position: relative; width: 32px; flex-shrink: 0; }
@@ -361,15 +364,23 @@ select:focus-visible { outline: none; }
 .rev-count-badge { position: absolute; transform: translateX(-50%); font-size: 13px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; z-index: 4; pointer-events: none; }
 
 /* ---------- Managers ---------- */
-.managers-section { margin-bottom: 24px; }
+.managers-section { margin-bottom: 24px; margin-top: -33px; }
 .manager-row { display: flex; align-items: flex-start; gap: 14px; padding: 6px 0; }
-.manager-name { width: 56px; font-size: 15px; font-weight: 700; flex-shrink: 0; line-height: 18px; }
+.manager-name {
+  width: 68px; font-size: 15px; font-weight: 700; flex-shrink: 0; line-height: 18px;
+  text-align: left; background: none; border: none; color: var(--text-primary);
+  cursor: pointer; border-radius: 3px; padding: 2px 4px; margin: -2px -4px;
+  white-space: nowrap;
+}
+.manager-name.clickable:hover:not(.active) { background: var(--surface); }
+.manager-name.active { background: var(--accent-muted); color: #fff; }
+.manager-row.muted { opacity: 0.4; }
 .manager-body { flex: 1; min-width: 0; }
 .manager-stats { display: flex; gap: 16px; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; flex-wrap: wrap; line-height: 18px; }
 .manager-stats b { color: var(--text-primary); font-size: 14px; font-weight: 700; }
-.manager-chart { display: flex; align-items: flex-end; width: 100%; height: 60px; }
+.manager-chart { display: flex; align-items: flex-end; width: 100%; height: 50px; }
 .m-tile {
-  position: relative; height: 60px; flex-shrink: 0; overflow: hidden;
+  position: relative; height: 50px; flex-shrink: 0; overflow: hidden;
   background: var(--tile-base);
   transition: opacity 0.15s;
   cursor: pointer;
@@ -385,10 +396,10 @@ select:focus-visible { outline: none; }
   padding: 10px 12px; min-width: 200px;
   font-size: 12.5px;
 }
+.apt-card-period { min-width: 0; width: max-content; }
 .apt-card-header { font-weight: 700; font-size: 13.5px; color: var(--text-primary); margin-bottom: 5px; }
 .apt-card-row { display: flex; justify-content: space-between; gap: 16px; line-height: 1.18; }
-.apt-card-row-period { justify-content: flex-start; gap: 8px; }
-.apt-card-row-period .apt-card-label { flex-shrink: 0; }
+.apt-card-row-period { gap: 12px; }
 .apt-card-label { color: var(--text-secondary); }
 .apt-card-value { font-weight: 700; color: var(--text-primary); text-align: right; white-space: nowrap; }
 
@@ -455,7 +466,7 @@ select:focus-visible { outline: none; }
 
         <div v-else-if="cell.kind==='view-icons'" class="view-icons-row" :style="cellStyle(cell)">
           <div v-for="item in mergedViewIconsForGroup(cell.group)" :key="item.key"
-               class="view-icon-item clickable" :class="{active: activeView===item.view}"
+               class="view-icon-item clickable" :class="{active: activeView.includes(item.view)}"
                :style="{left: item.left+'px', width: item.width+'px'}"
                @click.stop="toggleView(item.view)">
             <div class="view-icon-shape" v-html="viewIconSvg(item.icon, item.color)"></div>
@@ -524,7 +535,7 @@ select:focus-visible { outline: none; }
           </div>
           <div class="view-icons-row view-icons-row-sub">
             <div v-for="item in mergedViewIconsForGroup(cell.group)" :key="item.key"
-                 class="view-icon-item clickable" :class="{active: activeView===item.view}"
+                 class="view-icon-item clickable" :class="{active: activeView.includes(item.view)}"
                  :style="{left: item.left+'px', width: item.width+'px'}"
                  @click.stop="toggleView(item.view)">
               <div class="view-icon-shape" v-html="viewIconSvg(item.icon, item.color)"></div>
@@ -568,7 +579,7 @@ select:focus-visible { outline: none; }
       <div class="view-legend">
         <div v-for="v in viewsList" :key="v.value"
              class="view-legend-item clickable"
-             :class="{active: activeView===v.value}"
+             :class="{active: activeView.includes(v.value)}"
              @click="toggleView(v.value)">
           <div class="view-legend-icon" v-html="viewIconSvg(VIEW_ICON_MAP[v.value].icon, VIEW_ICON_MAP[v.value].color)"></div>
           <span>{{ v.label }}</span>
@@ -612,8 +623,9 @@ select:focus-visible { outline: none; }
         </div>
       </div>
       <div class="revenue-chart" :style="{height: revenueChartHeight+'px'}">
+        <div v-if="hoverRevBadge" class="rev-count-badge" :style="{left: hoverRevBadge.leftPct, bottom: hoverRevBadge.bottomPx+'px'}">{{ hoverRevBadge.text }}</div>
         <div class="period-col" v-for="d in periodData" :key="d.key"
-             @mouseenter="hoverRevDate = d.key; showPeriodCard(d, $event)"
+             @mouseenter="hoverRevDate = d.key; onPeriodColEnter(d, $event)"
              @mousemove="moveCard($event)"
              @mouseleave="hoverRevDate = null; hidePeriodCard()">
           <div class="deals-dot-wrap">
@@ -624,17 +636,17 @@ select:focus-visible { outline: none; }
                  class="rev-tile"
                  :class="revTileClass(apt)"
                  :style="revTileStyle(apt)"
-                 @click.stop="pickTile(apt.id)"
+                 @click.stop="pickDealTile(apt, d, $event)"
                  @mouseenter="selectedId===apt.id ? showCard(apt, $event) : showPeriodCard(d, $event)"
                  @mousemove="moveCard($event)"
                  @mouseleave="hideCard(); hidePeriodCard()"></div>
             <div v-if="chartPeriod==='month'" class="appeal-tile appeal-tile-agg"
-                 :style="{height: (d.revealed ? Math.max(3, d.appealsValue*revenuePxPerMillion) : 0)+'px', border: '1px solid var(--accent-muted)', background: 'var(--tile-base)', boxSizing: 'border-box'}"></div>
+                 :style="{height: Math.max(3, revealedAppealsValue(d)*revenuePxPerMillion)+'px', border: '1px solid var(--accent-muted)', background: 'var(--tile-base)', boxSizing: 'border-box'}"></div>
             <template v-else>
               <div v-for="apt in d.appealsArr" :key="'ap-'+apt.id"
                    class="appeal-tile"
                    :class="{dim: !matchesFilters(apt)}"
-                   :style="{height: (d.revealed ? Math.max(3, apt.price*revenuePxPerMillion) : 0)+'px', border: '1px solid '+aptPriceColor(apt), background: 'var(--tile-base)', boxSizing: 'border-box'}"></div>
+                   :style="appealTileStyle(apt)"></div>
             </template>
           </div>
         </div>
@@ -651,7 +663,7 @@ select:focus-visible { outline: none; }
   </section>
     </div>
 
-    <div class="sales-panel">
+    <div class="sales-panel-overall">
       <div class="sp-section">
         <div class="sp-overall-row">
           <div class="sales-panel-title sales-panel-title-big">Общие</div>
@@ -660,18 +672,21 @@ select:focus-visible { outline: none; }
         </div>
         <div class="sales-panel-title sales-panel-title-big">продажи</div>
       </div>
-
+    </div>
+    <div class="sales-panel-outer" :style="{height: qlNaturalHeight ? qlNaturalHeight+'px' : 'auto'}">
+    <div class="sales-panel-wrap" :style="{height: wrapHeightPx ? wrapHeightPx+'px' : 'auto'}">
+    <div class="sales-panel">
       <div class="sp-section">
         <div class="sales-panel-title">Корпус</div>
         <div v-for="row in corpusBreakdown" :key="row.label" class="sp-row clickable"
-             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.corpus===row.value)}"
+             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.corpus===row.value), muted: row.muted}"
              @click="toggleCorpus(row.value)">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
           <div class="sp-row-pct">{{ row.pct }}%</div>
         </div>
         <div v-for="row in gp4SubBreakdown" :key="row.label" class="sp-row sp-row-sub clickable"
-             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.group===row.value) || gp4AggClicked}"
+             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.group===row.value) || gp4AggClicked, muted: row.muted}"
              @click="toggleCorpus(row.value)">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
@@ -682,7 +697,7 @@ select:focus-visible { outline: none; }
       <div class="sp-section">
         <div class="sales-panel-title">Комнаты</div>
         <div v-for="row in roomsBreakdown" :key="row.label" class="sp-row clickable"
-             :class="{active: activeRooms.includes(row.value) || (selectedApt && selectedApt.rooms===row.value)}"
+             :class="{active: activeRooms.includes(row.value) || (selectedApt && selectedApt.rooms===row.value), muted: row.muted}"
              @click="toggleRooms(row.value)">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
@@ -693,7 +708,7 @@ select:focus-visible { outline: none; }
       <div class="sp-section">
         <div class="sales-panel-title">Вид</div>
         <div v-for="row in viewBreakdown" :key="row.label" class="sp-row clickable"
-             :class="{active: activeView===row.value || (selectedApt && selectedApt.view===row.value)}"
+             :class="{active: activeView.includes(row.value) || (selectedApt && selectedApt.view===row.value), muted: row.muted}"
              @click="toggleView(row.value)">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
@@ -704,7 +719,7 @@ select:focus-visible { outline: none; }
       <div class="sp-section">
         <div class="sales-panel-title">Этажи</div>
         <div v-for="row in floorBreakdown" :key="row.label" class="sp-row clickable"
-             :class="{active: activeFloors.includes(row.value) || (selectedApt && selectedApt.floor===row.value), muted: gp4GroupActive && row.value > 10}"
+             :class="{active: activeFloors.includes(row.value) || (selectedApt && selectedApt.floor===row.value), muted: (gp4GroupActive && row.value > 10) || row.muted}"
              @click="toggleFloor(row.value)">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
@@ -713,14 +728,16 @@ select:focus-visible { outline: none; }
       </div>
     </div>
     </div>
+    </div>
+    </div>
 
   </section>
 
 
   <section class="managers-section">
     <h2>Эффективность менеджеров</h2>
-    <div class="manager-row" v-for="m in managersList" :key="m">
-      <div class="manager-name">{{ m }}</div>
+    <div class="manager-row" v-for="m in managersList" :key="m" :class="{muted: selectedManager && selectedManager!==m}">
+      <button class="manager-name clickable" :class="{active: selectedManager===m}" @click="toggleManager(m)">{{ m }}</button>
       <div class="manager-body">
         <div class="manager-stats">
           <span class="m-stat"><b class="num" style="min-width:2.2ch">{{ managerStats(m).count }}</b> кв.</span>
@@ -763,7 +780,7 @@ select:focus-visible { outline: none; }
     </div>
   </div>
 
-  <div v-if="cardPeriod" class="apt-card" :style="{left: (cardX+16)+'px', top: (cardY+16)+'px'}">
+  <div v-if="cardPeriod" class="apt-card apt-card-period" :style="{left: (cardX+16)+'px', top: (cardY+16)+'px'}">
     <div class="apt-card-header">{{ cardPeriod.label }}</div>
     <div class="apt-card-row apt-card-row-period" v-for="row in periodCardRows(cardPeriod)" :key="row.label">
       <div class="apt-card-label">{{ row.label }}</div>
@@ -861,7 +878,7 @@ const SALES_DIMENSIONS = [
   { key: 'view', label: 'Вид', order: VIEWS_LIST.map(v => v.label), getCategory: a => VIEW_SHORT[a.view] }
 ];
 
-const TILE_SIZE = 24;
+const TILE_SIZE = 26;
 const TILE_GAP = 3;
 
 // ---------- Per-group structural facts ----------
@@ -1130,12 +1147,26 @@ createApp({
       openDropdown: null,
       chartPixelWidth: 1000,
       sidebarBarRight: null,
+      quartersLeftHeight: null,
+      pageScrollY: 0,
+      wrapNaturalTop: null,
+      overallNaturalTop: null,
+      overallLeftPx: null,
+      wrapLeftPx: null,
+      rowLeftPx: null,
+      wrapWidthPx: null,
+      qlNaturalHeight: null,
+      wrapHeightPx: null,
+      qlWidthPx: null,
+      chartBottomDoc: null,
+      panelHeightPx: null,
       playTimer: null,
-      activeView: null,
+      activeView: [],
       activeFloors: [],
       activeRooms: [],
       activeCorpus: [],
       selectedId: null,
+      selectedManager: null,
       hoverRevDate: null,
       salesDim: 'corpus',
       cardApt: null,
@@ -1165,15 +1196,66 @@ createApp({
         ro.observe(chartEl);
       }
       const updateSidebarBarRight = () => {
-        const pct = document.querySelector('.sales-panel .sp-row-pct');
-        if (pct) this.sidebarBarRight = pct.getBoundingClientRect().right;
+        // measured from the WRAP itself — stable and unaffected by the panel's
+        // own scroll-driven position mode (fixed/absolute/static), unlike
+        // measuring the panel's inner content which could be caught mid-transition
+        const wrap = document.querySelector('.sales-panel-wrap');
+        if (wrap) {
+          this.sidebarBarRight = wrap.getBoundingClientRect().right;
+          // "Общие продажи" needs to stay exactly as wide as, and left-aligned
+          // with, the panel below it — wrap can now shrink on narrow screens
+          // (flex-shrink) and is no longer positioned via CSS right:0 (that
+          // requires the row to be fit-content-sized, which turned out to force
+          // flex-shrink items down to their min-width even with room to spare).
+          // Synced directly via DOM to dodge Vue-render timing issues, same
+          // approach used for the managers-section width fix.
+          const overallEl = document.querySelector('.sales-panel-overall');
+          const mainRowElForOverall = document.querySelector('.quarters-main-row');
+          if (overallEl && mainRowElForOverall) {
+            const wrapRect = wrap.getBoundingClientRect();
+            const rowRect = mainRowElForOverall.getBoundingClientRect();
+            overallEl.style.width = wrapRect.width + 'px';
+            overallEl.style.left = (wrapRect.left - rowRect.left) + 'px';
+          }
+        }
       };
       updateSidebarBarRight();
       window.addEventListener('resize', updateSidebarBarRight);
-      const sp = document.querySelector('.sales-panel');
-      if (sp && window.ResizeObserver) {
+      const wrapElForRight = document.querySelector('.sales-panel-wrap');
+      if (wrapElForRight && window.ResizeObserver) {
         const ro2 = new ResizeObserver(updateSidebarBarRight);
-        ro2.observe(sp);
+        ro2.observe(wrapElForRight);
+      }
+      // sticky range: the outer wrapper gets a FIXED height matching quarters-left
+      // (so it can never inflate quarters-main-row's own height, however tall the
+      // inner wrap becomes), while the inner wrap gets the FULL height sticky
+      // actually needs to travel all the way to managers-section's bottom —
+      // visually escaping the outer's box via overflow:visible. This breaks the
+      // circular dependency an earlier attempt hit (tall wrap -> row inflates ->
+      // target moves -> wrap grows more...), since the row's height no longer
+      // depends on wrap's height at all.
+      const qlElSticky = document.querySelector('.quarters-left');
+      const mgrsElSticky = document.querySelector('.managers-section');
+      const wrapElSticky = document.querySelector('.sales-panel-wrap');
+      const updateStickyRange = () => {
+        if (!qlElSticky || !mgrsElSticky || !wrapElSticky) return;
+        this.qlNaturalHeight = qlElSticky.getBoundingClientRect().height;
+        mgrsElSticky.style.maxWidth = qlElSticky.getBoundingClientRect().width + 'px';
+        const wrapTop = wrapElSticky.getBoundingClientRect().top + window.scrollY;
+        const mgrsBottom = mgrsElSticky.getBoundingClientRect().bottom + window.scrollY;
+        this.wrapHeightPx = mgrsBottom - wrapTop;
+      };
+      updateStickyRange();
+      window.addEventListener('resize', updateStickyRange);
+      if (window.ResizeObserver) {
+        let raf2 = null;
+        const debounced2 = () => {
+          if (raf2) cancelAnimationFrame(raf2);
+          raf2 = requestAnimationFrame(updateStickyRange);
+        };
+        const ro4 = new ResizeObserver(debounced2);
+        ro4.observe(qlElSticky);
+        ro4.observe(mgrsElSticky);
       }
     });
   },
@@ -1195,8 +1277,13 @@ createApp({
     },
     gp4GroupActive() {
       const gp4Keys = ['ГП4', 'ГП4-А', 'ГП4-Б', 'ГП4-В'];
-      return gp4Keys.some(k => this.activeCorpus.includes(k)) ||
+      const hasGp4Selection = gp4Keys.some(k => this.activeCorpus.includes(k)) ||
         (this.selectedApt && this.selectedApt.corpus === 'ГП4');
+      if (!hasGp4Selection) return false;
+      // only mute floors 11-17 if EVERY currently active corpus is GP4-related —
+      // if GP1/2/3 (which DO have those floors) is also selected, don't mute
+      const nonGp4Selected = this.activeCorpus.some(c => !gp4Keys.includes(c));
+      return !nonGp4Selected;
     },
     gp4AggClicked() {
       return this.activeCorpus.includes('ГП4');
@@ -1207,63 +1294,65 @@ createApp({
     },
     corpusBreakdown() {
       const buckets = {};
-      APARTMENTS.forEach(a => {
+      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'corpus')).forEach(a => {
         if (!buckets[a.corpus]) buckets[a.corpus] = { total: 0, sold: 0 };
         buckets[a.corpus].total++;
-        if (this.aptState(a) === 'closed') buckets[a.corpus].sold++;
+        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.corpus].sold++;
       });
-      return ['ГП1', 'ГП2', 'ГП3', 'ГП4'].filter(c => buckets[c]).map(c => ({
-        label: c, value: c,
-        pct: Math.round(buckets[c].sold / buckets[c].total * 100)
-      }));
+      // every category always renders in its usual place — if the current filter
+      // combination leaves it with zero matches, it's muted instead of removed
+      return ['ГП1', 'ГП2', 'ГП3', 'ГП4'].map(c => {
+        const b = buckets[c];
+        return { label: c, value: c, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+      });
     },
     gp4SubBreakdown() {
       const buckets = {};
-      APARTMENTS.filter(a => a.corpus === 'ГП4').forEach(a => {
+      APARTMENTS.filter(a => a.corpus === 'ГП4' && this.matchesFiltersExcept(a, 'corpus')).forEach(a => {
         if (!buckets[a.group]) buckets[a.group] = { total: 0, sold: 0 };
         buckets[a.group].total++;
-        if (this.aptState(a) === 'closed') buckets[a.group].sold++;
+        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.group].sold++;
       });
-      return ['ГП4-А', 'ГП4-Б', 'ГП4-В'].filter(g => buckets[g]).map(g => ({
-        label: g.split('-')[1], value: g,
-        pct: Math.round(buckets[g].sold / buckets[g].total * 100)
-      }));
+      return ['ГП4-А', 'ГП4-Б', 'ГП4-В'].map(g => {
+        const b = buckets[g];
+        return { label: g.split('-')[1], value: g, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+      });
     },
     roomsBreakdown() {
       const buckets = {};
-      APARTMENTS.forEach(a => {
+      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'rooms')).forEach(a => {
         if (!buckets[a.rooms]) buckets[a.rooms] = { total: 0, sold: 0 };
         buckets[a.rooms].total++;
-        if (this.aptState(a) === 'closed') buckets[a.rooms].sold++;
+        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.rooms].sold++;
       });
-      return [1, 2, 3].filter(r => buckets[r]).map(r => ({
-        label: roomsLabel(r), value: r,
-        pct: Math.round(buckets[r].sold / buckets[r].total * 100)
-      }));
+      return [1, 2, 3].map(r => {
+        const b = buckets[r];
+        return { label: roomsLabel(r), value: r, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+      });
     },
     viewBreakdown() {
       const buckets = {};
-      APARTMENTS.forEach(a => {
+      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'view')).forEach(a => {
         if (!buckets[a.view]) buckets[a.view] = { total: 0, sold: 0 };
         buckets[a.view].total++;
-        if (this.aptState(a) === 'closed') buckets[a.view].sold++;
+        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.view].sold++;
       });
-      return VIEW_PRICE_ORDER.filter(v => buckets[v]).map(v => ({
-        label: VIEW_SHORT[v], value: v,
-        pct: Math.round(buckets[v].sold / buckets[v].total * 100)
-      }));
+      return VIEW_PRICE_ORDER.map(v => {
+        const b = buckets[v];
+        return { label: VIEW_SHORT[v], value: v, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+      });
     },
     floorBreakdown() {
       const buckets = {};
-      APARTMENTS.forEach(a => {
+      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'floor')).forEach(a => {
         if (!buckets[a.floor]) buckets[a.floor] = { total: 0, sold: 0 };
         buckets[a.floor].total++;
-        if (this.aptState(a) === 'closed') buckets[a.floor].sold++;
+        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.floor].sold++;
       });
-      return [...FLOOR_ORDER_DESC].reverse().filter(fl => buckets[fl]).map(fl => ({
-        label: fl + ' этаж', value: fl,
-        pct: Math.round(buckets[fl].sold / buckets[fl].total * 100)
-      }));
+      return [...FLOOR_ORDER_DESC].reverse().map(fl => {
+        const b = buckets[fl];
+        return { label: fl + ' этаж', value: fl, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+      });
     },
     roomLanes() { return ROOM_LANES_STATIC; },
     floorLanes() { return FLOOR_LANES_STATIC; },
@@ -1278,11 +1367,11 @@ createApp({
     priceScaleMax() { return fmtComma(PMAX, 3); },
 
     totalCountFiltered() { return APARTMENTS.filter(a => this.matchesFilters(a)).length; },
-    soldCountFiltered() { return APARTMENTS.filter(a => this.matchesFilters(a) && this.aptState(a) === 'closed').length; },
+    soldCountFiltered() { return APARTMENTS.filter(a => this.matchesFiltersWithManager(a) && this.aptState(a) === 'closed').length; },
     pctSoldFiltered() { return this.totalCountFiltered ? Math.round(this.soldCountFiltered / this.totalCountFiltered * 100) : 0; },
     revenueFiltered() {
       return APARTMENTS
-        .filter(a => this.matchesFilters(a) && this.aptState(a) === 'closed')
+        .filter(a => this.matchesFiltersWithManager(a) && this.aptState(a) === 'closed')
         .reduce((s, a) => s + a.price * (1 - a.discPct), 0);
     },
     totalValueFiltered() {
@@ -1362,7 +1451,7 @@ createApp({
         : PERIOD_SKELETONS[period];
 
       const revByKey = {}, dealsByKey = {}, appealsByKey = {}, dealsArrByKey = {}, appealsArrByKey = {};
-      soldApts.filter(a => this.matchesFilters(a)).forEach(a => {
+      soldApts.filter(a => this.matchesFiltersWithManager(a)).forEach(a => {
         const closeD = parseDate(a.close);
         const closeKey = periodKeyFor(period, closeD);
         revByKey[closeKey] = (revByKey[closeKey] || 0) + a.price * (1 - a.discPct);
@@ -1541,7 +1630,7 @@ createApp({
       const baseHeight = Math.max(ownHeight, neighborMax > ownHeight ? neighborMax : 0);
       const extra = ownHeight < 26 ? 22 : 8;
       return {
-        text: this.fmtMoney(days[idx].revenue) + ' млн ₽',
+        text: this.fmtMoney(days[idx].revenue),
         leftPct: ((idx + 0.5) / n * 100) + '%',
         bottomPx: baseHeight + extra
       };
@@ -1611,7 +1700,10 @@ createApp({
       return { gridColumn: 1, gridRow: t.row, width: FLOOR_AXIS_TRIGGER_W + 'px' };
     },
 
-    toggleView(v) { this.activeView = this.activeView === v ? null : v; },
+    toggleView(v) {
+      const i = this.activeView.indexOf(v);
+      if (i === -1) this.activeView.push(v); else this.activeView.splice(i, 1);
+    },
     toggleFloor(f) {
       const i = this.activeFloors.indexOf(f);
       if (i === -1) this.activeFloors.push(f); else this.activeFloors.splice(i, 1);
@@ -1629,17 +1721,49 @@ createApp({
       if (i === -1) this.activeCorpus.push(c); else this.activeCorpus.splice(i, 1);
     },
     matchesFilters(apt) {
-      if (this.activeView && apt.view !== this.activeView) return false;
+      // deliberately does NOT check selectedManager — manager selection is a pure
+      // visual highlight (shahmatka dimming, dynamics-chart filtering), not a real
+      // data filter. Folding it in here would corrupt every %-of-total stat: since
+      // `manager` is only ever set on SOLD units, filtering by it makes "matching"
+      // apartments equal to "sold" apartments, turning every percentage into 100%.
+      if (this.activeView.length && !this.activeView.includes(apt.view)) return false;
       if (this.activeFloors.length && !this.activeFloors.includes(apt.floor)) return false;
       if (this.activeRooms.length && !this.activeRooms.includes(apt.rooms)) return false;
       if (this.activeCorpus.length && !this.activeCorpus.some(c => apt.corpus === c || apt.group === c)) return false;
       return true;
     },
+    matchesFiltersWithManager(apt) {
+      // matchesFilters PLUS the manager highlight — use this specifically for
+      // shahmatka tile dimming and the dynamics chart, never for %-of-total stats
+      if (!this.matchesFilters(apt)) return false;
+      if (this.selectedManager && apt.manager !== this.selectedManager) return false;
+      return true;
+    },
+    matchesFiltersExcept(apt, dim) {
+      // same as matchesFilters, but skips one facet's OWN filter — used so a
+      // sidebar section's own breakdown reflects filters chosen elsewhere
+      // without narrowing itself down to whatever is already selected in it
+      if (dim !== 'view' && this.activeView.length && !this.activeView.includes(apt.view)) return false;
+      if (dim !== 'floor' && this.activeFloors.length && !this.activeFloors.includes(apt.floor)) return false;
+      if (dim !== 'rooms' && this.activeRooms.length && !this.activeRooms.includes(apt.rooms)) return false;
+      if (dim !== 'corpus' && this.activeCorpus.length && !this.activeCorpus.some(c => apt.corpus === c || apt.group === c)) return false;
+      return true;
+    },
 
+    toggleManager(m) {
+      this.selectedManager = this.selectedManager === m ? null : m;
+    },
     pickTile(id) {
       this.selectedId = this.selectedId === id ? null : id;
       this.hoverFloor = null;
       this.hoverRoom = null;
+    },
+    pickDealTile(apt, d, evt) {
+      this.pickTile(apt.id);
+      // clicking doesn't re-fire mouseenter, so the tooltip would otherwise keep
+      // showing whatever it displayed before the click — refresh it immediately
+      if (this.selectedId === apt.id) this.showCard(apt, evt);
+      else this.showPeriodCard(d, evt);
     },
 
     aptState(apt) {
@@ -1657,7 +1781,7 @@ createApp({
 
     corpusStat(filterFn) {
       const subset = APARTMENTS.filter(a => filterFn(a) && this.matchesFilters(a));
-      const sold = subset.filter(a => this.aptState(a) === 'closed');
+      const sold = subset.filter(a => this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager));
       const revenue = sold.reduce((s, a) => s + a.price * (1 - a.discPct), 0);
       const totalValue = subset.reduce((s, a) => s + a.listPrice, 0);
       return {
@@ -1732,7 +1856,7 @@ createApp({
       return slots;
     },
     tileClass(apt) {
-      return { dim: !this.matchesFilters(apt), picked: this.selectedId === apt.id };
+      return { dim: !this.matchesFiltersWithManager(apt), picked: this.selectedId === apt.id };
     },
     tileStyle(apt) {
       const state = this.aptState(apt);
@@ -1787,6 +1911,16 @@ createApp({
       this.cardApt = null;
       this.cardX = evt.clientX;
       this.cardY = evt.clientY;
+    },
+    onPeriodColEnter(d, evt) {
+      // if this period contains the currently-selected apartment, keep showing
+      // its own card rather than snapping back to the period-level summary just
+      // because the mouse moved to an empty part of the same bar
+      if (this.selectedId !== null) {
+        const apt = d.dealsArr.find(a => a.id === this.selectedId);
+        if (apt) { this.showCard(apt, evt); return; }
+      }
+      this.showPeriodCard(d, evt);
     },
     hidePeriodCard() {
       this.cardPeriod = null;
@@ -1867,8 +2001,26 @@ createApp({
       const netHeight = apt.price * (1 - apt.discPct) * this.revenuePxPerMillion;
       return { height: netHeight + 'px', background: priceColor(apt.price) };
     },
+    appealTileStyle(apt) {
+      // same per-apartment reveal gating as deals — a period "starting" shouldn't
+      // instantly reveal every appeal across its whole span (e.g. a full week's
+      // worth) before those individual days have actually been reached
+      if (this.currentDateStr < apt.appeal) {
+        return { height: '0px', border: 'none', background: 'transparent' };
+      }
+      return {
+        height: Math.max(3, apt.price * this.revenuePxPerMillion) + 'px',
+        border: '1px solid ' + priceColor(apt.price),
+        background: 'var(--tile-base)', boxSizing: 'border-box'
+      };
+    },
     revTileClass(apt) {
       return { dim: !this.matchesFilters(apt), picked: this.selectedId === apt.id };
+    },
+    revealedAppealsValue(d) {
+      // partial sum for the month view's single aggregate tile — only appeals
+      // whose own date has actually been reached count toward its height
+      return d.appealsArr.reduce((s, a) => s + (this.currentDateStr < a.appeal ? 0 : a.price), 0);
     },
     aptPriceColor(apt) { return priceColor(apt.price); },
     appealsHeightPx(d) {
