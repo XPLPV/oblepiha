@@ -14,11 +14,11 @@
   --text-primary: #2a2a26;
   --text-secondary: #6b6960;
   --text-muted: #93908a;
-  --accent-muted: #757c88;
+  --accent-muted: #787979;
   --slider-fill: #6f7d92;
   --slider-track: #e3e1d8;
   --pick-color: #cf4040;
-  --chart-line-color: #e0a000;
+  --chart-line-color: #c1602e;
   --dim-opacity: 0.2;
   --tile-base: #ffffff;
   --price-lo: rgb(230,241,251);
@@ -226,11 +226,11 @@ select:focus-visible { outline: none; }
 .view-icon-item.clickable .view-icon-shape { width: 26px; height: 26px; border-radius: 3px; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
 .view-icon-item.clickable:hover .view-icon-shape { background: var(--surface); }
 .view-icon-item.clickable.active .view-icon-shape { background: var(--accent-muted); color: #fff; }
-.view-icon-item.clickable.active .view-icon-shape svg { fill: #fff !important; } .view-icon-item.clickable.active .view-icon-shape svg *:not([fill="none"]) { fill: #fff !important; }
+.view-icon-item.clickable.active .view-icon-shape svg { fill: #fff !important; stroke: #fff !important; } .view-icon-item.clickable.active .view-icon-shape svg *:not([fill="none"]) { fill: #fff !important; } .view-icon-item.clickable.active .view-icon-shape svg * { stroke: #fff !important; }
 .view-icon-shape { display: flex; justify-content: center; margin-top: 5px; color: #9a9790; }
 .view-icon-bracket { width: 100%; height: 0px; border: none; margin-top: 0; }
 .gt-top { white-space: nowrap; }
-.gt-bars { display: flex; gap: 20px; }
+.gt-bars { display: flex; gap: 26px; }
 .gt-bars .mini-bar-wrap { flex: 1; }
 .gt-sub-money { font-size: 15px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; }
 .mini-bar-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; width: 260px; }
@@ -287,7 +287,7 @@ select:focus-visible { outline: none; }
 .view-legend-item.clickable:hover { background: var(--surface); }
 .view-legend-item.clickable.active { background: var(--accent-muted); color: #fff; }
 .view-legend-item.clickable.active .view-legend-icon { color: #fff; }
-.view-legend-item.clickable.active .view-legend-icon svg { fill: #fff !important; } .view-legend-item.clickable.active .view-legend-icon svg *:not([fill="none"]) { fill: #fff !important; }
+.view-legend-item.clickable.active .view-legend-icon svg { fill: #fff !important; stroke: #fff !important; } .view-legend-item.clickable.active .view-legend-icon svg *:not([fill="none"]) { fill: #fff !important; } .view-legend-item.clickable.active .view-legend-icon svg * { stroke: #fff !important; }
 .view-legend-icon { display: flex; align-items: center; }
 .chips { display: flex; gap: 11px; flex-wrap: wrap; }
 .chip {
@@ -655,7 +655,7 @@ select:focus-visible { outline: none; }
                  @mouseenter="selectedId===apt.id ? showCard(apt, $event) : showPeriodCard(d, $event)"
                  @mousemove="moveCard($event)"
                  @mouseleave="hideCard(); hidePeriodCard()"></div>
-            <div v-if="!anyClickActive" class="appeal-tile appeal-tile-agg"
+            <div v-if="showAggregateAppeals" class="appeal-tile appeal-tile-agg"
                  :style="{height: Math.max(3, revealedAppealsValue(d)*revenuePxPerMillion)+'px', border: '1px solid var(--accent-muted)', background: 'var(--tile-base)', boxSizing: 'border-box'}"></div>
             <template v-else>
               <div v-for="apt in d.appealsArr" :key="'ap-'+apt.id"
@@ -698,16 +698,16 @@ select:focus-visible { outline: none; }
              @click="toggleCorpus(row.value)"
              @mouseenter="hoverCorpusFilter = row.value" @mouseleave="hoverCorpusFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
-          <div class="sp-row-pct">{{ row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeCorpus, row.value, activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-'))) ? 0 : row.pct)+'%'}"></div></div>
+          <div class="sp-row-pct">{{ clickSiblingMuted(activeCorpus, row.value, activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-'))) ? 0 : row.pct }}%</div>
         </div>
         <div v-for="row in gp4SubBreakdown" :key="row.label" class="sp-row sp-row-sub clickable"
              :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.group===row.value) || gp4AggClicked, muted: row.muted || categoryMutedByHover('corpus', row.value, activeCorpus.includes(row.value)) || siblingMuted(activeCorpus, hoverCorpusFilter, row.value)}"
              @click="toggleCorpus(row.value)"
              @mouseenter="hoverCorpusFilter = row.value" @mouseleave="hoverCorpusFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
-          <div class="sp-row-pct">{{ row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeCorpus, row.value) ? 0 : row.pct)+'%'}"></div></div>
+          <div class="sp-row-pct">{{ clickSiblingMuted(activeCorpus, row.value) ? 0 : row.pct }}%</div>
         </div>
       </div>
 
@@ -718,8 +718,8 @@ select:focus-visible { outline: none; }
              @click="toggleRooms(row.value)"
              @mouseenter="hoverRoom = row.value" @mouseleave="hoverRoom = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
-          <div class="sp-row-pct">{{ row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeRooms, row.value) ? 0 : row.pct)+'%'}"></div></div>
+          <div class="sp-row-pct">{{ clickSiblingMuted(activeRooms, row.value) ? 0 : row.pct }}%</div>
         </div>
       </div>
 
@@ -730,8 +730,8 @@ select:focus-visible { outline: none; }
              @click="toggleView(row.value)"
              @mouseenter="hoverViewFilter = row.value" @mouseleave="hoverViewFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
-          <div class="sp-row-pct">{{ row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeView, row.value) ? 0 : row.pct)+'%'}"></div></div>
+          <div class="sp-row-pct">{{ clickSiblingMuted(activeView, row.value) ? 0 : row.pct }}%</div>
         </div>
       </div>
 
@@ -742,8 +742,8 @@ select:focus-visible { outline: none; }
              @click="toggleFloor(row.value)"
              @mouseenter="hoverFloor = row.value" @mouseleave="hoverFloor = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
-          <div class="sp-row-pct">{{ row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeFloors, row.value) ? 0 : row.pct)+'%'}"></div></div>
+          <div class="sp-row-pct">{{ clickSiblingMuted(activeFloors, row.value) ? 0 : row.pct }}%</div>
         </div>
       </div>
     </div>
@@ -965,12 +965,12 @@ GROUPS_LIST.forEach(g => {
 });
 // view -> icon shape key + display color, used to render the small view icons row
 const VIEW_ICON = {
-  'на дорогу': { icon: 'road', color: '#8f8f8f' },
-  'на реку': { icon: 'river', color: '#5b93b5' },
-  'окна в окна': { icon: 'window', color: '#8f8f8f' },
-  'на ЖК': { icon: 'building', color: '#8f8f8f' },
-  'на лес': { icon: 'forest', color: '#5f9c68' },
-  'во двор': { icon: 'yard', color: '#d3b957' }
+  'на дорогу': { icon: 'road', color: '#9a9a9a' },
+  'на реку': { icon: 'river', color: '#4a93b5' },
+  'окна в окна': { icon: 'window', color: '#9a9a9a' },
+  'на ЖК': { icon: 'building', color: '#9a9a9a' },
+  'на лес': { icon: 'forest', color: '#429451' },
+  'во двор': { icon: 'yard', color: '#c0bb59' }
 };
 function viewIconsFor(g) {
   const items = [];
@@ -1308,6 +1308,16 @@ createApp({
         this.activeRooms.length > 0 || this.activeCorpus.length > 0 ||
         this.selectedManager !== null || this.selectedId !== null;
     },
+    showAggregateAppeals() {
+      // single combined outline tile for appeals (any period) as long as there's
+      // no active filter AND the user hasn't drilled into one specific week —
+      // drilling into a week is itself a form of narrowing (like a filter), so
+      // it should reveal the individual apartment tiles same as a real filter
+      // would. Month's own drill-down does NOT trigger this — only week does,
+      // per an explicit request to keep month's aggregate view even when a
+      // specific month is picked from its dropdown.
+      return !this.anyClickActive && !(this.chartPeriod === 'week' && this.chartSubPeriod);
+    },
     gp4GroupActive() {
       // deliberately does NOT look at selectedApt — clicking an apartment TILE
       // inside ГП4/А/Б/В shouldn't mute floors 11-17 on its own; that should
@@ -1570,7 +1580,7 @@ createApp({
       // period), so only THAT one tile needs the minimum-height floor, not each
       // individual apartment.
       const MIN_PX = 3;
-      const isAggregate = !this.anyClickActive;
+      const isAggregate = this.showAggregateAppeals;
       const targetH = this.revenueChartHeight - this.chartTopPadding;
       let scaleMax = d3.max(this.periodData, d => d.revenue + d.appealsValue) || 1;
       for (let i = 0; i < 6; i++) {
@@ -1894,6 +1904,18 @@ createApp({
         : (a => a[dim] === matchValue);
       return !APARTMENTS.some(a => belongs(a) && this.matchesFiltersExceptWithHover(a, dim));
     },
+    clickSiblingMuted(activeArray, rowValue, isActiveOverride) {
+      // CLICK-only version, deliberately ignoring hover entirely — used for
+      // zeroing out a sibling row's displayed percentage. That's a real,
+      // committed recompute and must only happen once the user has actually
+      // clicked something in this category; doing it on hover too (which the
+      // full siblingMuted below intentionally DOES react to, for the visual
+      // preview dimming) would make percentages flicker to 0% just from
+      // moving the mouse around, before anything was ever clicked.
+      const isActive = isActiveOverride !== undefined ? isActiveOverride : activeArray.includes(rowValue);
+      if (isActive) return false;
+      return activeArray.length > 0;
+    },
     siblingMuted(activeArray, hoverValue, rowValue, isActiveOverride) {
       // within the SAME multi-select category: once anything there is picked
       // (clicked) or being previewed (hovered), every OTHER option in that same
@@ -2198,7 +2220,7 @@ createApp({
     aptPriceColor(apt) { return priceColor(apt.price); },
     appealsHeightPx(d) {
       if (!d.revealed) return 0;
-      if (!this.anyClickActive) return Math.max(3, d.appealsValue * this.revenuePxPerMillion);
+      if (this.showAggregateAppeals) return Math.max(3, d.appealsValue * this.revenuePxPerMillion);
       return d.appealsArr.reduce((s, a) => s + Math.max(3, a.price * this.revenuePxPerMillion), 0);
     },
     dealsActualHeight(d) {
