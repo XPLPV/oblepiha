@@ -14,7 +14,7 @@
   --text-primary: #2a2a26;
   --text-secondary: #6b6960;
   --text-muted: #93908a;
-  --accent-muted: #708090;
+  --accent-muted: #6f7d92;
   --slider-fill: #6f7d92;
   --slider-track: #e3e1d8;
   --pick-color: #cf4040;
@@ -179,7 +179,7 @@ select:focus-visible { outline: none; }
 .sp-row.clickable:hover { background: var(--surface); }
 .sp-row.active .sp-row-label { color: var(--text-primary); font-weight: 600; }
 .sp-row.active .sp-row-bar { background: var(--pick-color); }
-.sp-row.muted { opacity: 0.35; pointer-events: none; }
+.sp-row.muted { opacity: 0.35; }
 .sp-row-label { width: 78px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
 .sp-row-bar-wrap { flex: 1; height: 14px; background: var(--surface); border-radius: 3px; overflow: hidden; }
 .sp-row-bar { height: 100%; background: var(--accent-muted); border-radius: 3px; }
@@ -189,7 +189,7 @@ select:focus-visible { outline: none; }
   font-size: 13px; color: var(--text-secondary); font-weight: 600;
   width: 100%; text-align: left; align-self: end; padding-bottom: 4px;
 }
-.axis-caption-floors { text-align: left; }
+.axis-caption-floors { text-align: left; margin-bottom: -6px; }
 
 .axis-square {
   width: 24px; height: 24px;
@@ -202,8 +202,12 @@ select:focus-visible { outline: none; }
 .axis-square.active { background: var(--accent-muted); color: #fff; font-weight: 600; }
 .axis-square:hover:not(.active) { background: var(--surface); }
 .floor-square { justify-self: end; margin-right: 6px; }
+.floor-hover-zone {
+  position: absolute; top: 0; bottom: 0; left: -16px; right: -16px;
+  pointer-events: auto; z-index: -1;
+}
 
-.group-title { font-weight: 600; font-size: 14px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; display: flex; flex-direction: column; gap: 2px; }
+.group-title { font-weight: 600; font-size: 15px; align-self: end; padding-bottom: 4px; white-space: nowrap; justify-self: start; display: flex; flex-direction: column; gap: 2px; }
 .group-title.clickable { cursor: pointer; border-radius: 4px; padding: 2px 4px; margin: -2px -4px 2px; }
 .group-title.clickable:hover:not(:has(.view-icon-item:hover)) { background: var(--surface); }
 .group-title.active { color: var(--pick-color); }
@@ -214,7 +218,7 @@ select:focus-visible { outline: none; }
 .gt-text-wrap.active { color: var(--pick-color); }
 .gt-text-wrap.active .gt-money,
 .gt-text-wrap.active .gt-sub-money { color: var(--pick-color); }
-.view-icons-row { position: relative; height: 22px; margin-bottom: 4px; }
+.view-icons-row { position: relative; height: 22px; margin-bottom: 0px; }
 .view-icons-row:not(.view-icons-row-sub) { align-self: end; }
 .view-icon-item { position: absolute; bottom: 0; display: flex; flex-direction: column; align-items: center; }
 .view-icon-item.clickable { cursor: pointer; }
@@ -227,7 +231,7 @@ select:focus-visible { outline: none; }
 .gt-top { white-space: nowrap; }
 .gt-bars { display: flex; gap: 10px; }
 .gt-bars .mini-bar-wrap { flex: 1; }
-.gt-sub-money { font-size: 14px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; }
+.gt-sub-money { font-size: 15px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; }
 .mini-bar-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; width: 260px; }
 .mini-bar-wrap { width: 100%; height: 5px; background: var(--surface); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
 .gt-sub-bar { width: 105px; }
@@ -462,21 +466,24 @@ select:focus-visible { outline: none; }
         <button v-else-if="cell.kind==='floor-label'"
                 class="axis-square floor-square" :class="{active: activeFloors.includes(cell.floor)}"
                 :style="[cellStyle(cell), {width: tileSize+'px', height: tileSize+'px'}]"
-                @click="toggleFloor(cell.floor)">{{ cell.floor }}</button>
+                @click="toggleFloor(cell.floor)">
+          <span class="floor-hover-zone" @mouseenter="hoverFloor = cell.floor" @mouseleave="hoverFloor = null"></span>{{ cell.floor }}</button>
 
         <div v-else-if="cell.kind==='view-icons'" class="view-icons-row" :style="cellStyle(cell)">
           <div v-for="item in mergedViewIconsForGroup(cell.group)" :key="item.key"
                class="view-icon-item clickable" :class="{active: activeView.includes(item.view)}"
                :style="{left: item.left+'px', width: item.width+'px'}"
-               @click.stop="toggleView(item.view)">
+               @click.stop="toggleView(item.view)"
+               @mouseenter="hoverViewFilter = item.view" @mouseleave="hoverViewFilter = null">
             <div class="view-icon-shape" v-html="viewIconSvg(item.icon, item.color)"></div>
             <div class="view-icon-bracket"></div>
           </div>
         </div>
 
         <div v-else-if="cell.kind==='title'" class="group-title clickable"
-             :class="{active: activeCorpus.includes(cell.group) || (selectedApt && selectedApt.corpus===cell.group)}"
-             :style="titleStyle(cell)" @click="toggleCorpus(cell.group)">
+             :class="{active: activeCorpus.includes(cell.group) || activeCorpus.some(c => c.startsWith(cell.group+'-')) || (selectedApt && selectedApt.corpus===cell.group)}"
+             :style="titleStyle(cell)" @click="toggleCorpus(cell.group)"
+             @mouseenter="hoverCorpusFilter = cell.group" @mouseleave="hoverCorpusFilter = null">
           <div class="gt-top"><span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="num" style="min-width:3ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:3ch">{{ titleStat(cell.group).pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(titleStat(cell.group).revenue) }}</span> млн ₽</span></div>
           <div class="gt-bars">
             <div class="mini-bar-wrap"><div class="mini-bar" :style="{width: titleStat(cell.group).pct+'%'}"></div></div>
@@ -487,7 +494,8 @@ select:focus-visible { outline: none; }
         <div v-else-if="cell.kind==='brackets'" class="room-brackets" :style="[cellStyle(cell), {gap: gap+'px'}]">
           <div v-for="rb in roomBracketsFor(cell.group)" :key="rb.room"
                class="room-bracket"
-               :style="{width: (rb.count * (tileSize+gap) - gap) + 'px'}">
+               :style="{width: (rb.count * (tileSize+gap) - gap) + 'px'}"
+               @mouseenter="hoverRoom = rb.room" @mouseleave="hoverRoom = null">
             <div class="bracket-shape"></div>
             <button class="axis-square"
                     :class="{active: activeRooms.includes(rb.room)}"
@@ -501,10 +509,10 @@ select:focus-visible { outline: none; }
             <div v-if="slot.apt" class="tile"
                  :class="tileClass(slot.apt)"
                  :style="tileStyle(slot.apt)"
-                 @click="pickTile(slot.apt.id)"
-                 @mouseenter="showCard(slot.apt, $event)"
-                 @mousemove="moveCard($event)"
-                 @mouseleave="hideCard">
+                 @click="pickShahmatkaTile(slot.apt, $event)"
+                 @mouseenter="selectedId===null ? showCard(slot.apt, $event) : null"
+                 @mousemove="selectedId===null ? moveCard($event) : null"
+                 @mouseleave="selectedId===null ? hideCard() : null">
               <div class="tile-fill" :style="fillStyle(slot.apt)"></div>
             </div>
             <div v-else class="tile-empty" :style="{width: tileSize+'px', height: tileSize+'px'}"></div>
@@ -513,7 +521,8 @@ select:focus-visible { outline: none; }
 
       </template>
 
-    <div class="group-title gp4agg-standalone clickable" :class="{active: gp4AggClicked}" :style="{left: gp4LeftOffset+'px', width: GP4_AGG_WIDTH_PX+'px'}" @click="toggleCorpus('ГП4')">
+    <div class="group-title gp4agg-standalone clickable" :class="{active: gp4ParentHighlighted}" :style="{left: gp4LeftOffset+'px', width: GP4_AGG_WIDTH_PX+'px'}" @click="toggleCorpus('ГП4')"
+         @mouseenter="hoverCorpusFilter = 'ГП4'" @mouseleave="hoverCorpusFilter = null">
       <div class="gt-top"><span class="gt-label">ГП4</span><span class="num" style="min-width:3ch">{{ gp4AggStat().count }}</span> (<span class="num" style="min-width:3ch">{{ gp4AggStat().pct }}</span>%)<span class="gt-money"><span class="num" style="min-width:5ch">{{ fmtMoney(gp4AggStat().revenue) }}</span> млн ₽</span></div>
       <div class="gt-bars gt-bars-agg">
         <div class="mini-bar-wrap gt-sub-bar"><div class="mini-bar" :style="{width: gp4AggStat().pct+'%'}"></div></div>
@@ -527,7 +536,8 @@ select:focus-visible { outline: none; }
 
         <div v-if="cell.kind==='title'" class="group-title"
              :style="titleStyle(cell)">
-          <div class="gt-text-wrap clickable" :class="{active: activeCorpus.includes(cell.group) || (selectedApt && selectedApt.group===cell.group) || gp4AggClicked}" @click="toggleCorpus(cell.group)">
+          <div class="gt-text-wrap clickable" :class="{active: activeCorpus.includes(cell.group) || (selectedApt && selectedApt.group===cell.group) || gp4AggClicked}" @click="toggleCorpus(cell.group)"
+               @mouseenter="hoverCorpusFilter = cell.group" @mouseleave="hoverCorpusFilter = null">
             <div class="gt-top"><span class="gt-label">{{ titleLabel(cell.group) }}</span><span class="num" style="min-width:3ch">{{ titleStat(cell.group).count }}</span> (<span class="num" style="min-width:3ch">{{ titleStat(cell.group).pct }}</span>%)</div>
             <div class="mini-bar-wrap gt-sub-bar"><div class="mini-bar" :style="{width: titleStat(cell.group).pct+'%'}"></div></div>
             <div class="gt-sub-money">{{ fmtMoney(titleStat(cell.group).revenue) }} млн ₽</div>
@@ -537,7 +547,8 @@ select:focus-visible { outline: none; }
             <div v-for="item in mergedViewIconsForGroup(cell.group)" :key="item.key"
                  class="view-icon-item clickable" :class="{active: activeView.includes(item.view)}"
                  :style="{left: item.left+'px', width: item.width+'px'}"
-                 @click.stop="toggleView(item.view)">
+                 @click.stop="toggleView(item.view)"
+                 @mouseenter="hoverViewFilter = item.view" @mouseleave="hoverViewFilter = null">
               <div class="view-icon-shape" v-html="viewIconSvg(item.icon, item.color)"></div>
               <div class="view-icon-bracket"></div>
             </div>
@@ -547,7 +558,8 @@ select:focus-visible { outline: none; }
         <div v-else-if="cell.kind==='brackets'" class="room-brackets" :style="[cellStyle(cell), {gap: gap+'px'}]">
           <div v-for="rb in roomBracketsFor(cell.group)" :key="rb.room"
                class="room-bracket"
-               :style="{width: (rb.count * (tileSize+gap) - gap) + 'px'}">
+               :style="{width: (rb.count * (tileSize+gap) - gap) + 'px'}"
+               @mouseenter="hoverRoom = rb.room" @mouseleave="hoverRoom = null">
             <div class="bracket-shape"></div>
             <button class="axis-square"
                     :class="{active: activeRooms.includes(rb.room)}"
@@ -561,10 +573,10 @@ select:focus-visible { outline: none; }
             <div v-if="slot.apt" class="tile"
                  :class="tileClass(slot.apt)"
                  :style="tileStyle(slot.apt)"
-                 @click="pickTile(slot.apt.id)"
-                 @mouseenter="showCard(slot.apt, $event)"
-                 @mousemove="moveCard($event)"
-                 @mouseleave="hideCard">
+                 @click="pickShahmatkaTile(slot.apt, $event)"
+                 @mouseenter="selectedId===null ? showCard(slot.apt, $event) : null"
+                 @mousemove="selectedId===null ? moveCard($event) : null"
+                 @mouseleave="selectedId===null ? hideCard() : null">
               <div class="tile-fill" :style="fillStyle(slot.apt)"></div>
             </div>
             <div v-else class="tile-empty" :style="{width: tileSize+'px', height: tileSize+'px'}"></div>
@@ -580,7 +592,8 @@ select:focus-visible { outline: none; }
         <div v-for="v in viewsList" :key="v.value"
              class="view-legend-item clickable"
              :class="{active: activeView.includes(v.value)}"
-             @click="toggleView(v.value)">
+             @click="toggleView(v.value)"
+             @mouseenter="hoverViewFilter = v.value" @mouseleave="hoverViewFilter = null">
           <div class="view-legend-icon" v-html="viewIconSvg(VIEW_ICON_MAP[v.value].icon, VIEW_ICON_MAP[v.value].color)"></div>
           <span>{{ v.label }}</span>
         </div>
@@ -679,15 +692,17 @@ select:focus-visible { outline: none; }
       <div class="sp-section">
         <div class="sales-panel-title">Корпус</div>
         <div v-for="row in corpusBreakdown" :key="row.label" class="sp-row clickable"
-             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.corpus===row.value), muted: row.muted}"
-             @click="toggleCorpus(row.value)">
+             :class="{active: activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-')) || (selectedApt && selectedApt.corpus===row.value), muted: row.muted || categoryMutedByHover('corpus', row.value, activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-'))) || siblingMuted(activeCorpus, hoverCorpusFilter, row.value, activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-')))}"
+             @click="toggleCorpus(row.value)"
+             @mouseenter="hoverCorpusFilter = row.value" @mouseleave="hoverCorpusFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
           <div class="sp-row-pct">{{ row.pct }}%</div>
         </div>
         <div v-for="row in gp4SubBreakdown" :key="row.label" class="sp-row sp-row-sub clickable"
-             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.group===row.value) || gp4AggClicked, muted: row.muted}"
-             @click="toggleCorpus(row.value)">
+             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.group===row.value) || gp4AggClicked, muted: row.muted || categoryMutedByHover('corpus', row.value, activeCorpus.includes(row.value)) || siblingMuted(activeCorpus, hoverCorpusFilter, row.value)}"
+             @click="toggleCorpus(row.value)"
+             @mouseenter="hoverCorpusFilter = row.value" @mouseleave="hoverCorpusFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
           <div class="sp-row-pct">{{ row.pct }}%</div>
@@ -697,8 +712,9 @@ select:focus-visible { outline: none; }
       <div class="sp-section">
         <div class="sales-panel-title">Комнаты</div>
         <div v-for="row in roomsBreakdown" :key="row.label" class="sp-row clickable"
-             :class="{active: activeRooms.includes(row.value) || (selectedApt && selectedApt.rooms===row.value), muted: row.muted}"
-             @click="toggleRooms(row.value)">
+             :class="{active: activeRooms.includes(row.value) || (selectedApt && selectedApt.rooms===row.value), muted: row.muted || categoryMutedByHover('rooms', row.value, activeRooms.includes(row.value)) || siblingMuted(activeRooms, hoverRoom, row.value)}"
+             @click="toggleRooms(row.value)"
+             @mouseenter="hoverRoom = row.value" @mouseleave="hoverRoom = null">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
           <div class="sp-row-pct">{{ row.pct }}%</div>
@@ -708,8 +724,9 @@ select:focus-visible { outline: none; }
       <div class="sp-section">
         <div class="sales-panel-title">Вид</div>
         <div v-for="row in viewBreakdown" :key="row.label" class="sp-row clickable"
-             :class="{active: activeView.includes(row.value) || (selectedApt && selectedApt.view===row.value), muted: row.muted}"
-             @click="toggleView(row.value)">
+             :class="{active: activeView.includes(row.value) || (selectedApt && selectedApt.view===row.value), muted: row.muted || categoryMutedByHover('view', row.value, activeView.includes(row.value)) || siblingMuted(activeView, hoverViewFilter, row.value)}"
+             @click="toggleView(row.value)"
+             @mouseenter="hoverViewFilter = row.value" @mouseleave="hoverViewFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
           <div class="sp-row-pct">{{ row.pct }}%</div>
@@ -719,8 +736,9 @@ select:focus-visible { outline: none; }
       <div class="sp-section">
         <div class="sales-panel-title">Этажи</div>
         <div v-for="row in floorBreakdown" :key="row.label" class="sp-row clickable"
-             :class="{active: activeFloors.includes(row.value) || (selectedApt && selectedApt.floor===row.value), muted: (gp4GroupActive && row.value > 10) || row.muted}"
-             @click="toggleFloor(row.value)">
+             :class="{active: activeFloors.includes(row.value) || (selectedApt && selectedApt.floor===row.value), muted: (gp4GroupActive && row.value > 10) || row.muted || categoryMutedByHover('floor', row.value, activeFloors.includes(row.value)) || siblingMuted(activeFloors, hoverFloor, row.value)}"
+             @click="toggleFloor(row.value)"
+             @mouseenter="hoverFloor = row.value" @mouseleave="hoverFloor = null">
           <div class="sp-row-label">{{ row.label }}</div>
           <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.pct+'%'}"></div></div>
           <div class="sp-row-pct">{{ row.pct }}%</div>
@@ -736,7 +754,8 @@ select:focus-visible { outline: none; }
 
   <section class="managers-section">
     <h2>Эффективность менеджеров</h2>
-    <div class="manager-row" v-for="m in managersList" :key="m" :class="{muted: selectedManager && selectedManager!==m}">
+    <div class="manager-row" v-for="m in managersList" :key="m" :class="{muted: (selectedManager && selectedManager!==m) || (!anyClickActive && hoverManagerFilter && hoverManagerFilter!==m)}"
+         @mouseenter="hoverManagerFilter = m" @mouseleave="hoverManagerFilter = null">
       <button class="manager-name clickable" :class="{active: selectedManager===m}" @click="toggleManager(m)">{{ m }}</button>
       <div class="manager-body">
         <div class="manager-stats">
@@ -1176,6 +1195,9 @@ createApp({
       gp4TopOffsetMeasured: 155,
       hoverRoom: null,
       hoverFloor: null,
+      hoverCorpusFilter: null,
+      hoverViewFilter: null,
+      hoverManagerFilter: null,
       tileSize: TILE_SIZE,
       gap: TILE_GAP
     };
@@ -1275,10 +1297,21 @@ createApp({
     selectedApt() {
       return this.selectedId === null ? null : APARTMENTS.find(a => a.id === this.selectedId);
     },
+    anyClickActive() {
+      // true once the user has committed to ANYTHING by clicking — a filter
+      // category, a manager, or a specific apartment. Used to freeze all
+      // hover-preview muting across the sidebar once that happens, matching
+      // the shahmatka's own click-freezes-hover behavior.
+      return this.activeView.length > 0 || this.activeFloors.length > 0 ||
+        this.activeRooms.length > 0 || this.activeCorpus.length > 0 ||
+        this.selectedManager !== null || this.selectedId !== null;
+    },
     gp4GroupActive() {
+      // deliberately does NOT look at selectedApt — clicking an apartment TILE
+      // inside ГП4/А/Б/В shouldn't mute floors 11-17 on its own; that should
+      // only happen from an actual corpus FILTER selection (activeCorpus)
       const gp4Keys = ['ГП4', 'ГП4-А', 'ГП4-Б', 'ГП4-В'];
-      const hasGp4Selection = gp4Keys.some(k => this.activeCorpus.includes(k)) ||
-        (this.selectedApt && this.selectedApt.corpus === 'ГП4');
+      const hasGp4Selection = gp4Keys.some(k => this.activeCorpus.includes(k));
       if (!hasGp4Selection) return false;
       // only mute floors 11-17 if EVERY currently active corpus is GP4-related —
       // if GP1/2/3 (which DO have those floors) is also selected, don't mute
@@ -1287,6 +1320,15 @@ createApp({
     },
     gp4AggClicked() {
       return this.activeCorpus.includes('ГП4');
+    },
+    gp4ParentHighlighted() {
+      // separate from gp4AggClicked (which specifically means "the literal ГП4
+      // aggregate row/title was clicked" and is used to light up ALL of А/Б/В
+      // together) — this one just answers "should the ГП4 title itself show as
+      // active", true if ГП4 OR any of its sub-groups is selected. Folding this
+      // into gp4AggClicked would make every sub-row show active whenever ANY ONE
+      // of them was picked, since sub-rows' own active check ORs in gp4AggClicked.
+      return this.activeCorpus.includes('ГП4') || this.activeCorpus.some(c => c.startsWith('ГП4-'));
     },
     overallPct() {
       const sold = APARTMENTS.filter(a => this.aptState(a) === 'closed').length;
@@ -1733,10 +1775,32 @@ createApp({
       return true;
     },
     matchesFiltersWithManager(apt) {
-      // matchesFilters PLUS the manager highlight — use this specifically for
-      // shahmatka tile dimming and the dynamics chart, never for %-of-total stats
+      // matchesFilters PLUS the CLICKED/persisted manager selection only — no
+      // hover state here. This one feeds periodData (the dynamics chart), which
+      // re-aggregates every apartment on every change; including live hover
+      // would make that heavy recompute fire on every mouse movement, exactly
+      // the cost the hover-preview feature is meant to avoid.
       if (!this.matchesFilters(apt)) return false;
       if (this.selectedManager && apt.manager !== this.selectedManager) return false;
+      return true;
+    },
+    matchesFiltersWithHover(apt) {
+      // clicking is a commitment and hover is just a preview — once ANYTHING
+      // is clicked (a specific tile, or a whole filter category), the shahmatka
+      // locks to showing exactly that click-state and hover no longer changes
+      // it at all. Hover-driven narrowing only applies while NOTHING has been
+      // clicked yet, as a pure "what would this look like" exploration aid
+      // before the user commits to anything.
+      if (apt.id === this.selectedId) return true;
+      if (!this.matchesFilters(apt)) return false;
+      const anyClickActive = this.activeView.length || this.activeFloors.length ||
+        this.activeRooms.length || this.activeCorpus.length || this.selectedManager || this.selectedId !== null;
+      if (anyClickActive) return true;
+      if (this.hoverFloor !== null && apt.floor !== this.hoverFloor) return false;
+      if (this.hoverRoom !== null && apt.rooms !== this.hoverRoom) return false;
+      if (this.hoverCorpusFilter !== null && !(apt.corpus === this.hoverCorpusFilter || apt.group === this.hoverCorpusFilter)) return false;
+      if (this.hoverViewFilter !== null && apt.view !== this.hoverViewFilter) return false;
+      if (this.hoverManagerFilter && apt.manager !== this.hoverManagerFilter) return false;
       return true;
     },
     matchesFiltersExcept(apt, dim) {
@@ -1749,6 +1813,63 @@ createApp({
       if (dim !== 'corpus' && this.activeCorpus.length && !this.activeCorpus.some(c => apt.corpus === c || apt.group === c)) return false;
       return true;
     },
+    matchesFiltersExceptWithHover(apt, dim) {
+      // matchesFiltersExcept PLUS live hover-preview state (also skipping dim's
+      // own hover) — used ONLY to decide whether a sidebar row should MUTE under
+      // the current hover, never for the %-of-total number itself. Kept separate
+      // from matchesFiltersExcept so hovering never triggers the heavier
+      // recompute that changes the visible percentages.
+      if (!this.matchesFiltersExcept(apt, dim)) return false;
+      if (dim !== 'floor' && this.hoverFloor !== null && apt.floor !== this.hoverFloor) return false;
+      if (dim !== 'rooms' && this.hoverRoom !== null && apt.rooms !== this.hoverRoom) return false;
+      if (dim !== 'corpus' && this.hoverCorpusFilter !== null && !(apt.corpus === this.hoverCorpusFilter || apt.group === this.hoverCorpusFilter)) return false;
+      if (dim !== 'view' && this.hoverViewFilter !== null && apt.view !== this.hoverViewFilter) return false;
+      if (this.hoverManagerFilter && apt.manager !== this.hoverManagerFilter) return false;
+      return true;
+    },
+    categoryMutedByHover(dim, matchValue, isActiveOverride) {
+      // true when NO apartment satisfies both "belongs to this row's category
+      // value" and "matches everything currently hovered elsewhere" — meaning
+      // this row would have zero results if the hovered filter were applied,
+      // so it visually mutes as a preview without touching any numbers.
+      // A row that's already CLICKED/persisted is exempt — hover is only ever
+      // a preview and must never mute something the user has actually
+      // committed to by clicking; otherwise moving the mouse anywhere else on
+      // the page could make an already-selected filter flicker to muted.
+      // AND once ANYTHING anywhere is clicked, hover-based muting stops firing
+      // entirely across the whole sidebar (matching the shahmatka's own
+      // click-freezes-hover behavior) — hover is only a pre-commitment
+      // exploration aid, not something that keeps reshuffling the view after
+      // the user has already made a choice.
+      if (isActiveOverride) return false;
+      if (this.anyClickActive) return false;
+      const hoveringAnything = this.hoverFloor !== null || this.hoverRoom !== null ||
+        this.hoverCorpusFilter !== null || this.hoverViewFilter !== null || this.hoverManagerFilter !== null;
+      if (!hoveringAnything) return false;
+      const belongs = dim === 'corpus'
+        ? (a => a.corpus === matchValue || a.group === matchValue)
+        : (a => a[dim] === matchValue);
+      return !APARTMENTS.some(a => belongs(a) && this.matchesFiltersExceptWithHover(a, dim));
+    },
+    siblingMuted(activeArray, hoverValue, rowValue, isActiveOverride) {
+      // within the SAME multi-select category: once anything there is picked
+      // (clicked) or being previewed (hovered), every OTHER option in that same
+      // category mutes — but never the one that's actually selected, and never
+      // the one currently under the mouse, so picking a second value (e.g.
+      // clicking Б after А) never makes the first one flicker away.
+      // isActiveOverride lets a caller pass its OWN richer "is this active"
+      // check (e.g. ГП4 counts as active when a sub-group like ГП4-А is picked,
+      // not just literal inclusion) so muted and active can never contradict
+      // each other on the same row.
+      if (isActiveOverride !== undefined ? isActiveOverride : activeArray.includes(rowValue)) return false;
+      // once ANY click exists anywhere, only THIS array's own click-state
+      // decides muting for its own rows — a currently-hovered sibling elsewhere
+      // should not keep tugging at this category's own display
+      if (this.anyClickActive) return activeArray.length > 0;
+      if (!activeArray.length && hoverValue === null) return false;
+      if (hoverValue === rowValue) return false;
+      return true;
+    },
 
     toggleManager(m) {
       this.selectedManager = this.selectedManager === m ? null : m;
@@ -1757,6 +1878,15 @@ createApp({
       this.selectedId = this.selectedId === id ? null : id;
       this.hoverFloor = null;
       this.hoverRoom = null;
+    },
+    pickShahmatkaTile(apt, evt) {
+      // clicking a tile "freezes" hover on the shahmatka: while something is
+      // selected, hovering OTHER apartments no longer swaps the tooltip to
+      // them (see the mouseenter guards above) — only the selected tile's own
+      // card is shown, until it's clicked again to deselect
+      this.pickTile(apt.id);
+      if (this.selectedId === apt.id) this.showCard(apt, evt);
+      else this.hideCard();
     },
     pickDealTile(apt, d, evt) {
       this.pickTile(apt.id);
@@ -1856,7 +1986,7 @@ createApp({
       return slots;
     },
     tileClass(apt) {
-      return { dim: !this.matchesFiltersWithManager(apt), picked: this.selectedId === apt.id };
+      return { dim: !this.matchesFiltersWithHover(apt), picked: this.selectedId === apt.id };
     },
     tileStyle(apt) {
       const state = this.aptState(apt);
