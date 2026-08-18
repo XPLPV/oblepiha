@@ -14,10 +14,11 @@
   --text-primary: #2a2a26;
   --text-secondary: #6b6960;
   --text-muted: #93908a;
-  --accent-muted: #6f7d92;
+  --accent-muted: #757c88;
   --slider-fill: #6f7d92;
   --slider-track: #e3e1d8;
   --pick-color: #cf4040;
+  --chart-line-color: #e0a000;
   --dim-opacity: 0.2;
   --tile-base: #ffffff;
   --price-lo: rgb(230,241,251);
@@ -229,7 +230,7 @@ select:focus-visible { outline: none; }
 .view-icon-shape { display: flex; justify-content: center; margin-top: 5px; color: #9a9790; }
 .view-icon-bracket { width: 100%; height: 0px; border: none; margin-top: 0; }
 .gt-top { white-space: nowrap; }
-.gt-bars { display: flex; gap: 10px; }
+.gt-bars { display: flex; gap: 20px; }
 .gt-bars .mini-bar-wrap { flex: 1; }
 .gt-sub-money { font-size: 15px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; }
 .mini-bar-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; width: 260px; }
@@ -280,7 +281,7 @@ select:focus-visible { outline: none; }
 .filters-section { display: flex; align-items: center; gap: 12px; margin-top: 0px; flex-wrap: wrap; }
 .filters-label { font-size: 15px; color: var(--text-secondary); }
 .view-legend { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.view-legend-item { display: flex; align-items: center; gap: 5px; font-size: 14px; color: var(--text-primary); padding: 2px 6px 4px; border-radius: 4px; }
+.view-legend-item { display: flex; align-items: center; gap: 5px; font-size: 14px; color: var(--text-primary); padding: 2px 6px 4px; border-radius: 4px; transform: translate(-2px, -2px); }
 .view-legend-icon { color: #9a9790; position: relative; top: 1px; }
 .view-legend-item.clickable { cursor: pointer; }
 .view-legend-item.clickable:hover { background: var(--surface); }
@@ -304,7 +305,7 @@ select:focus-visible { outline: none; }
 .revenue-header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 25px; margin-bottom: -2px; }
 .period-controls { display: flex; align-items: center; gap: 10px; }
 .period-controls { display: flex; align-items: center; gap: 6px; }
-.period-btn { padding: 2px 12px 6px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; font-size: 12px; color: var(--text-primary); font-weight: 400; }
+.period-btn { padding: 3px 12px 5px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; font-size: 12px; color: var(--text-primary); font-weight: 400; }
 .period-btn:hover { background: var(--surface-2); }
 .period-btn.active { background: var(--accent-muted); border-color: var(--accent-muted); color: #fff; }
 .period-select-wrap { position: relative; display: inline-flex; }
@@ -338,7 +339,7 @@ select:focus-visible { outline: none; }
 .chart-legend-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
 .swatch-revenue { background: var(--accent-muted); }
 .swatch-appeals { background: none; border: 1.5px solid var(--accent-muted); }
-.chart-legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pick-color); display: inline-block; }
+.chart-legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--chart-line-color); display: inline-block; }
 .revenue-unit-label { position: absolute; top: -10px; left: 0; font-size: 13px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
 .revenue-chart-wrap { display: flex; }
 .revenue-y-axis-col { width: 40px; flex-shrink: 0; position: relative; }
@@ -357,7 +358,7 @@ select:focus-visible { outline: none; }
 .appeal-tile { width: 100%; box-sizing: border-box; background: var(--tile-base); flex-shrink: 0; }
 .appeal-tile.dim { opacity: var(--dim-opacity); }
 .deals-dot-wrap { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; z-index: 10; pointer-events: none; }
-.deals-dot { position: absolute; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; margin-bottom: -2.5px; border-radius: 50%; background: var(--pick-color); z-index: 10; }
+.deals-dot { position: absolute; left: 50%; width: 5.5px; height: 5.5px; margin-left: -2.75px; margin-bottom: -2.75px; border-radius: 50%; background: var(--chart-line-color); z-index: 10; }
 .deals-line-svg-wrap { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 10; pointer-events: none; }
 .deals-line-svg { position: absolute; left: 0; bottom: 0; width: 100%; pointer-events: none; }
 .revenue-x-axis-row { display: flex; align-items: flex-start; margin-top: 12px; }
@@ -368,7 +369,7 @@ select:focus-visible { outline: none; }
 .rev-count-badge { position: absolute; transform: translateX(-50%); font-size: 13px; font-weight: 400; color: var(--text-secondary); white-space: nowrap; z-index: 4; pointer-events: none; }
 
 /* ---------- Managers ---------- */
-.managers-section { margin-bottom: 24px; margin-top: -33px; }
+.managers-section { margin-bottom: 24px; margin-top: -40px; }
 .manager-row { display: flex; align-items: flex-start; gap: 14px; padding: 6px 0; }
 .manager-name {
   width: 68px; font-size: 15px; font-weight: 700; flex-shrink: 0; line-height: 18px;
@@ -509,10 +510,10 @@ select:focus-visible { outline: none; }
             <div v-if="slot.apt" class="tile"
                  :class="tileClass(slot.apt)"
                  :style="tileStyle(slot.apt)"
-                 @click="pickShahmatkaTile(slot.apt, $event)"
-                 @mouseenter="selectedId===null ? showCard(slot.apt, $event) : null"
-                 @mousemove="selectedId===null ? moveCard($event) : null"
-                 @mouseleave="selectedId===null ? hideCard() : null">
+                 @click="pickTile(slot.apt.id)"
+                 @mouseenter="showCard(slot.apt, $event)"
+                 @mousemove="moveCard($event)"
+                 @mouseleave="hideCard">
               <div class="tile-fill" :style="fillStyle(slot.apt)"></div>
             </div>
             <div v-else class="tile-empty" :style="{width: tileSize+'px', height: tileSize+'px'}"></div>
@@ -573,10 +574,10 @@ select:focus-visible { outline: none; }
             <div v-if="slot.apt" class="tile"
                  :class="tileClass(slot.apt)"
                  :style="tileStyle(slot.apt)"
-                 @click="pickShahmatkaTile(slot.apt, $event)"
-                 @mouseenter="selectedId===null ? showCard(slot.apt, $event) : null"
-                 @mousemove="selectedId===null ? moveCard($event) : null"
-                 @mouseleave="selectedId===null ? hideCard() : null">
+                 @click="pickTile(slot.apt.id)"
+                 @mouseenter="showCard(slot.apt, $event)"
+                 @mousemove="moveCard($event)"
+                 @mouseleave="hideCard">
               <div class="tile-fill" :style="fillStyle(slot.apt)"></div>
             </div>
             <div v-else class="tile-empty" :style="{width: tileSize+'px', height: tileSize+'px'}"></div>
@@ -592,6 +593,7 @@ select:focus-visible { outline: none; }
         <div v-for="v in viewsList" :key="v.value"
              class="view-legend-item clickable"
              :class="{active: activeView.includes(v.value)}"
+             :style="['на ЖК','на реку','на лес'].includes(v.value) ? {transform: 'translate(-6px, -2px)'} : {}"
              @click="toggleView(v.value)"
              @mouseenter="hoverViewFilter = v.value" @mouseleave="hoverViewFilter = null">
           <div class="view-legend-icon" v-html="viewIconSvg(VIEW_ICON_MAP[v.value].icon, VIEW_ICON_MAP[v.value].color)"></div>
@@ -653,7 +655,7 @@ select:focus-visible { outline: none; }
                  @mouseenter="selectedId===apt.id ? showCard(apt, $event) : showPeriodCard(d, $event)"
                  @mousemove="moveCard($event)"
                  @mouseleave="hideCard(); hidePeriodCard()"></div>
-            <div v-if="chartPeriod==='month'" class="appeal-tile appeal-tile-agg"
+            <div v-if="!anyClickActive" class="appeal-tile appeal-tile-agg"
                  :style="{height: Math.max(3, revealedAppealsValue(d)*revenuePxPerMillion)+'px', border: '1px solid var(--accent-muted)', background: 'var(--tile-base)', boxSizing: 'border-box'}"></div>
             <template v-else>
               <div v-for="apt in d.appealsArr" :key="'ap-'+apt.id"
@@ -963,12 +965,12 @@ GROUPS_LIST.forEach(g => {
 });
 // view -> icon shape key + display color, used to render the small view icons row
 const VIEW_ICON = {
-  'на дорогу': { icon: 'road', color: 'currentColor' },
-  'на реку': { icon: 'river', color: '#5b9bd5' },
-  'окна в окна': { icon: 'window', color: 'currentColor' },
-  'на ЖК': { icon: 'building', color: 'currentColor' },
-  'на лес': { icon: 'forest', color: '#5a8f5a' },
-  'во двор': { icon: 'yard', color: '#d9b84a' }
+  'на дорогу': { icon: 'road', color: '#8f8f8f' },
+  'на реку': { icon: 'river', color: '#5b93b5' },
+  'окна в окна': { icon: 'window', color: '#8f8f8f' },
+  'на ЖК': { icon: 'building', color: '#8f8f8f' },
+  'на лес': { icon: 'forest', color: '#5f9c68' },
+  'во двор': { icon: 'yard', color: '#d3b957' }
 };
 function viewIconsFor(g) {
   const items = [];
@@ -1341,6 +1343,25 @@ createApp({
         buckets[a.corpus].total++;
         if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.corpus].sold++;
       });
+      // if the user picked specific ГП4 sub-groups (А/Б/В) rather than the
+      // literal "ГП4", the ГП4 row itself should reflect THAT narrower
+      // selection — otherwise it stays highlighted as active (via the
+      // parent-highlight rule) while still showing the totals for ALL of ГП4,
+      // which looks like it silently ignored the actual click
+      const gp4Subs = this.activeCorpus.filter(c => c.startsWith('ГП4-'));
+      if (gp4Subs.length) {
+        const subBucket = { total: 0, sold: 0 };
+        APARTMENTS.filter(a => a.corpus === 'ГП4' && gp4Subs.includes(a.group) && this.matchesFiltersExcept(a, 'corpus')).forEach(a => {
+          subBucket.total++;
+          if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) subBucket.sold++;
+        });
+        // only replace the bucket if it actually has matches — an empty object
+        // is still truthy in JS, so leaving it assigned unconditionally made the
+        // later "b ? sold/total : 0" check treat a genuine 0/0 as "has data",
+        // computing NaN% instead of correctly falling through to muted/0%
+        if (subBucket.total > 0) buckets['ГП4'] = subBucket;
+        else delete buckets['ГП4'];
+      }
       // every category always renders in its usual place — if the current filter
       // combination leaves it with zero matches, it's muted instead of removed
       return ['ГП1', 'ГП2', 'ГП3', 'ГП4'].map(c => {
@@ -1545,16 +1566,17 @@ createApp({
       // itself depends on the scale — so solve it iteratively until stable, instead of
       // one algebraic correction (which can undershoot: a coarser scale forces *more*
       // tiles onto the floor, which can grow the very overflow it was meant to fix).
-      // On the month view appeals render as a single aggregate tile, so only THAT one
-      // tile needs the minimum-height floor there, not each individual apartment.
+      // Without any active filter, appeals render as a single aggregate tile (any
+      // period), so only THAT one tile needs the minimum-height floor, not each
+      // individual apartment.
       const MIN_PX = 3;
-      const isMonth = this.chartPeriod === 'month';
+      const isAggregate = !this.anyClickActive;
       const targetH = this.revenueChartHeight - this.chartTopPadding;
       let scaleMax = d3.max(this.periodData, d => d.revenue + d.appealsValue) || 1;
       for (let i = 0; i < 6; i++) {
         const px = targetH / scaleMax;
         const neededMax = d3.max(this.periodData, d => {
-          const appealsPx = isMonth
+          const appealsPx = isAggregate
             ? Math.max(MIN_PX, d.appealsValue * px)
             : d.appealsArr.reduce((s, a) => s + Math.max(MIN_PX, a.price * px), 0);
           return d.revenue * px + appealsPx;
@@ -1645,7 +1667,7 @@ createApp({
       const n = this.periodData.length;
       const totalH = this.revenueChartHeight;
       return '<svg class="deals-line-svg" width="100%" height="' + totalH + '" viewBox="0 0 ' + n + ' ' + totalH + '" preserveAspectRatio="none" style="bottom:0">' +
-        '<polyline points="' + this.dealsLinePoints + '" fill="none" stroke="var(--pick-color)" stroke-width="2" vector-effect="non-scaling-stroke"/>' +
+        '<polyline points="' + this.dealsLinePoints + '" fill="none" stroke="var(--chart-line-color)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>' +
         '</svg>';
     },
     activeRevDate() {
@@ -1760,7 +1782,17 @@ createApp({
     },
     toggleCorpus(c) {
       const i = this.activeCorpus.indexOf(c);
-      if (i === -1) this.activeCorpus.push(c); else this.activeCorpus.splice(i, 1);
+      if (i === -1) {
+        this.activeCorpus.push(c);
+      } else {
+        this.activeCorpus.splice(i, 1);
+        // turning OFF a parent (e.g. "ГП4") should also clear any of its own
+        // sub-selections (ГП4-А/Б/В) still lingering in the array — otherwise
+        // re-clicking the parent to deselect it leaves an orphaned sub-filter
+        // active that the user can no longer see reflected in the parent's own
+        // highlight, which looked like "it didn't actually turn off"
+        this.activeCorpus = this.activeCorpus.filter(x => !x.startsWith(c + '-'));
+      }
     },
     matchesFilters(apt) {
       // deliberately does NOT check selectedManager — manager selection is a pure
@@ -1791,8 +1823,19 @@ createApp({
       // it at all. Hover-driven narrowing only applies while NOTHING has been
       // clicked yet, as a pure "what would this look like" exploration aid
       // before the user commits to anything.
-      if (apt.id === this.selectedId) return true;
+      // NOTE: the selected tile is NOT automatically exempt here — it goes
+      // through the same matching as every other apartment, so clicking a
+      // manager who didn't sell it (or any other filter it doesn't match)
+      // correctly dims it too. The red "picked" outline is a SEPARATE class
+      // (see tileClass) and stays regardless, since it just marks "this is
+      // the apartment you clicked", independent of whether later filters
+      // still apply to it.
       if (!this.matchesFilters(apt)) return false;
+      // selectedManager is itself a CLICK state and must always gate dimming
+      // regardless of the anyClickActive shortcut below — otherwise, once any
+      // OTHER click exists too, the shortcut returns early and this check never
+      // runs at all, which is exactly what silently broke manager highlighting
+      if (this.selectedManager && apt.manager !== this.selectedManager) return false;
       const anyClickActive = this.activeView.length || this.activeFloors.length ||
         this.activeRooms.length || this.activeCorpus.length || this.selectedManager || this.selectedId !== null;
       if (anyClickActive) return true;
@@ -2155,7 +2198,7 @@ createApp({
     aptPriceColor(apt) { return priceColor(apt.price); },
     appealsHeightPx(d) {
       if (!d.revealed) return 0;
-      if (this.chartPeriod === 'month') return Math.max(3, d.appealsValue * this.revenuePxPerMillion);
+      if (!this.anyClickActive) return Math.max(3, d.appealsValue * this.revenuePxPerMillion);
       return d.appealsArr.reduce((s, a) => s + Math.max(3, a.price * this.revenuePxPerMillion), 0);
     },
     dealsActualHeight(d) {
