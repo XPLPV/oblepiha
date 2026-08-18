@@ -2248,7 +2248,13 @@ createApp({
       return apt.appeal <= this.currentDateStr || this.selectedId === apt.id;
     },
     managerStats(m) {
-      const deals = MANAGER_DEALS_STATIC[m].filter(a => this.aptState(a) === 'closed');
+      // now filter-aware: the header numbers (count, revenue, avg discount,
+      // avg deal time) recompute against whatever view/floor/room/corpus
+      // filters are currently active — even if no manager is clicked at all.
+      // This is what lets you click "1 комната" and immediately see each
+      // manager's actual discount pattern on just that segment, instead of
+      // only ever seeing their all-time aggregate.
+      const deals = MANAGER_DEALS_STATIC[m].filter(a => this.aptState(a) === 'closed' && this.matchesFilters(a));
       const count = deals.length;
       const sum = deals.reduce((s, a) => s + a.price * (1 - a.discPct), 0);
       const avgDisc = count ? (deals.reduce((s, a) => s + a.discPct, 0) / count * 100) : 0;
