@@ -14,7 +14,7 @@
   --text-primary: #2a2a26;
   --text-secondary: #6b6960;
   --text-muted: #93908a;
-  --accent-muted: #787979;
+  --accent-muted: #56608f;
   --slider-fill: #6f7d92;
   --slider-track: #e3e1d8;
   --pick-color: #cf4040;
@@ -162,10 +162,22 @@ select:focus-visible { outline: none; }
 .quarters-main-row { display: flex; align-items: stretch; gap: 36px; position: relative; }
 .quarters-left { flex-shrink: 0; align-self: flex-start; }
 
-.sales-panel-overall { position: absolute; top: -34px; width: 380px; }
+.sp-header-section { margin-bottom: 4px; position: sticky; top: 8px; z-index: 2; background: var(--bg); }
+.sp-header-section .sales-panel-title-big { margin-bottom: 16px; }
+.sp-metric-selector { display: flex; gap: 6px; width: 100%; }
+.sp-metric-btn {
+  flex: 1 1 0;
+  text-align: center;
+  font-size: 11px; padding: 3px 4px; border-radius: 10px; border: 1px solid var(--border-strong);
+  background: var(--surface); color: var(--text-secondary); cursor: pointer; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.sp-metric-btn:hover:not(.active) { background: var(--surface-2); }
+.sp-metric-btn.active { background: var(--accent-muted); border-color: var(--accent-muted); color: #fff; }
 .sales-panel-outer { flex: 0 1 380px; min-width: 220px; overflow: visible; position: relative; }
-.sales-panel-wrap { position: relative; top: 5px; width: 100%; }
-.sales-panel { padding-top: 14px; position: sticky; top: 8px; }
+.sp-header-wrap { position: relative; top: -32.5px; width: 100%; }
+.sales-panel-wrap { position: relative; top: -32.5px; width: 100%; }
+.sales-panel { padding-top: 14px; position: sticky; top: 62px; }
 .sp-section { margin-bottom: 14px; }
 .sales-panel-title { font-size: 15px; font-weight: 600; line-height: 1; color: var(--text-primary); margin-bottom: 6px; }
 .sales-panel-title-big { font-size: 17px; line-height: 1; margin-bottom: 6px; }
@@ -180,11 +192,16 @@ select:focus-visible { outline: none; }
 .sp-row.clickable:hover { background: var(--surface); }
 .sp-row.active .sp-row-label { color: var(--text-primary); font-weight: 600; }
 .sp-row.active .sp-row-bar { background: var(--pick-color); }
-.sp-row.muted { opacity: 0.35; }
+.sp-row.muted { opacity: 0.2; }
 .sp-row-label { width: 78px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+.sp-row-label-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
 .sp-row-bar-wrap { flex: 1; height: 14px; background: var(--surface); border-radius: 3px; overflow: hidden; }
 .sp-row-bar { height: 100%; background: var(--accent-muted); border-radius: 3px; }
-.sp-row-pct { width: 34px; flex-shrink: 0; text-align: right; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.sp-row-pct { flex-shrink: 0; text-align: right; font-size: 13px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.sp-row-pct-units_pct, .sp-row-pct-sum_pct { min-width: 3ch; }
+.sp-row-pct-units_shtuk { min-width: 7ch; }
+.sp-row-pct-sum_money { min-width: 7ch; }
+.sp-row-pct-overall.sp-row-pct-sum_money { min-width: 9ch; }
 
 .axis-caption {
   font-size: 13px; color: var(--text-secondary); font-weight: 600;
@@ -384,6 +401,7 @@ select:focus-visible { outline: none; }
 .manager-stats { display: flex; gap: 16px; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; flex-wrap: wrap; line-height: 18px; }
 .manager-stats b { color: var(--text-primary); font-size: 14px; font-weight: 700; }
 .manager-chart { display: flex; align-items: flex-end; width: 100%; height: 50px; }
+.manager-chart-tiles { display: flex; align-items: flex-end; width: 100%; height: 100%; }
 .m-tile {
   position: relative; height: 50px; flex-shrink: 0; overflow: hidden;
   background: var(--tile-base);
@@ -678,72 +696,80 @@ select:focus-visible { outline: none; }
   </section>
     </div>
 
-    <div class="sales-panel-overall">
-      <div class="sp-section">
-        <div class="sp-overall-row">
-          <div class="sales-panel-title sales-panel-title-big">Общие</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: overallPct+'%'}"></div></div>
-          <div class="sp-row-pct">{{ overallPct }}%</div>
-        </div>
-        <div class="sales-panel-title sales-panel-title-big">продажи</div>
+    <div class="sales-panel-outer" :style="{height: qlNaturalHeight ? qlNaturalHeight+'px' : 'auto'}">
+    <div class="sp-header-wrap" :style="{height: headerWrapHeightPx !== null ? headerWrapHeightPx+'px' : 'auto', marginBottom: -headerWrapPullUpPx+'px'}">
+    <div class="sp-header-section">
+      <div class="sales-panel-title sales-panel-title-big">Продажи</div>
+      <div class="sp-metric-selector">
+        <button class="sp-metric-btn" :class="{active: sidebarMetric==='units_pct'}" @click="sidebarMetric='units_pct'">Квартиры, %</button>
+        <button class="sp-metric-btn" :class="{active: sidebarMetric==='sum_pct'}" @click="sidebarMetric='sum_pct'">Сумма, %</button>
+        <button class="sp-metric-btn" :class="{active: sidebarMetric==='units_shtuk'}" @click="sidebarMetric='units_shtuk'">Квартиры, шт.</button>
+        <button class="sp-metric-btn" :class="{active: sidebarMetric==='sum_money'}" @click="sidebarMetric='sum_money'">Сумма, млн ₽</button>
       </div>
     </div>
-    <div class="sales-panel-outer" :style="{height: qlNaturalHeight ? qlNaturalHeight+'px' : 'auto'}">
-    <div class="sales-panel-wrap" :style="{height: wrapHeightPx ? wrapHeightPx+'px' : 'auto'}">
+    </div>
+    <div class="sales-panel-wrap" :style="{height: wrapHeightPx !== null ? wrapHeightPx+'px' : 'auto'}">
     <div class="sales-panel">
       <div class="sp-section">
+        <div class="sp-row">
+          <div class="sp-row-label sp-row-label-title">Общие</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: overallMetricRow.barPct+'%'}"></div></div>
+          <div class="sp-row-pct sp-row-pct-overall" :class="'sp-row-pct-'+sidebarMetric">{{ overallMetricRow.display }}</div>
+        </div>
+      </div>
+      <div class="sp-section">
         <div class="sales-panel-title">Корпус</div>
-        <div v-for="row in corpusBreakdown" :key="row.label" class="sp-row clickable"
+        <div v-for="row in metricRows(corpusBreakdown)" :key="row.label" class="sp-row clickable"
              :class="{active: activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-')) || (selectedApt && selectedApt.corpus===row.value), muted: row.muted || categoryMutedByHover('corpus', row.value, activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-'))) || siblingMuted(activeCorpus, hoverCorpusFilter, row.value, activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-')))}"
              @click="toggleCorpus(row.value)"
              @mouseenter="hoverCorpusFilter = row.value" @mouseleave="hoverCorpusFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeCorpus, row.value, activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-'))) ? 0 : row.pct)+'%'}"></div></div>
-          <div class="sp-row-pct">{{ clickSiblingMuted(activeCorpus, row.value, activeCorpus.includes(row.value) || activeCorpus.some(c => c.startsWith(row.value+'-'))) ? 0 : row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.barPct+'%'}"></div></div>
+          <div class="sp-row-pct" :class="'sp-row-pct-'+sidebarMetric">{{ row.displayValue }}</div>
         </div>
-        <div v-for="row in gp4SubBreakdown" :key="row.label" class="sp-row sp-row-sub clickable"
-             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.group===row.value) || gp4AggClicked, muted: row.muted || categoryMutedByHover('corpus', row.value, activeCorpus.includes(row.value)) || siblingMuted(activeCorpus, hoverCorpusFilter, row.value)}"
+        <div v-for="row in metricRows(gp4SubBreakdown)" :key="row.label" class="sp-row sp-row-sub clickable"
+             :class="{active: activeCorpus.includes(row.value) || (selectedApt && selectedApt.group===row.value) || gp4AggClicked, muted: row.muted || categoryMutedByHover('corpus', row.value, activeCorpus.includes(row.value) || gp4AggClicked) || siblingMuted(activeCorpus, hoverCorpusFilter, row.value, activeCorpus.includes(row.value) || gp4AggClicked)}"
              @click="toggleCorpus(row.value)"
              @mouseenter="hoverCorpusFilter = row.value" @mouseleave="hoverCorpusFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeCorpus, row.value) ? 0 : row.pct)+'%'}"></div></div>
-          <div class="sp-row-pct">{{ clickSiblingMuted(activeCorpus, row.value) ? 0 : row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.barPct+'%'}"></div></div>
+          <div class="sp-row-pct" :class="'sp-row-pct-'+sidebarMetric">{{ row.displayValue }}</div>
         </div>
       </div>
 
       <div class="sp-section">
         <div class="sales-panel-title">Комнаты</div>
-        <div v-for="row in roomsBreakdown" :key="row.label" class="sp-row clickable"
+        <div v-for="row in metricRows(roomsBreakdown)" :key="row.label" class="sp-row clickable"
              :class="{active: activeRooms.includes(row.value) || (selectedApt && selectedApt.rooms===row.value), muted: row.muted || categoryMutedByHover('rooms', row.value, activeRooms.includes(row.value)) || siblingMuted(activeRooms, hoverRoom, row.value)}"
              @click="toggleRooms(row.value)"
              @mouseenter="hoverRoom = row.value" @mouseleave="hoverRoom = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeRooms, row.value) ? 0 : row.pct)+'%'}"></div></div>
-          <div class="sp-row-pct">{{ clickSiblingMuted(activeRooms, row.value) ? 0 : row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.barPct+'%'}"></div></div>
+          <div class="sp-row-pct" :class="'sp-row-pct-'+sidebarMetric">{{ row.displayValue }}</div>
         </div>
       </div>
 
       <div class="sp-section">
         <div class="sales-panel-title">Вид</div>
-        <div v-for="row in viewBreakdown" :key="row.label" class="sp-row clickable"
+        <div v-for="row in metricRows(viewBreakdown)" :key="row.label" class="sp-row clickable"
              :class="{active: activeView.includes(row.value) || (selectedApt && selectedApt.view===row.value), muted: row.muted || categoryMutedByHover('view', row.value, activeView.includes(row.value)) || siblingMuted(activeView, hoverViewFilter, row.value)}"
              @click="toggleView(row.value)"
              @mouseenter="hoverViewFilter = row.value" @mouseleave="hoverViewFilter = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeView, row.value) ? 0 : row.pct)+'%'}"></div></div>
-          <div class="sp-row-pct">{{ clickSiblingMuted(activeView, row.value) ? 0 : row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.barPct+'%'}"></div></div>
+          <div class="sp-row-pct" :class="'sp-row-pct-'+sidebarMetric">{{ row.displayValue }}</div>
         </div>
       </div>
 
       <div class="sp-section">
         <div class="sales-panel-title">Этажи</div>
-        <div v-for="row in floorBreakdown" :key="row.label" class="sp-row clickable"
+        <div v-for="row in metricRows(floorBreakdown)" :key="row.label" class="sp-row clickable"
              :class="{active: activeFloors.includes(row.value) || (selectedApt && selectedApt.floor===row.value), muted: (gp4GroupActive && row.value > 10) || row.muted || categoryMutedByHover('floor', row.value, activeFloors.includes(row.value)) || siblingMuted(activeFloors, hoverFloor, row.value)}"
              @click="toggleFloor(row.value)"
              @mouseenter="hoverFloor = row.value" @mouseleave="hoverFloor = null">
           <div class="sp-row-label">{{ row.label }}</div>
-          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: (clickSiblingMuted(activeFloors, row.value) ? 0 : row.pct)+'%'}"></div></div>
-          <div class="sp-row-pct">{{ clickSiblingMuted(activeFloors, row.value) ? 0 : row.pct }}%</div>
+          <div class="sp-row-bar-wrap"><div class="sp-row-bar" :style="{width: row.barPct+'%'}"></div></div>
+          <div class="sp-row-pct" :class="'sp-row-pct-'+sidebarMetric">{{ row.displayValue }}</div>
         </div>
       </div>
     </div>
@@ -756,24 +782,28 @@ select:focus-visible { outline: none; }
 
   <section class="managers-section">
     <h2>Эффективность менеджеров</h2>
-    <div class="manager-row" v-for="m in managersList" :key="m" :class="{muted: (selectedManager && selectedManager!==m) || (!anyClickActive && hoverManagerFilter && hoverManagerFilter!==m)}"
-         @mouseenter="hoverManagerFilter = m" @mouseleave="hoverManagerFilter = null">
-      <button class="manager-name clickable" :class="{active: selectedManager===m}" @click="toggleManager(m)">{{ m }}</button>
+    <div class="manager-row" v-for="m in managersList" :key="m" :class="{muted: (selectedManager && selectedManager!==m) || (!anyClickActive && hoverManagerFilter && hoverManagerFilter!==m)}">
+      <button class="manager-name clickable" :class="{active: selectedManager===m}" @click="toggleManager(m)"
+              @mouseenter="hoverManagerFilter = m" @mouseleave="hoverManagerFilter = null">{{ m }}</button>
       <div class="manager-body">
-        <div class="manager-stats">
+        <div class="manager-stats"
+             @mouseenter="hoverManagerFilter = m" @mouseleave="hoverManagerFilter = null">
           <span class="m-stat"><b class="num" style="min-width:2.2ch">{{ managerStats(m).count }}</b> кв.</span>
           <span class="m-stat"><b class="num" style="min-width:5ch">{{ fmtMoney(managerStats(m).sum) }}</b> млн ₽</span>
           <span class="m-stat"><b class="num" style="min-width:3.4ch">{{ managerStats(m).avgDisc }}%</b> ср. скидка</span>
           <span class="m-stat"><b class="num" style="min-width:1.6ch">{{ managerStats(m).avgDays }}</b> дн. ср. сделка</span>
         </div>
-        <div class="manager-chart">
-          <div v-for="apt in managerDeals(m)" :key="apt.id"
-               class="m-tile"
-               :class="managerTileClass(apt)"
-               :style="managerTileStyle(apt)"
-               :title="tileTitle(apt)"
-               @click="pickTile(apt.id)">
-            <div class="m-tile-fill" :style="fillStyle(apt)"></div>
+        <div class="manager-chart"
+             @mousemove="hoverManagerChartMove($event, m)" @mouseleave="hoverManagerFilter = null">
+          <div class="manager-chart-tiles">
+            <div v-for="apt in managerDeals(m)" :key="apt.id"
+                 class="m-tile"
+                 :class="managerTileClass(apt)"
+                 :style="managerTileStyle(apt)"
+                 :title="tileTitle(apt)"
+                 @click="pickTile(apt.id)">
+              <div class="m-tile-fill" :style="fillStyle(apt)"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -874,6 +904,45 @@ const VIEWS_LIST = [
 const VIEW_SHORT = Object.fromEntries(VIEWS_LIST.map(v => [v.value, v.label]));
 // cheapest to most expensive view, by average list price — used both for in-floor
 // tile ordering and (later) for a view legend ordered the same way
+// ---------- Sidebar metric system (шт./%/сумма/%суммы selector) ----------
+// A single shared shape for every breakdown row: raw counts AND money, so the
+// template can switch which one to DISPLAY/use-as-bar-width via a metric
+// selector, without recomputing anything — all four numbers are always ready.
+function bucketStats(items) {
+  const total = items.length;
+  const sold = items.filter(a => a.sold);
+  const count = sold.length;
+  const sumRevenue = sold.reduce((s, a) => s + a.price * (1 - a.discPct), 0);
+  const sumTotal = items.reduce((s, a) => s + a.listPrice, 0);
+  return {
+    count, total,
+    pct: total ? Math.round(count / total * 100) : 0,
+    sumRevenue, sumTotal,
+    sumPct: sumTotal ? Math.round(sumRevenue / sumTotal * 100) : 0
+  };
+}
+// precomputed ONCE from the full, unfiltered dataset — used as the fallback
+// display for a muted row (showing "what this category normally looks like"
+// instead of a zero, since muted no longer means "narrowed to nothing" once
+// there's a metric selector: 0 would look like a real, alarming data point)
+function buildDefaultMap(keyFn, items) {
+  const groups = {};
+  items.forEach(a => {
+    const k = keyFn(a);
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(a);
+  });
+  const out = {};
+  Object.keys(groups).forEach(k => { out[k] = bucketStats(groups[k]); });
+  return out;
+}
+const DEFAULT_BY_CORPUS = buildDefaultMap(a => a.corpus, APARTMENTS);
+const DEFAULT_BY_GROUP = buildDefaultMap(a => a.group, APARTMENTS.filter(a => a.corpus === 'ГП4'));
+const DEFAULT_BY_ROOMS = buildDefaultMap(a => a.rooms, APARTMENTS);
+const DEFAULT_BY_VIEW = buildDefaultMap(a => a.view, APARTMENTS);
+const DEFAULT_BY_FLOOR = buildDefaultMap(a => a.floor, APARTMENTS);
+const DEFAULT_OVERALL = bucketStats(APARTMENTS);
+
 const VIEW_PRICE_ORDER = ['окна в окна', 'на дорогу', 'на ЖК', 'на реку', 'на лес', 'во двор'];
 const VIEW_ORDER = Object.fromEntries(VIEW_PRICE_ORDER.map((v, i) => [v, i]));
 const LABEL_TO_VIEW_VALUE = Object.fromEntries(VIEWS_LIST.map(v => [v.label, v.value]));
@@ -965,12 +1034,12 @@ GROUPS_LIST.forEach(g => {
 });
 // view -> icon shape key + display color, used to render the small view icons row
 const VIEW_ICON = {
-  'на дорогу': { icon: 'road', color: '#9a9a9a' },
-  'на реку': { icon: 'river', color: '#4a93b5' },
-  'окна в окна': { icon: 'window', color: '#9a9a9a' },
-  'на ЖК': { icon: 'building', color: '#9a9a9a' },
-  'на лес': { icon: 'forest', color: '#429451' },
-  'во двор': { icon: 'yard', color: '#c0bb59' }
+  'на дорогу': { icon: 'road', color: 'currentColor' },
+  'на реку': { icon: 'river', color: '#5b9bd5' },
+  'окна в окна': { icon: 'window', color: 'currentColor' },
+  'на ЖК': { icon: 'building', color: 'currentColor' },
+  'на лес': { icon: 'forest', color: '#5a8f5a' },
+  'во двор': { icon: 'yard', color: '#d9b84a' }
 };
 function viewIconsFor(g) {
   const items = [];
@@ -1171,13 +1240,13 @@ createApp({
       quartersLeftHeight: null,
       pageScrollY: 0,
       wrapNaturalTop: null,
-      overallNaturalTop: null,
-      overallLeftPx: null,
       wrapLeftPx: null,
       rowLeftPx: null,
       wrapWidthPx: null,
       qlNaturalHeight: null,
       wrapHeightPx: null,
+      headerWrapHeightPx: null,
+      headerWrapPullUpPx: 0,
       qlWidthPx: null,
       chartBottomDoc: null,
       panelHeightPx: null,
@@ -1188,6 +1257,7 @@ createApp({
       activeCorpus: [],
       selectedId: null,
       selectedManager: null,
+      sidebarMetric: 'units_pct',
       hoverRevDate: null,
       salesDim: 'corpus',
       cardApt: null,
@@ -1226,21 +1296,6 @@ createApp({
         const wrap = document.querySelector('.sales-panel-wrap');
         if (wrap) {
           this.sidebarBarRight = wrap.getBoundingClientRect().right;
-          // "Общие продажи" needs to stay exactly as wide as, and left-aligned
-          // with, the panel below it — wrap can now shrink on narrow screens
-          // (flex-shrink) and is no longer positioned via CSS right:0 (that
-          // requires the row to be fit-content-sized, which turned out to force
-          // flex-shrink items down to their min-width even with room to spare).
-          // Synced directly via DOM to dodge Vue-render timing issues, same
-          // approach used for the managers-section width fix.
-          const overallEl = document.querySelector('.sales-panel-overall');
-          const mainRowElForOverall = document.querySelector('.quarters-main-row');
-          if (overallEl && mainRowElForOverall) {
-            const wrapRect = wrap.getBoundingClientRect();
-            const rowRect = mainRowElForOverall.getBoundingClientRect();
-            overallEl.style.width = wrapRect.width + 'px';
-            overallEl.style.left = (wrapRect.left - rowRect.left) + 'px';
-          }
         }
       };
       updateSidebarBarRight();
@@ -1261,6 +1316,9 @@ createApp({
       const qlElSticky = document.querySelector('.quarters-left');
       const mgrsElSticky = document.querySelector('.managers-section');
       const wrapElSticky = document.querySelector('.sales-panel-wrap');
+      const headerWrapElSticky = document.querySelector('.sp-header-wrap');
+      const headerSectionElSticky = document.querySelector('.sp-header-section');
+      const panelElSticky = document.querySelector('.sales-panel');
       const updateStickyRange = () => {
         if (!qlElSticky || !mgrsElSticky || !wrapElSticky) return;
         this.qlNaturalHeight = qlElSticky.getBoundingClientRect().height;
@@ -1268,6 +1326,37 @@ createApp({
         const wrapTop = wrapElSticky.getBoundingClientRect().top + window.scrollY;
         const mgrsBottom = mgrsElSticky.getBoundingClientRect().bottom + window.scrollY;
         this.wrapHeightPx = mgrsBottom - wrapTop;
+        // the header (Продажи + button selector) is a SEPARATE sticky element
+        // with its OWN, much smaller height and a DIFFERENT sticky top offset
+        // (8px) than the main panel (62px) — so it can't reuse the panel's
+        // wrap-height formula directly: that formula is derived FROM the
+        // panel's own height and top offset, and plugging in the header's
+        // numbers there gives a wildly wrong height (verified empirically —
+        // it produced a header wrap 20x too tall, pushing everything below
+        // it far down the page).
+        //
+        // Instead: first solve for the actual release scrollY the PANEL
+        // targets (the scroll position where its sticky bottom edge reaches
+        // managers-section's bottom), then size the header's OWN wrap so
+        // that at that SAME scrollY, the header's OWN sticky bottom edge
+        // reaches the same target — keeping both releases in sync regardless
+        // of how their heights differ.
+        if (headerWrapElSticky && headerSectionElSticky && panelElSticky) {
+          const panelOwnHeight = panelElSticky.getBoundingClientRect().height;
+          const releaseScrollY = mgrsBottom - panelOwnHeight - 62;
+          const headerWrapTop = headerWrapElSticky.getBoundingClientRect().top + window.scrollY;
+          const headerOwnHeight = headerSectionElSticky.getBoundingClientRect().height;
+          this.headerWrapHeightPx = (releaseScrollY - headerWrapTop) + headerOwnHeight + 8;
+          // header-wrap needs that large height for ITS OWN sticky travel room,
+          // but being a block sibling BEFORE sales-panel-wrap, that same height
+          // otherwise pushes sales-panel-wrap's natural start position down by
+          // the full amount too (verified empirically — it shoved the whole
+          // Общие/Корпус/etc block hundreds of px down the page). A negative
+          // bottom margin "gives back" exactly the extra height beyond what
+          // the header visually needs, without affecting header-wrap's OWN
+          // height (which sticky positioning still depends on).
+          this.headerWrapPullUpPx = this.headerWrapHeightPx - headerOwnHeight;
+        }
       };
       updateStickyRange();
       window.addEventListener('resize', updateStickyRange);
@@ -1346,13 +1435,25 @@ createApp({
       const sold = APARTMENTS.filter(a => this.aptState(a) === 'closed').length;
       return Math.round(sold / APARTMENTS.length * 100);
     },
+    overallStats() {
+      return this.liveBucketStats(APARTMENTS.filter(a => this.matchesFilters(a)));
+    },
+    overallMetricRow() {
+      // "Общие" is a single row, not a list — so unlike the category
+      // breakdowns, there's no sibling max to normalize against for the
+      // absolute metrics. Bar width is just this value's own share of its
+      // total, which conveniently is the same shape as percent mode for all
+      // four metrics.
+      const s = this.overallStats;
+      const mode = this.sidebarMetric;
+      if (mode === 'units_shtuk') return { display: s.count + '/' + s.total, barPct: s.total ? s.count / s.total * 100 : 0 };
+      if (mode === 'units_pct') return { display: String(s.pct), barPct: s.pct };
+      if (mode === 'sum_money') return { display: Math.round(s.sumRevenue) + '/' + Math.round(s.sumTotal), barPct: s.sumTotal ? s.sumRevenue / s.sumTotal * 100 : 0 };
+      return { display: String(s.sumPct), barPct: s.sumPct };
+    },
     corpusBreakdown() {
-      const buckets = {};
-      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'corpus')).forEach(a => {
-        if (!buckets[a.corpus]) buckets[a.corpus] = { total: 0, sold: 0 };
-        buckets[a.corpus].total++;
-        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.corpus].sold++;
-      });
+      const groups = { 'ГП1': [], 'ГП2': [], 'ГП3': [], 'ГП4': [] };
+      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'corpus')).forEach(a => { groups[a.corpus].push(a); });
       // if the user picked specific ГП4 sub-groups (А/Б/В) rather than the
       // literal "ГП4", the ГП4 row itself should reflect THAT narrower
       // selection — otherwise it stays highlighted as active (via the
@@ -1360,71 +1461,60 @@ createApp({
       // which looks like it silently ignored the actual click
       const gp4Subs = this.activeCorpus.filter(c => c.startsWith('ГП4-'));
       if (gp4Subs.length) {
-        const subBucket = { total: 0, sold: 0 };
-        APARTMENTS.filter(a => a.corpus === 'ГП4' && gp4Subs.includes(a.group) && this.matchesFiltersExcept(a, 'corpus')).forEach(a => {
-          subBucket.total++;
-          if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) subBucket.sold++;
-        });
-        // only replace the bucket if it actually has matches — an empty object
-        // is still truthy in JS, so leaving it assigned unconditionally made the
-        // later "b ? sold/total : 0" check treat a genuine 0/0 as "has data",
-        // computing NaN% instead of correctly falling through to muted/0%
-        if (subBucket.total > 0) buckets['ГП4'] = subBucket;
-        else delete buckets['ГП4'];
+        groups['ГП4'] = APARTMENTS.filter(a => a.corpus === 'ГП4' && gp4Subs.includes(a.group) && this.matchesFiltersExcept(a, 'corpus'));
       }
       // every category always renders in its usual place — if the current filter
-      // combination leaves it with zero matches, it's muted instead of removed
+      // combination leaves it with zero matches, OR a sibling in this same
+      // multi-select category was clicked instead, it's muted and falls back to
+      // showing its normal (unfiltered) numbers instead of an alarming zero
       return ['ГП1', 'ГП2', 'ГП3', 'ГП4'].map(c => {
-        const b = buckets[c];
-        return { label: c, value: c, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+        const stats = this.liveBucketStats(groups[c]);
+        const isActive = this.activeCorpus.includes(c) || this.activeCorpus.some(x => x.startsWith(c + '-'));
+        const clickMuted = this.activeCorpus.length > 0 && !isActive;
+        const muted = stats.total === 0 || (this.selectedManager && stats.count === 0) || clickMuted;
+        return { label: c, value: c, stats, defaultStats: DEFAULT_BY_CORPUS[c], muted };
       });
     },
     gp4SubBreakdown() {
-      const buckets = {};
-      APARTMENTS.filter(a => a.corpus === 'ГП4' && this.matchesFiltersExcept(a, 'corpus')).forEach(a => {
-        if (!buckets[a.group]) buckets[a.group] = { total: 0, sold: 0 };
-        buckets[a.group].total++;
-        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.group].sold++;
-      });
+      const groups = { 'ГП4-А': [], 'ГП4-Б': [], 'ГП4-В': [] };
+      APARTMENTS.filter(a => a.corpus === 'ГП4' && this.matchesFiltersExcept(a, 'corpus')).forEach(a => { groups[a.group].push(a); });
       return ['ГП4-А', 'ГП4-Б', 'ГП4-В'].map(g => {
-        const b = buckets[g];
-        return { label: g.split('-')[1], value: g, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+        const stats = this.liveBucketStats(groups[g]);
+        const clickMuted = this.activeCorpus.length > 0 && !this.activeCorpus.includes(g);
+        const muted = stats.total === 0 || (this.selectedManager && stats.count === 0) || clickMuted;
+        return { label: g.split('-')[1], value: g, stats, defaultStats: DEFAULT_BY_GROUP[g], muted };
       });
     },
     roomsBreakdown() {
-      const buckets = {};
-      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'rooms')).forEach(a => {
-        if (!buckets[a.rooms]) buckets[a.rooms] = { total: 0, sold: 0 };
-        buckets[a.rooms].total++;
-        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.rooms].sold++;
-      });
+      const groups = { 1: [], 2: [], 3: [] };
+      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'rooms')).forEach(a => { groups[a.rooms].push(a); });
       return [1, 2, 3].map(r => {
-        const b = buckets[r];
-        return { label: roomsLabel(r), value: r, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+        const stats = this.liveBucketStats(groups[r]);
+        const clickMuted = this.activeRooms.length > 0 && !this.activeRooms.includes(r);
+        const muted = stats.total === 0 || (this.selectedManager && stats.count === 0) || clickMuted;
+        return { label: roomsLabel(r), value: r, stats, defaultStats: DEFAULT_BY_ROOMS[r], muted };
       });
     },
     viewBreakdown() {
-      const buckets = {};
-      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'view')).forEach(a => {
-        if (!buckets[a.view]) buckets[a.view] = { total: 0, sold: 0 };
-        buckets[a.view].total++;
-        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.view].sold++;
-      });
+      const groups = {};
+      VIEW_PRICE_ORDER.forEach(v => { groups[v] = []; });
+      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'view')).forEach(a => { groups[a.view].push(a); });
       return VIEW_PRICE_ORDER.map(v => {
-        const b = buckets[v];
-        return { label: VIEW_SHORT[v], value: v, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+        const stats = this.liveBucketStats(groups[v]);
+        const clickMuted = this.activeView.length > 0 && !this.activeView.includes(v);
+        const muted = stats.total === 0 || (this.selectedManager && stats.count === 0) || clickMuted;
+        return { label: VIEW_SHORT[v], value: v, stats, defaultStats: DEFAULT_BY_VIEW[v], muted };
       });
     },
     floorBreakdown() {
-      const buckets = {};
-      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'floor')).forEach(a => {
-        if (!buckets[a.floor]) buckets[a.floor] = { total: 0, sold: 0 };
-        buckets[a.floor].total++;
-        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) buckets[a.floor].sold++;
-      });
+      const groups = {};
+      FLOOR_ORDER_DESC.forEach(fl => { groups[fl] = []; });
+      APARTMENTS.filter(a => this.matchesFiltersExcept(a, 'floor')).forEach(a => { groups[a.floor].push(a); });
       return [...FLOOR_ORDER_DESC].reverse().map(fl => {
-        const b = buckets[fl];
-        return { label: fl + ' этаж', value: fl, pct: b ? Math.round(b.sold / b.total * 100) : 0, muted: !b || (this.selectedManager && b.sold === 0) };
+        const stats = this.liveBucketStats(groups[fl]);
+        const clickMuted = this.activeFloors.length > 0 && !this.activeFloors.includes(fl);
+        const muted = stats.total === 0 || (this.selectedManager && stats.count === 0) || clickMuted || (this.gp4GroupActive && fl > 10);
+        return { label: fl + ' этаж', value: fl, stats, defaultStats: DEFAULT_BY_FLOOR[fl], muted };
       });
     },
     roomLanes() { return ROOM_LANES_STATIC; },
@@ -1856,6 +1946,54 @@ createApp({
       if (this.hoverManagerFilter && apt.manager !== this.hoverManagerFilter) return false;
       return true;
     },
+    liveBucketStats(items) {
+      // reactive counterpart to the static bucketStats() helper — respects the
+      // current playback date (aptState) and an active manager selection, both
+      // of which the static defaults deliberately ignore
+      const total = items.length;
+      let count = 0, sumRevenue = 0, sumTotal = 0;
+      items.forEach(a => {
+        sumTotal += a.listPrice;
+        if (this.aptState(a) === 'closed' && (!this.selectedManager || a.manager === this.selectedManager)) {
+          count++;
+          sumRevenue += a.price * (1 - a.discPct);
+        }
+      });
+      return {
+        count, total,
+        pct: total ? Math.round(count / total * 100) : 0,
+        sumRevenue, sumTotal,
+        sumPct: sumTotal ? Math.round(sumRevenue / sumTotal * 100) : 0
+      };
+    },
+    metricRows(breakdown) {
+      // turns a breakdown array (each row already carrying .stats/.defaultStats)
+      // into render-ready rows for whatever metric is currently selected: picks
+      // the right number and formats its display string. The bar width is
+      // ALWAYS this row's own share of its own total (count/total, or
+      // sumRevenue/sumTotal) — same meaning as percent mode — regardless of
+      // which metric is being DISPLAYED as text. An earlier version normalized
+      // шт./сумма bars against the max value among sibling rows instead, which
+      // made a row's bar look 100% full just for being the largest in the
+      // list, even when its own sell-through was nowhere near complete.
+      // Muted rows fall back to their DEFAULT (unfiltered) numbers instead of
+      // showing an alarming zero.
+      const mode = this.sidebarMetric;
+      return breakdown.map(row => {
+        const s = row.muted ? row.defaultStats : row.stats;
+        const v = mode === 'units_shtuk' ? s.count : mode === 'units_pct' ? s.pct : mode === 'sum_money' ? s.sumRevenue : s.sumPct;
+        const barPct = (mode === 'units_shtuk' || mode === 'units_pct')
+          ? s.pct
+          : s.sumPct;
+        // compact "X/Y" on one line, whole numbers only — "X из Y" with decimals
+        // wrapped to two lines in the narrow sidebar column, puffing up every
+        // row's height; the % modes don't need a unit suffix at all since the
+        // selector above already states the mode
+        const display = mode === 'sum_money' ? Math.round(v) + '/' + Math.round(s.sumTotal)
+          : (mode === 'units_shtuk' ? v + '/' + s.total : String(v));
+        return { ...row, displayValue: display, barPct };
+      });
+    },
     matchesFiltersExcept(apt, dim) {
       // same as matchesFilters, but skips one facet's OWN filter — used so a
       // sidebar section's own breakdown reflects filters chosen elsewhere
@@ -1938,6 +2076,20 @@ createApp({
 
     toggleManager(m) {
       this.selectedManager = this.selectedManager === m ? null : m;
+    },
+    hoverManagerChartMove(evt, m) {
+      // .manager-chart-tiles is width:100% (needed so each tile's own
+      // percentage-based width — set relative to MAX_MANAGER_TOTAL — renders
+      // correctly), but that leaves genuinely empty space to the right for any
+      // manager whose deals don't fill the whole row. Check the cursor's
+      // actual position against the LAST tile's own right edge (not the
+      // full-width wrapper's box, which would just span the whole row too),
+      // and only treat it as "hovering this manager" within that real,
+      // content-based boundary.
+      const tiles = evt.currentTarget.querySelectorAll('.m-tile');
+      if (!tiles.length) { this.hoverManagerFilter = null; return; }
+      const lastTileRight = tiles[tiles.length - 1].getBoundingClientRect().right;
+      this.hoverManagerFilter = (evt.clientX <= lastTileRight) ? m : null;
     },
     pickTile(id) {
       this.selectedId = this.selectedId === id ? null : id;
