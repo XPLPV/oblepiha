@@ -1275,9 +1275,38 @@ createApp({
     };
   },
 
+  watch: {
+    // extra safety net alongside the ResizeObserver: these three are the
+    // interactions most likely to happen live during a demo/recording and
+    // most likely to (very subtly) shift row heights without necessarily
+    // changing quarters-left's OUTER bounding box enough for the observer's
+    // own threshold to fire — cheap to re-check, so just always do it.
+    currentDateStr() { this.$nextTick(() => this.stabilizeGp4Offset()); },
+    activeCorpus() { this.$nextTick(() => this.stabilizeGp4Offset()); },
+    selectedManager() { this.$nextTick(() => this.stabilizeGp4Offset()); }
+  },
+
   mounted() {
     this.stabilizeGp4Offset();
     window.addEventListener('resize', () => this.stabilizeGp4Offset());
+    // window resize alone isn't enough — the measurement can also drift from
+    // late web-font loading, filter/date-slider driven layout shifts, or a
+    // recording tool nudging the window at an inopportune moment mid-render.
+    // A ResizeObserver on the actual shahmatka container catches ANY of those
+    // causes automatically (whatever the source, if this element's box
+    // changes size, we just re-measure) instead of relying on one browser-
+    // level event that may or may not fire at the right time.
+    this.$nextTick(() => {
+      const shahmatkaEl = document.querySelector('.quarters-left');
+      if (shahmatkaEl && window.ResizeObserver) {
+        let debounceHandle = null;
+        const roGp4 = new ResizeObserver(() => {
+          clearTimeout(debounceHandle);
+          debounceHandle = setTimeout(() => this.stabilizeGp4Offset(), 50);
+        });
+        roGp4.observe(shahmatkaEl);
+      }
+    });
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.period-select-wrap')) this.openDropdown = null;
     });
